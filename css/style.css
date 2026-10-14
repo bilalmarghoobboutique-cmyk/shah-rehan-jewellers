@@ -857,4 +857,19 @@ body {
   .modal-grid { grid-template-columns: 1fr; padding: 20px; }
   .modal-buttons { grid-template-columns: 1fr; }
   .modal-content { max-height: 100vh; border-radius: 0; }
+}/* ===== VIDEO PLACEHOLDER ===== */
+.video-placeholder-bg {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 30% 40%, rgba(255,215,0,0.35), transparent 55%),
+    radial-gradient(circle at 70% 60%, rgba(201,162,39,0.35), transparent 55%),
+    radial-gradient(circle at 50% 80%, rgba(107,15,26,0.4), transparent 60%),
+    linear-gradient(135deg, #1A1A1A, #0A0A0A);
+  animation: shimmer 10s ease-in-out infinite alternate;
+}
+
+@keyframes shimmer {
+  0% { background-position: 0% 0%, 100% 100%, 50% 50%; }
+  100% { background-position: 100% 100%, 0% 0%, 50% 50%; }
 }

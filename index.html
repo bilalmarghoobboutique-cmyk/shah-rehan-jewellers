@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:,">
 </head>
 <body>
 
@@ -32,15 +33,19 @@
         <a href="about.html" class="nav-link">About</a>
         <a href="contact.html" class="nav-link">Contact</a>
       </nav>
-      <a href="https://wa.me/923266501314" class="whatsapp-btn">WhatsApp</a>
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <a href="cart.html" style="position: relative; color: #FFD700; font-size: 1.5rem; text-decoration: none;">
+          🛒
+          <span id="cartCount" style="position: absolute; top: -8px; right: -10px; background: #DC2626; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 50px; font-weight: 700;">0</span>
+        </a>
+        <a href="https://wa.me/923266501314" class="whatsapp-btn">WhatsApp</a>
+      </div>
     </div>
   </header>
 
   <!-- VIDEO HERO -->
   <section class="video-hero">
-    <video autoplay muted loop playsinline preload="auto" poster="images/video-poster.jpg">
-      <source src="videos/shah-rehan-model.mp4" type="video/mp4">
-    </video>
+    <div class="video-placeholder-bg"></div>
     <div class="video-overlay"></div>
     <div class="watermark">SHAH REHAN JEWELLERS</div>
     

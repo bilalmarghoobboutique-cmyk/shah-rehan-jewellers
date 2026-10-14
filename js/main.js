@@ -142,6 +142,13 @@ function updateUsdRate() {
   }
 }
 
+// ===== UPDATE CART COUNT =====
+function updateCartCount() {
+  const cartData = JSON.parse(localStorage.getItem('srj_cart') || '[]');
+  const el = document.getElementById('cartCount');
+  if (el) el.textContent = cartData.length;
+}
+
 // =====================================================
 // PRODUCT SYSTEM
 // =====================================================
@@ -322,6 +329,7 @@ function addToCart() {
   
   cart.push(cartItem);
   localStorage.setItem('srj_cart', JSON.stringify(cart));
+  updateCartCount();
   
   alert('✅ Added to cart!\n\nItems in cart: ' + cart.length);
   closeProductModal();
@@ -356,5 +364,6 @@ document.addEventListener('DOMContentLoaded', () => {
   renderSilverRates();
   updateUsdRate();
   loadProducts();
+  updateCartCount();
   console.log('SHAH REHAN JEWELLERS Loaded ✅');
 });

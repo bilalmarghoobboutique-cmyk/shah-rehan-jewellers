@@ -683,4 +683,325 @@ body {
     border-radius: 0;
   }
 >>>>>>> 420c5e4507453c2a8f5805f1f1f5a582d6459169
+}/* ===== PRODUCTS SECTION ===== */
+.products-section {
+  padding: 80px 0;
+  background: var(--black-royal);
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 25px;
+  margin-top: 40px;
+}
+
+.product-card {
+  background: var(--charcoal);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  position: relative;
+}
+
+.product-card:hover {
+  transform: translateY(-8px);
+  border-color: var(--gold-primary);
+  box-shadow: 0 15px 50px rgba(255, 215, 0, 0.3);
+}
+
+.product-card img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.product-card:hover img {
+  transform: scale(1.1);
+}
+
+.product-info {
+  padding: 18px;
+}
+
+.product-info h3 {
+  font-family: 'Playfair Display', serif;
+  color: var(--gold-primary);
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.product-info .price {
+  color: var(--text-light);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.product-info .category-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  color: var(--gold-primary);
+  border: 1px solid var(--gold-primary);
+  padding: 3px 10px;
+  border-radius: 50px;
+  margin-bottom: 10px;
+}
+
+.loading-spinner {
+  text-align: center;
+  padding: 60px;
+  color: var(--gold-primary);
+  font-size: 1.2rem;
+  grid-column: 1 / -1;
+}
+
+/* ===== PRODUCT MODAL ===== */
+.product-modal {
+  background: var(--black-soft);
+  max-width: 1100px;
+  width: 95%;
+  padding: 0;
+  border: 2px solid var(--gold-primary);
+  border-radius: 20px;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: var(--gold-primary);
+  color: var(--black-royal);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+  transform: rotate(90deg);
+  background: #FFF8DC;
+}
+
+.modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  padding: 30px;
+}
+
+.modal-left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-image {
+  width: 100%;
+  max-height: 500px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.modal-right {
+  padding: 10px;
+}
+
+.modal-title {
+  font-size: 0.85rem;
+  color: var(--gold-primary);
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+
+.product-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  color: var(--gold-shine);
+  margin-bottom: 5px;
+}
+
+.product-code {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-bottom: 15px;
+}
+
+.product-description {
+  color: var(--text-light);
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  color: var(--gold-primary);
+  font-size: 1rem;
+  margin-bottom: 10px;
+}
+
+.karat-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.karat-option {
+  background: var(--black-royal);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: var(--text-light);
+  cursor: pointer;
+  text-align: center;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.karat-option:hover {
+  border-color: var(--gold-primary);
+}
+
+.karat-option input {
+  display: none;
+}
+
+.karat-option:has(input:checked) {
+  background: var(--gold-primary);
+  color: var(--black-royal);
+  font-weight: 700;
+  border-color: var(--gold-primary);
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 15px;
+  background: var(--black-royal);
+  border: 1px solid rgba(255, 215, 0, 0.3);
+  border-radius: 8px;
+  color: var(--text-light);
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--gold-primary);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.weight-input-group {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 10px;
+}
+
+.btn-calculate {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  border: 2px solid var(--gold-primary);
+  color: var(--gold-primary);
+  border-radius: 50px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 15px;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.btn-calculate:hover {
+  background: var(--gold-primary);
+  color: var(--black-royal);
+}
+
+.price-breakdown {
+  background: var(--black-royal);
+  border: 1px solid rgba(255, 215, 0, 0.2);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  color: var(--text-light);
+  font-size: 0.9rem;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+}
+
+.price-row.total-row {
+  border-top: 2px solid var(--gold-primary);
+  border-bottom: none;
+  margin-top: 8px;
+  padding-top: 10px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gold-primary);
+}
+
+.modal-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.btn-whatsapp {
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  color: white;
+  padding: 14px;
+  border: none;
+  border-radius: 50px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.btn-whatsapp:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(37, 211, 102, 0.5);
+}
+
+.urdu-tagline {
+  text-align: center;
+  color: var(--gold-primary);
+  font-size: 0.95rem;
+  margin-top: 15px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .modal-grid {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
+  
+  .karat-options {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .modal-buttons {
+    grid-template-columns: 1fr;
+  }
 }

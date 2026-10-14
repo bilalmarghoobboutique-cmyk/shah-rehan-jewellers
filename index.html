@@ -15,6 +15,7 @@
   
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/style.css">
+<script src="js/supabase.js"></script>
 </head>
 <body>
 
@@ -163,6 +164,10 @@
   </a>
 
   <script src="js/main.js"></script>
+
+<script src="js/supabase.js"></script>
+<script src="js/main.js"></script>
+
 </body>
 =======
 <!DOCTYPE html>
@@ -288,6 +293,98 @@
       </a>
     </div>
   </section>
+
+  <!-- PRODUCTS SECTION -->
+<section class="products-section">
+  <div class="container mx-auto px-4">
+    <h2 class="section-title">Featured Products</h2>
+    <p class="section-subtitle-urdu" dir="rtl">ہماری منتخب مصنوعات</p>
+    
+    <div id="productsGrid" class="products-grid">
+      <div class="loading-spinner">Loading products...</div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT POPUP MODAL -->
+<div id="productModal" class="modal-overlay">
+  <div class="modal-content product-modal">
+    <button class="modal-close" onclick="closeProductModal()">×</button>
+    
+    <div class="modal-grid">
+      <!-- LEFT: IMAGE -->
+      <div class="modal-left">
+        <img id="modalImage" src="" alt="Product" class="modal-image">
+      </div>
+      
+      <!-- RIGHT: DETAILS -->
+      <div class="modal-right">
+        <h2 class="modal-title">SHAH REHAN JEWELLERS</h2>
+        <h3 id="modalProductName" class="product-name"></h3>
+        <p id="modalProductCode" class="product-code"></p>
+        <p id="modalDescription" class="product-description"></p>
+        
+        <!-- KARAT SELECTOR -->
+        <div id="karatSection" class="form-group">
+          <label class="form-label urdu" dir="rtl">آپ کس کیرٹ میں بنوانا چاہتے ہیں؟</label>
+          <div class="karat-options">
+            <label class="karat-option"><input type="radio" name="karat" value="24K" checked> 24K</label>
+            <label class="karat-option"><input type="radio" name="karat" value="22K"> 22K</label>
+            <label class="karat-option"><input type="radio" name="karat" value="21K"> 21K</label>
+            <label class="karat-option"><input type="radio" name="karat" value="18K"> 18K</label>
+            <label class="karat-option"><input type="radio" name="karat" value="16K"> 16K</label>
+            <label class="karat-option"><input type="radio" name="karat" value="14K"> 14K</label>
+            <label class="karat-option"><input type="radio" name="karat" value="12K"> 12K</label>
+            <label class="karat-option"><input type="radio" name="karat" value="10K"> 10K</label>
+            <label class="karat-option"><input type="radio" name="karat" value="8K"> 8K</label>
+          </div>
+        </div>
+        
+        <!-- SIZE SELECTOR -->
+        <div class="form-group">
+          <label class="form-label urdu" dir="rtl">آپ کا سائز</label>
+          <select id="modalSize" class="form-input">
+            <option value="">Select Size</option>
+          </select>
+        </div>
+        
+        <!-- WEIGHT INPUT -->
+        <div class="form-group">
+          <label class="form-label urdu" dir="rtl">آپ کا مطلوبہ وزن</label>
+          <div class="weight-input-group">
+            <input type="number" id="modalWeight" class="form-input" placeholder="Enter weight" step="0.1" min="0.1">
+            <select id="modalUnit" class="form-input unit-select">
+              <option value="gram">Gram</option>
+              <option value="tola">Tola</option>
+              <option value="masha">Masha</option>
+              <option value="ratti">Ratti</option>
+            </select>
+          </div>
+        </div>
+        
+        <button onclick="calculatePrice()" class="btn-calculate">Calculate Price</button>
+        
+        <!-- PRICE BREAKDOWN -->
+        <div id="priceBreakdown" class="price-breakdown hidden">
+          <div class="price-row"><span>Rate/gram</span><span id="pRate">Rs 0</span></div>
+          <div class="price-row"><span>Weight</span><span id="pWeight">0 g</span></div>
+          <div class="price-row"><span>Gold Value</span><span id="pGold">Rs 0</span></div>
+          <div class="price-row"><span>Making (15%)</span><span id="pMaking">Rs 0</span></div>
+          <div class="price-row"><span>Polish (10%)</span><span id="pPolish">Rs 0</span></div>
+          <div class="price-row"><span>GST (3%)</span><span id="pGST">Rs 0</span></div>
+          <div class="price-row total-row"><span>TOTAL</span><span id="pTotal">Rs 0</span></div>
+        </div>
+        
+        <div class="modal-buttons">
+          <button onclick="addToCart()" class="btn-gold">Add to Cart</button>
+          <button onclick="whatsappOrder()" class="btn-whatsapp">WhatsApp Order</button>
+        </div>
+        
+        <p class="urdu-tagline urdu" dir="rtl">آپ کا آرڈر رازداری کے ساتھ آپ تک پہنچایا جائے گا</p>
+      </div>
+    </div>
+  </div>
+</div>
 
   <!-- Footer -->
   <footer class="bg-[#1A1A1A] text-white py-12">

@@ -177,7 +177,7 @@ async function loadProducts() {
     
     grid.innerHTML = products.map(p => `
       <div class="product-card" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
-        <img src="${p.image_url || 'images/placeholder.jpg'}" alt="${p.name}" loading="lazy">
+        <img src="${p.image_url || 'images/placeholder.svg'}" alt="${p.name}" loading="lazy" onerror="this.src='images/placeholder.svg'">
         <div class="product-info">
           <span class="category-tag">${p.category}</span>
           <h3>${p.name}</h3>
@@ -195,7 +195,7 @@ async function loadProducts() {
 function openProductModal(product) {
   currentProduct = product;
   
-  document.getElementById('modalImage').src = product.image_url || 'images/placeholder.jpg';
+  document.getElementById('modalImage').src = product.image_url || 'images/placeholder.svg';
   document.getElementById('modalProductName').textContent = product.name;
   document.getElementById('modalProductCode').textContent = `Code: SRJ-${product.id.slice(0, 6).toUpperCase()}`;
   document.getElementById('modalDescription').textContent = product.description || '';

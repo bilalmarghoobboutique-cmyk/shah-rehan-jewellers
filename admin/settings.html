@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings – SHAH REHAN JEWELLERS Admin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <style>
+    body { background: #0A0A0A; color: #FFF8DC; font-family: 'Poppins', sans-serif; }
+    .admin-header { background: #1C1C1C; border-bottom: 2px solid #FFD700; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .admin-logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: #FFD700; font-weight: 700; }
+    .admin-nav { display: flex; gap: 20px; align-items: center; }
+    .admin-nav a { color: #FFF8DC; text-decoration: none; font-size: 0.9rem; }
+    .admin-nav a:hover, .admin-nav a.active { color: #FFD700; }
+    .logout-btn { background: rgba(220,38,38,0.2); color: #FCA5A5; padding: 8px 18px; border-radius: 50px; border: 1px solid #DC2626; cursor: pointer; font-size: 0.85rem; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #FFD700; margin-bottom: 25px; }
+    .settings-card { background: #1C1C1C; border: 1px solid rgba(255,215,0,0.2); border-radius: 16px; padding: 25px; margin-bottom: 20px; }
+    .settings-card h3 { color: #FFD700; font-family: 'Playfair Display', serif; margin-bottom: 20px; font-size: 1.2rem; }
+    .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,215,0,0.1); }
+    .setting-label { color: #FFF8DC; }
+    .setting-value { color: #FFD700; font-weight: 600; }
+    .btn-edit-setting { background: rgba(59,130,246,0.2); color: #93C5FD; border: 1px solid #3B82F6; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+
+  <div class="admin-header">
+    <div class="admin-logo">SHAH REHAN JEWELLERS – Admin</div>
+    <nav class="admin-nav">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="products.html">Products</a>
+      <a href="orders.html">Orders</a>
+      <a href="settings.html" class="active">Settings</a>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </nav>
+  </div>
+
+  <div style="max-width: 900px; margin: 0 auto; padding: 25px;">
+    <h1 class="section-title">Settings</h1>
+    
+    <div class="settings-card">
+      <h3>💰 Charges Configuration</h3>
+      <div class="setting-row">
+        <span class="setting-label">Making Charges</span>
+        <span class="setting-value" id="sMaking">15%</span>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Polish Charges</span>
+        <span class="setting-value" id="sPolish">10%</span>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">GST / Tax</span>
+        <span class="setting-value" id="sGST">3%</span>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Default Advance</span>
+        <span class="setting-value" id="sAdvance">100%</span>
+      </div>
+    </div>
+    
+    <div class="settings-card">
+      <h3>💳 Payment Details</h3>
+      <div class="setting-row">
+        <span class="setting-label">Easypaisa Number</span>
+        <span class="setting-value">03266501314</span>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Account Title</span>
+        <span class="setting-value">Syed Ahmed Bilal</span>
+      </div>
+    </div>
+    
+    <div class="settings-card">
+      <h3>📞 Contact Info</h3>
+      <div class="setting-row">
+        <span class="setting-label">WhatsApp</span>
+        <span class="setting-value">0092 326 6501314</span>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Email</span>
+        <span class="setting-value">shahrehanjewellers@google.com</span>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Address</span>
+        <span class="setting-value">Main Bazar #2, Ghaziabad, Lahore Cantt</span>
+      </div>
+    </div>
+    
+    <div class="settings-card">
+      <h3>🏪 Business Info</h3>
+      <div class="setting-row">
+        <span class="setting-label">Creator</span>
+        <span class="setting-value">Bilal Marghoob Creations</span>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Creator WhatsApp</span>
+        <span class="setting-value">0092 326 69501314</span>
+      </div>
+    </div>
+    
+  </div>
+
+  <script src="../js/supabase.js"></script>
+  <script>
+    function checkAuth() {
+      const session = localStorage.getItem('srj_admin_session');
+      if (!session) { window.location.href = 'login.html'; return; }
+    }
+    function logout() {
+      localStorage.removeItem('srj_admin_session');
+      window.location.href = 'login.html';
+    }
+    document.addEventListener('DOMContentLoaded', checkAuth);
+  </script>
+
+</body>
+</html>

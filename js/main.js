@@ -1,10 +1,9 @@
-// ===== SHAH REHAN JEWELLERS – LIVE RATES SYSTEM =====
+// ===== SHAH REHAN JEWELLERS – MAIN JS =====
 
-// Current rates (14 Oct 2026 – update from API later)
+// Current rates (14 Oct 2026)
 const LIVE_RATES = {
-  usdToPkr: 276.95, // 1 USD = 276.95 PKR [citation:8]
+  usdToPkr: 276.95,
   gold: {
-    // PKR per gram
     '24K': 37793,
     '22K': 34643,
     '21K': 33069,
@@ -19,12 +18,9 @@ const LIVE_RATES = {
     perGram: 570.10,
     per10Gram: 5701,
     perTola: 6651
-  },
-  // International gold price USD per ounce [citation:2][citation:7]
-  internationalGoldUSD: 4153
+  }
 };
 
-// Weight conversions
 const WEIGHT = {
   tola: 11.664,
   masha: 0.972,
@@ -32,18 +28,25 @@ const WEIGHT = {
   gram: 1
 };
 
-// Karat purity
-const PURITY = {
-  '24K': 1.0,
-  '22K': 0.9167,
-  '21K': 0.875,
-  '18K': 0.75,
-  '16K': 0.6667,
-  '14K': 0.5833,
-  '12K': 0.5,
-  '10K': 0.4167,
-  '8K': 0.3333
+const KARAT_PURITY = {
+  '24K': 1.0, '22K': 0.9167, '21K': 0.875, '18K': 0.75,
+  '16K': 0.6667, '14K': 0.5833, '12K': 0.5, '10K': 0.4167, '8K': 0.3333
 };
+
+const BASE_RATE_24K = 37793;
+
+// ===== HELPERS =====
+function getRateForKarat(karat) {
+  return Math.round(BASE_RATE_24K * KARAT_PURITY[karat]);
+}
+
+function toGrams(value, unit) {
+  return value * WEIGHT[unit];
+}
+
+function formatPKR(amount) {
+  return 'Rs ' + Math.round(amount).toLocaleString('en-PK');
+}
 
 // ===== RENDER GOLD RATES =====
 function renderGoldRates() {
@@ -57,7 +60,6 @@ function renderGoldRates() {
     const pkrPerTola = Math.round(pkrPerGram * WEIGHT.tola);
     const pkrPerMasha = Math.round(pkrPerGram * WEIGHT.masha);
     const pkrPerRatti = Math.round(pkrPerGram * WEIGHT.ratti);
-    
     const usdPerGram = (pkrPerGram / LIVE_RATES.usdToPkr).toFixed(2);
     const usdPerTola = (pkrPerTola / LIVE_RATES.usdToPkr).toFixed(2);
     
@@ -99,7 +101,6 @@ function renderSilverRates() {
   if (!container) return;
   
   const silver = LIVE_RATES.silver;
-  
   const usdPerGram = (silver.perGram / LIVE_RATES.usdToPkr).toFixed(2);
   const usdPer10Gram = (silver.per10Gram / LIVE_RATES.usdToPkr).toFixed(2);
   const usdPerTola = (silver.perTola / LIVE_RATES.usdToPkr).toFixed(2);
@@ -107,30 +108,15 @@ function renderSilverRates() {
   container.innerHTML = `
     <div class="silver-card">
       <div class="rate-karat">SILVER</div>
-      <div class="rate-row">
-        <span class="rate-label">Per Gram</span>
-        <span class="rate-value rate-value-pkr">Rs ${silver.perGram}</span>
-      </div>
-      <div class="rate-row">
-        <span class="rate-label">Per 10 Gram</span>
-        <span class="rate-value rate-value-pkr">Rs ${silver.per10Gram.toLocaleString()}</span>
-      </div>
-      <div class="rate-row">
-        <span class="rate-label">Per Tola</span>
-        <span class="rate-value rate-value-pkr">Rs ${silver.perTola.toLocaleString()}</span>
-      </div>
+      <div class="rate-row"><span class="rate-label">Per Gram</span><span class="rate-value rate-value-pkr">Rs ${silver.perGram}</span></div>
+      <div class="rate-row"><span class="rate-label">Per 10 Gram</span><span class="rate-value rate-value-pkr">Rs ${silver.per10Gram.toLocaleString()}</span></div>
+      <div class="rate-row"><span class="rate-label">Per Tola</span><span class="rate-value rate-value-pkr">Rs ${silver.perTola.toLocaleString()}</span></div>
       <div class="rate-row" style="border-top: 1px solid rgba(192,192,192,0.3); margin-top: 8px; padding-top: 8px;">
         <span class="rate-label">USD/Gram</span>
         <span class="rate-value rate-value-usd">$${usdPerGram}</span>
       </div>
-      <div class="rate-row">
-        <span class="rate-label">USD/10 Gram</span>
-        <span class="rate-value rate-value-usd">$${usdPer10Gram}</span>
-      </div>
-      <div class="rate-row">
-        <span class="rate-label">USD/Tola</span>
-        <span class="rate-value rate-value-usd">$${usdPerTola}</span>
-      </div>
+      <div class="rate-row"><span class="rate-label">USD/10 Gram</span><span class="rate-value rate-value-usd">$${usdPer10Gram}</span></div>
+      <div class="rate-row"><span class="rate-label">USD/Tola</span><span class="rate-value rate-value-usd">$${usdPerTola}</span></div>
     </div>
   `;
 }
@@ -149,7 +135,7 @@ function switchRateTab(tab) {
   }
 }
 
-// ===== UPDATE USD RATE DISPLAY =====
+// ===== UPDATE USD RATE =====
 function updateUsdRate() {
   const usdEl = document.getElementById('usdRate');
   if (usdEl) usdEl.textContent = LIVE_RATES.usdToPkr;
@@ -157,35 +143,12 @@ function updateUsdRate() {
   const timeEl = document.getElementById('lastUpdated');
   if (timeEl) {
     const now = new Date();
-    timeEl.textContent = now.toLocaleString('en-PK', { 
-      dateStyle: 'short', 
-      timeStyle: 'short' 
-    });
+    timeEl.textContent = now.toLocaleString('en-PK', { dateStyle: 'short', timeStyle: 'short' });
   }
 }
 
-// ===== SCROLL ANIMATIONS =====
-function initScrollAnimations() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-      }
-    });
-  }, { threshold: 0.1 });
-  
-  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-}
-
-// ===== INIT =====
-document.addEventListener('DOMContentLoaded', () => {
-  renderGoldRates();
-  renderSilverRates();
-  updateUsdRate();
-  initScrollAnimations();
-  console.log('SHAH REHAN JEWELLERS – Royal Theme Loaded ✅');
-});// =====================================================
-// PRODUCT SYSTEM – v2.0
+// =====================================================
+// PRODUCT SYSTEM
 // =====================================================
 
 let currentProduct = null;
@@ -237,11 +200,9 @@ function openProductModal(product) {
   document.getElementById('modalProductCode').textContent = `Code: SRJ-${product.id.slice(0, 6).toUpperCase()}`;
   document.getElementById('modalDescription').textContent = product.description || '';
   
-  // Set size options based on category
   const sizeSelect = document.getElementById('modalSize');
   sizeSelect.innerHTML = '<option value="">Select Size</option>' + getSizeOptions(product.category, product.subcategory);
   
-  // Hide karat if artificial
   const karatSection = document.getElementById('karatSection');
   if (product.category === 'artificial') {
     karatSection.style.display = 'none';
@@ -249,15 +210,11 @@ function openProductModal(product) {
     karatSection.style.display = 'block';
   }
   
-  // Pre-fill weight if available
   if (product.weight) {
     document.getElementById('modalWeight').value = product.weight;
   }
   
-  // Hide price breakdown initially
   document.getElementById('priceBreakdown').classList.add('hidden');
-  
-  // Show modal
   document.getElementById('productModal').classList.add('active');
   document.body.style.overflow = 'hidden';
 }
@@ -269,18 +226,16 @@ function closeProductModal() {
   currentProduct = null;
 }
 
-// Close on outside click
 document.addEventListener('click', (e) => {
   const modal = document.getElementById('productModal');
   if (e.target === modal) closeProductModal();
 });
 
-// Close on ESC
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeProductModal();
 });
 
-// ===== SIZE OPTIONS BY CATEGORY =====
+// ===== SIZE OPTIONS =====
 function getSizeOptions(category, subcategory) {
   const sizes = {
     'Rings': ['10','11','12','13','14','15','16','17','18','19','20'],
@@ -310,14 +265,12 @@ function calculatePrice() {
   
   const weightInGrams = toGrams(weight, unit);
   
-  // Get selected karat
   let karat = '24K';
   const karatInput = document.querySelector('input[name="karat"]:checked');
   if (karatInput && currentProduct.category !== 'artificial') {
     karat = karatInput.value;
   }
   
-  // For artificial – fixed price
   if (currentProduct.category === 'artificial') {
     document.getElementById('pRate').textContent = 'Fixed Price';
     document.getElementById('pWeight').textContent = '—';
@@ -330,7 +283,6 @@ function calculatePrice() {
     return;
   }
   
-  // Calculate for gold/silver/diamond
   const ratePerGram = getRateForKarat(karat);
   const goldValue = ratePerGram * weightInGrams;
   const making = goldValue * 0.15;
@@ -410,5 +362,11 @@ function whatsappOrder() {
   window.open(`https://wa.me/923266501314?text=${message}`, '_blank');
 }
 
-// ===== INIT PRODUCTS =====
-document.addEventListener('DOMContentLoaded', loadProducts);
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  renderGoldRates();
+  renderSilverRates();
+  updateUsdRate();
+  loadProducts();
+  console.log('SHAH REHAN JEWELLERS Loaded ✅');
+});

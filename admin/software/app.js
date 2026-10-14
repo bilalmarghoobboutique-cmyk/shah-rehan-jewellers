@@ -1,4 +1,4 @@
-// ===== SHAH REHAN JEWELLERS – SOFTWARE APP LOGIC =====
+// ===== SHAH REHAN JEWELLERS – SOFTWARE LOGIC =====
 
 function formatPKR(amount) {
   return 'Rs ' + Math.round(amount || 0).toLocaleString('en-PK');
@@ -10,39 +10,61 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('en-PK', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-async function loadDashboardStats() {
+function generateInvoiceNumber() {
+  const now = new Date();
+  const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
+  const random = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+  return `SRJ-${dateStr}-${random}`;
+}
+
+// Navigation helper
+function navigate(page) {
+  window.location.href = page;
+}
+
+// ===== DASHBOARD =====
+async function loadDashboard() {
   try {
     const sales = await getAllRecords('sales') || [];
+    const purchases = await getAllRecords('purchases') || [];
     const customers = await getAllRecords('customers') || [];
     const stock = await getAllRecords('stock') || [];
+    const services = await getAllRecords('services') || [];
     
     const today = new Date().toISOString().slice(0, 10);
-    const todaySales = sales.filter(s => s.date && s.date.startsWith(today))
+    const thisMonth = new Date().toISOString().slice(0, 7);
+    
+    const todaySales = sales.filter(s => s.date?.startsWith(today))
       .reduce((sum, s) => sum + (parseFloat(s.total) || 0), 0);
     
-    const thisMonth = new Date().toISOString().slice(0, 7);
-    const monthSales = sales.filter(s => s.date && s.date.startsWith(thisMonth))
+    const monthSales = sales.filter(s => s.date?.startsWith(thisMonth))
+      .reduce((sum, s) => sum + (parseFloat(s.total) || 0), 0);
+    
+    const monthPurchases = purchases.filter(s => s.date?.startsWith(thisMonth))
       .reduce((sum, s) => sum + (parseFloat(s.total) || 0), 0);
     
     const el = (id) => document.getElementById(id);
     if (el('todaySales')) el('todaySales').textContent = formatPKR(todaySales);
     if (el('monthSales')) el('monthSales').textContent = formatPKR(monthSales);
+    if (el('monthPurchases')) el('monthPurchases').textContent = formatPKR(monthPurchases);
     if (el('totalCustomers')) el('totalCustomers').textContent = customers.length;
     if (el('stockItems')) el('stockItems').textContent = stock.length;
+    if (el('totalServices')) el('totalServices').textContent = services.length;
     
+    // Recent sales
     const recent = sales.slice(-5).reverse();
     const container = el('recentSales');
     if (container) {
       if (recent.length === 0) {
-        container.innerHTML = '<div class="empty-state">No sales yet. Start by adding a sale!</div>';
+        container.innerHTML = '<div class="empty-state"><div class="icon">💰</div><p>No sales yet</p></div>';
       } else {
         container.innerHTML = recent.map(s => `
-          <div class="recent-item">
+          <div class="data-item">
             <div>
-              <strong style="color: #FFD700;">${s.customer_name || 'Walk-in'}</strong>
-              <div style="font-size: 0.8rem; color: #B8B8B8;">${s.items_summary || 'Sale'} • ${formatDate(s.date)}</div>
+              <div class="data-item-title">${s.customer_name || 'Walk-in'}</div>
+              <div class="data-item-sub">${s.items_summary || 'Sale'} • ${formatDate(s.date)}</div>
             </div>
-            <div style="color: #FFD700; font-weight: 700;">${formatPKR(s.total)}</div>
+            <div class="data-item-value">${formatPKR(s.total)}</div>
           </div>
         `).join('');
       }
@@ -52,29 +74,10 @@ async function loadDashboardStats() {
   }
 }
 
-// ===== SYNC TO CLOUD (optional) =====
-async function syncToCloud() {
-  if (!navigator.onLine) return;
-  try {
-    const sales = await getAllRecords('sales') || [];
-    const unsynced = sales.filter(s => !s.synced);
-    for (const sale of unsynced) {
-      sale.synced = true;
-      await updateRecord('sales', sale);
-    }
-    if (unsynced.length > 0) {
-      console.log(`✅ Synced ${unsynced.length} items`);
-    }
-  } catch (error) {
-    console.error('Sync failed:', error);
-  }
-}
-
 document.addEventListener('DOMContentLoaded', async () => {
   await initDB();
-  await loadDashboardStats();
-  setInterval(() => {
-    if (navigator.onLine) syncToCloud();
-  }, 30000);
+  if (document.getElementById('todaySales')) {
+    await loadDashboard();
+  }
   console.log('✅ Software loaded');
 });

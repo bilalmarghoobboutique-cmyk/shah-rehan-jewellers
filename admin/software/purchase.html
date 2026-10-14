@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Purchase – SRJ Software</title>
+  <link rel="manifest" href="manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style-software.css">
+</head>
+<body>
+
+  <div class="sw-header">
+    <div class="sw-logo">🛒 Purchase</div>
+    <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-family: 'Poppins', sans-serif;">← Back</button>
+  </div>
+
+  <div class="sw-nav">
+    <button class="nav-btn" onclick="navigate('index.html')">🏠 Dashboard</button>
+    <button class="nav-btn active">🛒 Purchase</button>
+    <button class="nav-btn" onclick="navigate('services.html')">🔧 Services</button>
+    <button class="nav-btn" onclick="navigate('store.html')">🏪 Store</button>
+    <button class="nav-btn" onclick="navigate('sales.html')">💰 Sales</button>
+    <button class="nav-btn" onclick="navigate('customers.html')">👥 Customers</button>
+    <button class="nav-btn" onclick="navigate('reports.html')">📊 Reports</button>
+    <button class="nav-btn" onclick="navigate('settings.html')">⚙️ Settings</button>
+  </div>
+
+  <div class="sw-content">
+    <h1 class="page-title">Purchase Entry</h1>
+    <p class="page-subtitle">Record new purchases from suppliers</p>
+
+    <div class="category-tabs">
+      <button class="cat-tab gold active" onclick="switchCategory('gold', this)">👑 Gold</button>
+      <button class="cat-tab silver" onclick="switchCategory('silver', this)">💍 Silver</button>
+      <button class="cat-tab diamond" onclick="switchCategory('diamond', this)">💎 Diamond</button>
+      <button class="cat-tab artificial" onclick="switchCategory('artificial', this)">✨ Artificial</button>
+    </div>
+
+    <div class="form-card">
+      <h3 class="form-card-title" id="formTitle">👑 Gold Purchase Details</h3>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Supplier Name *</label>
+          <input type="text" id="pSupplier" class="form-input" placeholder="Enter supplier name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Invoice/Bill #</label>
+          <input type="text" id="pInvoice" class="form-input" placeholder="Supplier bill no.">
+        </div>
+      </div>
+
+      <div class="form-row" id="karatRow">
+        <div class="form-group">
+          <label class="form-label">Karat</label>
+          <select id="pKarat" class="form-select">
+            <option value="24K">24K</option>
+            <option value="22K" selected>22K</option>
+            <option value="21K">21K</option>
+            <option value="18K">18K</option>
+            <option value="16K">16K</option>
+            <option value="14K">14K</option>
+            <option value="12K">12K</option>
+            <option value="10K">10K</option>
+            <option value="8K">8K</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Item Description *</label>
+          <input type="text" id="pItem" class="form-input" placeholder="e.g., Gold Necklace Set">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Weight (grams) *</label>
+          <input type="number" id="pWeight" class="form-input" step="0.001" placeholder="0.000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Rate/gram (Rs) *</label>
+          <input type="number" id="pRate" class="form-input" placeholder="0">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Total Cost (Rs) *</label>
+          <input type="number" id="pTotal" class="form-input" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Mode</label>
+          <select id="pPayment" class="form-select">
+            <option value="cash">Cash</option>
+            <option value="easypaisa">Easypaisa</option>
+            <option value="bank">Bank Transfer</option>
+            <option value="credit">Credit (Udhaar)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <input type="text" id="pNotes" class="form-input" placeholder="Any additional notes">
+      </div>
+
+      <button class="btn-primary" onclick="savePurchase()" style="width: 100%; margin-top: 10px;">💾 Save Purchase</button>
+    </div>
+
+    <h2 class="section-title">📋 Recent Purchases</h2>
+    <div class="data-list" id="purchasesList">
+      <div class="empty-state">
+        <div class="icon">🛒</div>
+        <p>No purchases yet</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="db.js"></script>
+  <script src="app.js"></script>
+  <script>
+    let currentCategory = 'gold';
+
+    function switchCategory(cat, btn) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+
+      const titles = {
+        gold: '👑 Gold Purchase Details',
+        silver: '💍 Silver Purchase Details',
+        diamond: '💎 Diamond Purchase Details',
+        artificial: '✨ Artificial Purchase Details'
+      };
+      document.getElementById('formTitle').textContent = titles[cat];
+
+      // Hide karat for silver & artificial
+      const karatRow = document.getElementById('karatRow');
+      if (cat === 'silver' || cat === 'artificial') {
+        document.getElementById('pKarat').value = '';
+        karatRow.querySelector('.form-group').style.display = 'none';
+      } else {
+        karatRow.querySelector('.form-group').style.display = 'block';
+      }
+    }
+
+    function autoCalc() {
+      const weight = parseFloat(document.getElementById('pWeight').value) || 0;
+      const rate = parseFloat(document.getElementById('pRate').value) || 0;
+      document.getElementById('pTotal').value = Math.round(weight * rate);
+    }
+
+    ['pWeight', 'pRate'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', autoCalc);
+    });
+
+    async function savePurchase() {
+      const supplier = document.getElementById('pSupplier').value.trim();
+      const item = document.getElementById('pItem').value.trim();
+      const weight = parseFloat(document.getElementById('pWeight').value) || 0;
+      const rate = parseFloat(document.getElementById('pRate').value) || 0;
+      const total = parseFloat(document.getElementById('pTotal').value) || 0;
+
+      if (!supplier || !item || total <= 0) {
+        alert('❌ Please fill all required fields');
+        return;
+      }
+
+      const purchase = {
+        category: currentCategory,
+        supplier: supplier,
+        invoice_no: document.getElementById('pInvoice').value.trim(),
+        karat: document.getElementById('pKarat').value,
+        item: item,
+        weight: weight,
+        rate: rate,
+        total: total,
+        payment_mode: document.getElementById('pPayment').value,
+        notes: document.getElementById('pNotes').value.trim(),
+        date: new Date().toISOString()
+      };
+
+      try {
+        await addRecord('purchases', purchase);
+        alert('✅ Purchase saved!');
+        clearForm();
+        loadPurchases();
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+      }
+    }
+
+    function clearForm() {
+      ['pSupplier', 'pInvoice', 'pItem', 'pWeight', 'pRate', 'pTotal', 'pNotes'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+    }
+
+    async function loadPurchases() {
+      const purchases = await getAllRecords('purchases') || [];
+      const container = document.getElementById('purchasesList');
+
+      if (purchases.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="icon">🛒</div><p>No purchases yet</p></div>';
+        return;
+      }
+
+      container.innerHTML = purchases.slice(-20).reverse().map(p => `
+        <div class="data-item">
+          <div>
+            <div class="data-item-title">${p.item} (${p.karat || p.category})</div>
+            <div class="data-item-sub">${p.supplier} • ${p.weight}g @ Rs ${p.rate} • ${formatDate(p.date)}</div>
+          </div>
+          <div class="data-item-value">${formatPKR(p.total)}</div>
+        </div>
+      `).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initDB();
+      loadPurchases();
+    });
+  </script>
+
+</body>
+</html>

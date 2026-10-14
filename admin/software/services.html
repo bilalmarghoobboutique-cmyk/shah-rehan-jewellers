@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Services – SRJ Software</title>
+  <link rel="manifest" href="manifest.json">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style-software.css">
+</head>
+<body>
+
+  <div class="sw-header">
+    <div class="sw-logo">🔧 Karigar Services</div>
+    <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-family: 'Poppins', sans-serif;">← Back</button>
+  </div>
+
+  <div class="sw-nav">
+    <button class="nav-btn" onclick="navigate('index.html')">🏠 Dashboard</button>
+    <button class="nav-btn" onclick="navigate('purchase.html')">🛒 Purchase</button>
+    <button class="nav-btn active">🔧 Services</button>
+    <button class="nav-btn" onclick="navigate('store.html')">🏪 Store</button>
+    <button class="nav-btn" onclick="navigate('sales.html')">💰 Sales</button>
+    <button class="nav-btn" onclick="navigate('customers.html')">👥 Customers</button>
+    <button class="nav-btn" onclick="navigate('reports.html')">📊 Reports</button>
+    <button class="nav-btn" onclick="navigate('settings.html')">⚙️ Settings</button>
+  </div>
+
+  <div class="sw-content">
+    <h1 class="page-title">Karigar Services</h1>
+    <p class="page-subtitle">Track jewelry making, repair, and other services</p>
+
+    <div class="form-card">
+      <h3 class="form-card-title">🔧 Add Service Entry</h3>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Karigar Name *</label>
+          <input type="text" id="sKarigar" class="form-input" placeholder="Enter karigar name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Service Type</label>
+          <select id="sType" class="form-select">
+            <option value="making">Jewelry Making (Banwana)</option>
+            <option value="repair">Repair (Maramat)</option>
+            <option value="polish">Polish</option>
+            <option value="setting">Stone Setting</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Item Description *</label>
+          <input type="text" id="sItem" class="form-input" placeholder="e.g., Gold Ring 22K">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Gold Given (grams)</label>
+          <input type="number" id="sGoldGiven" class="form-input" step="0.001" placeholder="0.000">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Gold Returned (grams)</label>
+          <input type="number" id="sGoldReturned" class="form-input" step="0.001" placeholder="0.000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Service Charges (Rs)</label>
+          <input type="number" id="sCharges" class="form-input" placeholder="0">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Expected Delivery</label>
+          <input type="date" id="sDelivery" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select id="sStatus" class="form-select">
+            <option value="pending">Pending</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="delivered">Delivered</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="saveService()" style="width: 100%;">💾 Save Service</button>
+    </div>
+
+    <h2 class="section-title">📋 Service Records</h2>
+    <div class="data-list" id="servicesList">
+      <div class="empty-state">
+        <div class="icon">🔧</div>
+        <p>No services yet</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="db.js"></script>
+  <script src="app.js"></script>
+  <script>
+    async function saveService() {
+      const karigar = document.getElementById('sKarigar').value.trim();
+      const item = document.getElementById('sItem').value.trim();
+
+      if (!karigar || !item) {
+        alert('❌ Please fill required fields');
+        return;
+      }
+
+      const service = {
+        karigar: karigar,
+        type: document.getElementById('sType').value,
+        item: item,
+        gold_given: parseFloat(document.getElementById('sGoldGiven').value) || 0,
+        gold_returned: parseFloat(document.getElementById('sGoldReturned').value) || 0,
+        charges: parseFloat(document.getElementById('sCharges').value) || 0,
+        delivery: document.getElementById('sDelivery').value,
+        status: document.getElementById('sStatus').value,
+        date: new Date().toISOString()
+      };
+
+      try {
+        await addRecord('services', service);
+        alert('✅ Service saved!');
+        clearForm();
+        loadServices();
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+      }
+    }
+
+    function clearForm() {
+      ['sKarigar', 'sItem', 'sGoldGiven', 'sGoldReturned', 'sCharges', 'sDelivery'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+    }
+
+    async function loadServices() {
+      const services = await getAllRecords('services') || [];
+      const container = document.getElementById('servicesList');
+
+      if (services.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="icon">🔧</div><p>No services yet</p></div>';
+        return;
+      }
+
+      container.innerHTML = services.slice(-20).reverse().map(s => {
+        const statusColors = {
+          'pending': '#FCD34D',
+          'in-progress': '#93C5FD',
+          'completed': '#86EFAC',
+          'delivered': '#4ADE80'
+        };
+        return `
+          <div class="data-item">
+            <div>
+              <div class="data-item-title">${s.item}</div>
+              <div class="data-item-sub">
+                Karigar: ${s.karigar} • ${s.type} • 
+                <span style="color: ${statusColors[s.status] || '#FCD34D'}">${s.status.toUpperCase()}</span>
+              </div>
+              ${s.gold_given > 0 ? `<div class="data-item-sub">Gold: ${s.gold_given}g → ${s.gold_returned || 0}g</div>` : ''}
+            </div>
+            <div style="text-align: right;">
+              <div class="data-item-value">${formatPKR(s.charges)}</div>
+              <div class="data-item-sub">${formatDate(s.date)}</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initDB();
+      loadServices();
+    });
+  </script>
+
+</body>
+</html>

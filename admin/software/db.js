@@ -1,7 +1,7 @@
 // ===== SHAH REHAN JEWELLERS – OFFLINE DATABASE =====
 
 const DB_NAME = 'srj_jeweller_db';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 
 let db = null;
 
@@ -12,7 +12,11 @@ async function initDB() {
     request.onupgradeneeded = (event) => {
       const database = event.target.result;
       
-      const stores = ['sales', 'purchases', 'services', 'stock', 'customers', 'suppliers', 'expenses', 'invoices', 'karigars'];
+      const stores = [
+        'sales', 'purchases', 'services', 'stock',
+        'customers', 'suppliers', 'expenses', 'invoices',
+        'karigars', 'old_gold', 'supplier_payments', 'karigar_payments'
+      ];
       
       stores.forEach(store => {
         if (!database.objectStoreNames.contains(store)) {
@@ -82,5 +86,15 @@ function clearStore(storeName) {
     const request = store.clear();
     request.onsuccess = () => resolve();
     request.onerror = () => reject(request.error);
+  });
+}
+
+// Image to base64 helper
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
   });
 }

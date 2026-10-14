@@ -3,113 +3,458 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#FFD700">
   <title>Customers – SRJ Software</title>
   <link rel="manifest" href="manifest.json">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <style>
-    body { background: #0A0A0A; color: #FFF8DC; font-family: 'Poppins', sans-serif; }
-    .sw-header { background: #1C1C1C; border-bottom: 2px solid #FFD700; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-    .sw-logo { font-family: 'Playfair Display', serif; color: #FFD700; font-weight: 700; }
-    .sw-nav { display: flex; gap: 5px; padding: 10px 15px; background: #1C1C1C; overflow-x: auto; }
-    .nav-btn { padding: 10px 20px; background: transparent; border: 1px solid rgba(255,215,0,0.3); color: #FFF8DC; border-radius: 50px; cursor: pointer; white-space: nowrap; }
-    .nav-btn.active { background: #FFD700; color: #0A0A0A; }
-    .sw-content { padding: 20px; max-width: 1000px; margin: 0 auto; }
-    .section-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #FFD700; margin-bottom: 15px; }
-    .form-card { background: #1C1C1C; border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-    .form-group { margin-bottom: 15px; }
-    .form-label { color: #FFD700; font-size: 0.85rem; display: block; margin-bottom: 6px; }
-    .form-input { width: 100%; padding: 10px 14px; background: #0A0A0A; border: 1px solid rgba(255,215,0,0.3); border-radius: 8px; color: #FFF8DC; font-size: 0.95rem; }
-    .form-input:focus { outline: none; border-color: #FFD700; }
-    .btn-primary { width: 100%; padding: 12px; background: linear-gradient(135deg, #FFD700, #C9A227); color: #0A0A0A; border: none; border-radius: 50px; font-weight: 700; cursor: pointer; }
-    .customer-list { background: #1C1C1C; border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 15px; }
-    .customer-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,215,0,0.1); }
-    .customer-item:last-child { border-bottom: none; }
-    .empty-state { text-align: center; padding: 30px; color: #B8B8B8; }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style-software.css">
 </head>
 <body>
 
   <div class="sw-header">
-    <div class="sw-logo">Customers</div>
-    <button onclick="window.location.href='index.html'" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer;">← Back</button>
+    <div class="sw-logo">👥 Customers</div>
+    <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-family: 'Poppins', sans-serif;">← Back</button>
   </div>
 
   <div class="sw-nav">
-    <button class="nav-btn" onclick="window.location.href='index.html'">🏠 Dashboard</button>
-    <button class="nav-btn" onclick="window.location.href='sales.html'">💰 Sales</button>
-    <button class="nav-btn" onclick="window.location.href='stock.html'">📦 Stock</button>
+    <button class="nav-btn" onclick="navigate('index.html')">🏠 Dashboard</button>
+    <button class="nav-btn" onclick="navigate('purchase.html')">🛒 Purchase</button>
+    <button class="nav-btn" onclick="navigate('services.html')">🔧 Services</button>
+    <button class="nav-btn" onclick="navigate('store.html')">🏪 Store</button>
+    <button class="nav-btn" onclick="navigate('sales.html')">💰 Sales</button>
     <button class="nav-btn active">👥 Customers</button>
-    <button class="nav-btn" onclick="window.location.href='reports.html'">📊 Reports</button>
-    <button class="nav-btn" onclick="window.location.href='settings.html'">⚙️ Settings</button>
+    <button class="nav-btn" onclick="navigate('suppliers.html')">📦 Suppliers</button>
+    <button class="nav-btn" onclick="navigate('expenses.html')">💵 Expenses</button>
+    <button class="nav-btn" onclick="navigate('reports.html')">📊 Reports</button>
+    <button class="nav-btn" onclick="navigate('settings.html')">⚙️ Settings</button>
   </div>
 
   <div class="sw-content">
-    <h2 class="section-title">Add Customer</h2>
-    <div class="form-card">
-      <div class="form-group">
-        <label class="form-label">Customer Name *</label>
-        <input type="text" id="cName" class="form-input" placeholder="Enter name">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Phone</label>
-        <input type="tel" id="cPhone" class="form-input" placeholder="03XXXXXXXXX">
-      </div>
-      <div class="form-group">
-        <label class="form-label">Address</label>
-        <input type="text" id="cAddress" class="form-input" placeholder="City / Area">
-      </div>
-      <button class="btn-primary" onclick="saveCustomer()">💾 Save Customer</button>
+    <h1 class="page-title">Customer Management</h1>
+    <p class="page-subtitle">Manage customers and old gold purchases</p>
+
+    <div class="category-tabs">
+      <button class="cat-tab gold active" onclick="switchTab('customers', this)">👥 Add Customer</button>
+      <button class="cat-tab silver" onclick="switchTab('oldgold', this)">🥇 Old Gold Purchase</button>
     </div>
 
-    <h2 class="section-title">All Customers</h2>
-    <div class="customer-list" id="customersList">
-      <div class="empty-state">No customers yet</div>
+    <!-- CUSTOMERS TAB -->
+    <div id="customersTab">
+      <div class="form-card">
+        <h3 class="form-card-title">➕ Add New Customer</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Customer Name *</label>
+            <input type="text" id="cName" class="form-input" placeholder="Full name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number *</label>
+            <input type="tel" id="cPhone" class="form-input" placeholder="03XXXXXXXXX">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">CNIC / ID Card Number</label>
+            <input type="text" id="cCNIC" class="form-input" placeholder="XXXXX-XXXXXXX-X">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Address</label>
+            <input type="text" id="cAddress" class="form-input" placeholder="Full address">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">📷 Customer Photo</label>
+          <input type="file" id="cPhoto" class="form-input" accept="image/*" capture="user" style="padding: 10px;">
+          <div id="cPhotoPreview" style="margin-top: 10px;"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">📷 ID Card Photo</label>
+          <input type="file" id="cIdPhoto" class="form-input" accept="image/*" capture="environment" style="padding: 10px;">
+          <div id="cIdPreview" style="margin-top: 10px;"></div>
+        </div>
+
+        <button class="btn-primary" onclick="saveCustomer()" style="width: 100%;">💾 Save Customer</button>
+      </div>
+    </div>
+
+    <!-- OLD GOLD TAB -->
+    <div id="oldgoldTab" style="display: none;">
+      <div class="form-card">
+        <h3 class="form-card-title">🥇 Old Gold / Silver Purchase from Customer</h3>
+        <p style="color: #B8B8B8; font-size: 0.85rem; margin-bottom: 20px;">Record when customer comes to sell old jewelry</p>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Customer Name *</label>
+            <input type="text" id="ogName" class="form-input" placeholder="Full name">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone Number *</label>
+            <input type="tel" id="ogPhone" class="form-input" placeholder="03XXXXXXXXX">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">CNIC / ID Card Number</label>
+            <input type="text" id="ogCNIC" class="form-input" placeholder="XXXXX-XXXXXXX-X">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Address</label>
+            <input type="text" id="ogAddress" class="form-input" placeholder="Full address">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Metal Type *</label>
+            <select id="ogMetal" class="form-select">
+              <option value="gold">Gold</option>
+              <option value="silver">Silver</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Item Description *</label>
+            <input type="text" id="ogItem" class="form-input" placeholder="e.g., Old Gold Bangles">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Weight (grams) *</label>
+            <input type="number" id="ogWeight" class="form-input" step="0.001" placeholder="0.000">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Rate/gram (Rs) *</label>
+            <input type="number" id="ogRate" class="form-input" placeholder="0">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Total Amount Paid (Rs) *</label>
+            <input type="number" id="ogTotal" class="form-input" readonly style="background: #2A2A2A; color: #FFD700; font-weight: 700;">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Payment Mode</label>
+            <select id="ogPayment" class="form-select">
+              <option value="cash">Cash</option>
+              <option value="easypaisa">Easypaisa</option>
+              <option value="bank">Bank Transfer</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">📷 Customer Photo</label>
+          <input type="file" id="ogPhoto" class="form-input" accept="image/*" capture="user" style="padding: 10px;">
+          <div id="ogPhotoPreview" style="margin-top: 10px;"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">📷 ID Card Photo</label>
+          <input type="file" id="ogIdPhoto" class="form-input" accept="image/*" capture="environment" style="padding: 10px;">
+          <div id="ogIdPreview" style="margin-top: 10px;"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">📷 Old Jewelry Photo</label>
+          <input type="file" id="ogJewelryPhoto" class="form-input" accept="image/*" capture="environment" style="padding: 10px;">
+          <div id="ogJewelryPreview" style="margin-top: 10px;"></div>
+        </div>
+
+        <button class="btn-primary" onclick="saveOldGold()" style="width: 100%;">💾 Save Old Gold Purchase</button>
+      </div>
+    </div>
+
+    <h2 class="section-title" id="listTitle">👥 All Customers</h2>
+    <div class="data-list" id="customersList">
+      <div class="empty-state">
+        <div class="icon">👥</div>
+        <p>No customers yet</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="viewModal" class="modal">
+    <div class="modal-content">
+      <h2 class="modal-title">Details</h2>
+      <div id="viewContent"></div>
+      <button class="btn-secondary" onclick="closeViewModal()" style="width: 100%; margin-top: 20px;">Close</button>
     </div>
   </div>
 
   <script src="db.js"></script>
+  <script src="app.js"></script>
   <script>
+    let currentTab = 'customers';
+    let cPhoto = null, cIdPhoto = null;
+    let ogPhoto = null, ogIdPhoto = null, ogJewelryPhoto = null;
+
+    // Photo previews
+    document.getElementById('cPhoto')?.addEventListener('change', async (e) => {
+      if (e.target.files[0]) {
+        cPhoto = await fileToBase64(e.target.files[0]);
+        document.getElementById('cPhotoPreview').innerHTML = `<img src="${cPhoto}" style="max-width: 150px; border-radius: 8px; border: 2px solid #FFD700;">`;
+      }
+    });
+    document.getElementById('cIdPhoto')?.addEventListener('change', async (e) => {
+      if (e.target.files[0]) {
+        cIdPhoto = await fileToBase64(e.target.files[0]);
+        document.getElementById('cIdPreview').innerHTML = `<img src="${cIdPhoto}" style="max-width: 200px; border-radius: 8px; border: 2px solid #FFD700;">`;
+      }
+    });
+    document.getElementById('ogPhoto')?.addEventListener('change', async (e) => {
+      if (e.target.files[0]) {
+        ogPhoto = await fileToBase64(e.target.files[0]);
+        document.getElementById('ogPhotoPreview').innerHTML = `<img src="${ogPhoto}" style="max-width: 150px; border-radius: 8px; border: 2px solid #FFD700;">`;
+      }
+    });
+    document.getElementById('ogIdPhoto')?.addEventListener('change', async (e) => {
+      if (e.target.files[0]) {
+        ogIdPhoto = await fileToBase64(e.target.files[0]);
+        document.getElementById('ogIdPreview').innerHTML = `<img src="${ogIdPhoto}" style="max-width: 200px; border-radius: 8px; border: 2px solid #FFD700;">`;
+      }
+    });
+    document.getElementById('ogJewelryPhoto')?.addEventListener('change', async (e) => {
+      if (e.target.files[0]) {
+        ogJewelryPhoto = await fileToBase64(e.target.files[0]);
+        document.getElementById('ogJewelryPreview').innerHTML = `<img src="${ogJewelryPhoto}" style="max-width: 200px; border-radius: 8px; border: 2px solid #FFD700;">`;
+      }
+    });
+
+    // Old gold auto-calc
+    ['ogWeight', 'ogRate'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', () => {
+        const w = parseFloat(document.getElementById('ogWeight').value) || 0;
+        const r = parseFloat(document.getElementById('ogRate').value) || 0;
+        document.getElementById('ogTotal').value = Math.round(w * r);
+      });
+    });
+
+    function switchTab(tab, btn) {
+      currentTab = tab;
+      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+
+      document.getElementById('customersTab').style.display = tab === 'customers' ? 'block' : 'none';
+      document.getElementById('oldgoldTab').style.display = tab === 'oldgold' ? 'block' : 'none';
+      document.getElementById('listTitle').textContent = tab === 'customers' ? '👥 All Customers' : '🥇 Old Gold Purchases';
+      
+      if (tab === 'customers') loadCustomers();
+      else loadOldGold();
+    }
+
     async function saveCustomer() {
       const name = document.getElementById('cName').value.trim();
-      if (!name) { alert('❌ Please enter name'); return; }
+      const phone = document.getElementById('cPhone').value.trim();
       
+      if (!name || !phone) { alert('❌ Name and phone required'); return; }
+
       const customer = {
-        name: name,
-        phone: document.getElementById('cPhone').value.trim(),
+        name, phone,
+        cnic: document.getElementById('cCNIC').value.trim(),
         address: document.getElementById('cAddress').value.trim(),
+        photo: cPhoto,
+        id_photo: cIdPhoto,
         date: new Date().toISOString()
       };
-      
+
       await addRecord('customers', customer);
       alert('✅ Customer saved!');
-      ['cName', 'cPhone', 'cAddress'].forEach(id => document.getElementById(id).value = '');
+      clearCustomerForm();
       loadCustomers();
     }
-    
+
+    async function saveOldGold() {
+      const name = document.getElementById('ogName').value.trim();
+      const phone = document.getElementById('ogPhone').value.trim();
+      const item = document.getElementById('ogItem').value.trim();
+      const total = parseFloat(document.getElementById('ogTotal').value) || 0;
+
+      if (!name || !phone || !item || total <= 0) {
+        alert('❌ Fill all required fields');
+        return;
+      }
+
+      const oldGold = {
+        customer_name: name,
+        customer_phone: phone,
+        customer_cnic: document.getElementById('ogCNIC').value.trim(),
+        customer_address: document.getElementById('ogAddress').value.trim(),
+        metal_type: document.getElementById('ogMetal').value,
+        item: item,
+        weight: parseFloat(document.getElementById('ogWeight').value) || 0,
+        rate: parseFloat(document.getElementById('ogRate').value) || 0,
+        total: total,
+        payment_mode: document.getElementById('ogPayment').value,
+        photo: ogPhoto,
+        id_photo: ogIdPhoto,
+        jewelry_photo: ogJewelryPhoto,
+        date: new Date().toISOString()
+      };
+
+      await addRecord('old_gold', oldGold);
+      alert('✅ Old gold purchase saved!');
+      clearOldGoldForm();
+      loadOldGold();
+    }
+
+    function clearCustomerForm() {
+      ['cName', 'cPhone', 'cCNIC', 'cAddress'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('cPhoto').value = '';
+      document.getElementById('cIdPhoto').value = '';
+      document.getElementById('cPhotoPreview').innerHTML = '';
+      document.getElementById('cIdPreview').innerHTML = '';
+      cPhoto = cIdPhoto = null;
+    }
+
+    function clearOldGoldForm() {
+      ['ogName', 'ogPhone', 'ogCNIC', 'ogAddress', 'ogItem', 'ogWeight', 'ogRate', 'ogTotal'].forEach(id => document.getElementById(id).value = '');
+      ['ogPhoto', 'ogIdPhoto', 'ogJewelryPhoto'].forEach(id => document.getElementById(id).value = '');
+      ['ogPhotoPreview', 'ogIdPreview', 'ogJewelryPreview'].forEach(id => document.getElementById(id).innerHTML = '');
+      ogPhoto = ogIdPhoto = ogJewelryPhoto = null;
+    }
+
     async function loadCustomers() {
       const customers = await getAllRecords('customers') || [];
       const container = document.getElementById('customersList');
+
       if (customers.length === 0) {
-        container.innerHTML = '<div class="empty-state">No customers yet</div>';
+        container.innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>No customers yet</p></div>';
         return;
       }
-      container.innerHTML = customers.reverse().map(c => `
-        <div class="customer-item">
-          <div>
-            <strong style="color: #FFD700;">${c.name}</strong>
-            <div style="font-size: 0.85rem; color: #B8B8B8;">${c.phone || 'No phone'}</div>
-            <div style="font-size: 0.8rem; color: #666;">${c.address || ''}</div>
+
+      container.innerHTML = customers.slice().reverse().map(c => `
+        <div class="data-item">
+          <div style="display: flex; gap: 15px; align-items: center;">
+            ${c.photo ? `<img src="${c.photo}" style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid #FFD700; object-fit: cover;">` : '<div style="width: 50px; height: 50px; border-radius: 50%; background: #2A2A2A; display: flex; align-items: center; justify-content: center;">👤</div>'}
+            <div>
+              <div class="data-item-title">${c.name}</div>
+              <div class="data-item-sub">📞 ${c.phone}</div>
+              ${c.cnic ? `<div class="data-item-sub">🆔 ${c.cnic}</div>` : ''}
+              ${c.address ? `<div class="data-item-sub">📍 ${c.address}</div>` : ''}
+            </div>
+          </div>
+          <div class="data-item-actions">
+            <button class="btn-icon edit" onclick='viewCustomer(${JSON.stringify(c).replace(/'/g, "&#39;")})'>👁️</button>
+            <button class="btn-icon delete" onclick="deleteCustomer(${c.id})">🗑️</button>
           </div>
         </div>
       `).join('');
     }
-    
+
+    async function loadOldGold() {
+      const items = await getAllRecords('old_gold') || [];
+      const container = document.getElementById('customersList');
+
+      if (items.length === 0) {
+        container.innerHTML = '<div class="empty-state"><div class="icon">🥇</div><p>No old gold purchases yet</p></div>';
+        return;
+      }
+
+      container.innerHTML = items.slice().reverse().map(g => `
+        <div class="data-item">
+          <div style="display: flex; gap: 15px; align-items: center;">
+            ${g.photo ? `<img src="${g.photo}" style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid #FFD700; object-fit: cover;">` : '<div style="width: 50px; height: 50px; border-radius: 50%; background: #2A2A2A; display: flex; align-items: center; justify-content: center;">👤</div>'}
+            <div>
+              <div class="data-item-title">${g.item} (${g.metal_type})</div>
+              <div class="data-item-sub">👤 ${g.customer_name} • 📞 ${g.customer_phone}</div>
+              <div class="data-item-sub">⚖️ ${g.weight}g @ Rs ${g.rate}/g</div>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <div class="data-item-value">${formatPKR(g.total)}</div>
+            <div class="data-item-actions" style="justify-content: flex-end; margin-top: 6px;">
+              <button class="btn-icon edit" onclick='viewOldGold(${JSON.stringify(g).replace(/'/g, "&#39;")})'>👁️</button>
+              <button class="btn-icon delete" onclick="deleteOldGold(${g.id})">🗑️</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function viewCustomer(c) {
+      document.getElementById('viewContent').innerHTML = `
+        <div style="padding: 15px 0;">
+          ${c.photo ? `<img src="${c.photo}" style="width: 120px; height: 120px; border-radius: 50%; border: 3px solid #FFD700; display: block; margin: 0 auto 20px;">` : ''}
+          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
+            <span style="color: #B8B8B8;">Name:</span><strong style="color: #FFD700;">${c.name}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
+            <span style="color: #B8B8B8;">Phone:</span><strong>${c.phone}</strong>
+          </div>
+          ${c.cnic ? `<div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
+            <span style="color: #B8B8B8;">CNIC:</span><strong>${c.cnic}</strong></div>` : ''}
+          ${c.address ? `<div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
+            <span style="color: #B8B8B8;">Address:</span><strong>${c.address}</strong></div>` : ''}
+          ${c.id_photo ? `<div style="margin-top: 20px;">
+            <div style="color: #FFD700; margin-bottom: 10px;">🆔 ID Card Photo:</div>
+            <img src="${c.id_photo}" style="width: 100%; border-radius: 8px; border: 2px solid #FFD700;">
+          </div>` : ''}
+        </div>
+      `;
+      document.getElementById('viewModal').classList.add('active');
+    }
+
+    function viewOldGold(g) {
+      document.getElementById('viewContent').innerHTML = `
+        <div style="padding: 15px 0;">
+          ${g.photo ? `<img src="${g.photo}" style="width: 120px; height: 120px; border-radius: 50%; border: 3px solid #FFD700; display: block; margin: 0 auto 20px;">` : ''}
+          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
+            <span style="color: #B8B8B8;">Customer:</span><strong style="color: #FFD700;">${g.customer_name}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
+            <span style="color: #B8B8B8;">Phone:</span><strong>${g.customer_phone}</strong>
+          </div>
+          ${g.customer_cnic ? `<div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
+            <span style="color: #B8B8B8;">CNIC:</span><strong>${g.customer_cnic}</strong></div>` : ''}
+          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
+            <span style="color: #B8B8B8;">Item:</span><strong>${g.item}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
+            <span style="color: #B8B8B8;">Weight:</span><strong>${g.weight}g</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
+            <span style="color: #B8B8B8;">Total Paid:</span><strong style="color: #FFD700;">${formatPKR(g.total)}</strong>
+          </div>
+          ${g.jewelry_photo ? `<div style="margin-top: 20px;">
+            <div style="color: #FFD700; margin-bottom: 10px;">📷 Jewelry Photo:</div>
+            <img src="${g.jewelry_photo}" style="width: 100%; border-radius: 8px; border: 2px solid #FFD700;">
+          </div>` : ''}
+          ${g.id_photo ? `<div style="margin-top: 20px;">
+            <div style="color: #FFD700; margin-bottom: 10px;">🆔 ID Card:</div>
+            <img src="${g.id_photo}" style="width: 100%; border-radius: 8px; border: 2px solid #FFD700;">
+          </div>` : ''}
+        </div>
+      `;
+      document.getElementById('viewModal').classList.add('active');
+    }
+
+    function closeViewModal() {
+      document.getElementById('viewModal').classList.remove('active');
+    }
+
+    async function deleteCustomer(id) {
+      if (!confirm('Delete?')) return;
+      await deleteRecord('customers', id);
+      loadCustomers();
+    }
+
+    async function deleteOldGold(id) {
+      if (!confirm('Delete?')) return;
+      await deleteRecord('old_gold', id);
+      loadOldGold();
+    }
+
     document.addEventListener('DOMContentLoaded', async () => {
       await initDB();
       loadCustomers();
     });
   </script>
+
 </body>
 </html>

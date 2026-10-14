@@ -22,6 +22,10 @@
     .setting-label { color: #FFF8DC; }
     .setting-value { color: #FFD700; font-weight: 600; }
     .btn-edit-setting { background: rgba(59,130,246,0.2); color: #93C5FD; border: 1px solid #3B82F6; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+    @media (max-width: 768px) {
+      .admin-nav a:not(.logout-btn) { display: none; }
+      .admin-nav a.mobile-show { display: block; }
+    }
   </style>
 </head>
 <body>
@@ -29,10 +33,11 @@
   <div class="admin-header">
     <div class="admin-logo">SHAH REHAN JEWELLERS – Admin</div>
     <nav class="admin-nav">
-      <a href="dashboard.html">Dashboard</a>
-      <a href="products.html">Products</a>
-      <a href="orders.html">Orders</a>
-      <a href="settings.html" class="active">Settings</a>
+      <a href="dashboard.html" class="mobile-show">Dashboard</a>
+      <a href="products.html" class="mobile-show">Products</a>
+      <a href="orders.html" class="mobile-show">Orders</a>
+      <a href="settings.html" class="active mobile-show">Settings</a>
+      <a href="software.html" class="mobile-show">Software</a>
       <button class="logout-btn" onclick="logout()">Logout</button>
     </nav>
   </div>
@@ -44,19 +49,19 @@
       <h3>💰 Charges Configuration</h3>
       <div class="setting-row">
         <span class="setting-label">Making Charges</span>
-        <span class="setting-value" id="sMaking">15%</span>
+        <span class="setting-value">15%</span>
       </div>
       <div class="setting-row">
         <span class="setting-label">Polish Charges</span>
-        <span class="setting-value" id="sPolish">10%</span>
+        <span class="setting-value">10%</span>
       </div>
       <div class="setting-row">
         <span class="setting-label">GST / Tax</span>
-        <span class="setting-value" id="sGST">3%</span>
+        <span class="setting-value">3%</span>
       </div>
       <div class="setting-row">
         <span class="setting-label">Default Advance</span>
-        <span class="setting-value" id="sAdvance">100%</span>
+        <span class="setting-value">100%</span>
       </div>
     </div>
     

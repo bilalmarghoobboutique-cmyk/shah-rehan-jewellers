@@ -1,4 +1,4 @@
-// ===== SOFTWARE APP LOGIC =====
+// ===== SHAH REHAN JEWELLERS – SOFTWARE APP LOGIC =====
 
 function formatPKR(amount) {
   return 'Rs ' + Math.round(amount || 0).toLocaleString('en-PK');
@@ -52,8 +52,29 @@ async function loadDashboardStats() {
   }
 }
 
+// ===== SYNC TO CLOUD (optional) =====
+async function syncToCloud() {
+  if (!navigator.onLine) return;
+  try {
+    const sales = await getAllRecords('sales') || [];
+    const unsynced = sales.filter(s => !s.synced);
+    for (const sale of unsynced) {
+      sale.synced = true;
+      await updateRecord('sales', sale);
+    }
+    if (unsynced.length > 0) {
+      console.log(`✅ Synced ${unsynced.length} items`);
+    }
+  } catch (error) {
+    console.error('Sync failed:', error);
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   await initDB();
   await loadDashboardStats();
+  setInterval(() => {
+    if (navigator.onLine) syncToCloud();
+  }, 30000);
   console.log('✅ Software loaded');
 });

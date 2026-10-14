@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#FFD700">
   <title>Customers – SRJ Software</title>
   <link rel="manifest" href="manifest.json">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -15,16 +16,26 @@
     .nav-btn { padding: 10px 20px; background: transparent; border: 1px solid rgba(255,215,0,0.3); color: #FFF8DC; border-radius: 50px; cursor: pointer; white-space: nowrap; }
     .nav-btn.active { background: #FFD700; color: #0A0A0A; }
     .sw-content { padding: 20px; max-width: 1000px; margin: 0 auto; }
-    .coming-soon { text-align: center; padding: 80px 20px; background: #1C1C1C; border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; }
-    .coming-soon .icon { font-size: 4rem; margin-bottom: 15px; }
-    .coming-soon h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #FFD700; margin-bottom: 15px; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #FFD700; margin-bottom: 15px; }
+    .form-card { background: #1C1C1C; border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .form-group { margin-bottom: 15px; }
+    .form-label { color: #FFD700; font-size: 0.85rem; display: block; margin-bottom: 6px; }
+    .form-input { width: 100%; padding: 10px 14px; background: #0A0A0A; border: 1px solid rgba(255,215,0,0.3); border-radius: 8px; color: #FFF8DC; font-size: 0.95rem; }
+    .form-input:focus { outline: none; border-color: #FFD700; }
+    .btn-primary { width: 100%; padding: 12px; background: linear-gradient(135deg, #FFD700, #C9A227); color: #0A0A0A; border: none; border-radius: 50px; font-weight: 700; cursor: pointer; }
+    .customer-list { background: #1C1C1C; border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 15px; }
+    .customer-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,215,0,0.1); }
+    .customer-item:last-child { border-bottom: none; }
+    .empty-state { text-align: center; padding: 30px; color: #B8B8B8; }
   </style>
 </head>
 <body>
+
   <div class="sw-header">
-    <div class="sw-logo">Customer Management</div>
+    <div class="sw-logo">Customers</div>
     <button onclick="window.location.href='index.html'" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer;">← Back</button>
   </div>
+
   <div class="sw-nav">
     <button class="nav-btn" onclick="window.location.href='index.html'">🏠 Dashboard</button>
     <button class="nav-btn" onclick="window.location.href='sales.html'">💰 Sales</button>
@@ -33,12 +44,72 @@
     <button class="nav-btn" onclick="window.location.href='reports.html'">📊 Reports</button>
     <button class="nav-btn" onclick="window.location.href='settings.html'">⚙️ Settings</button>
   </div>
+
   <div class="sw-content">
-    <div class="coming-soon">
-      <div class="icon">👥</div>
-      <h2>Customer Management</h2>
-      <p style="color: #B8B8B8;">Add and manage your customer database here.</p>
+    <h2 class="section-title">Add Customer</h2>
+    <div class="form-card">
+      <div class="form-group">
+        <label class="form-label">Customer Name *</label>
+        <input type="text" id="cName" class="form-input" placeholder="Enter name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Phone</label>
+        <input type="tel" id="cPhone" class="form-input" placeholder="03XXXXXXXXX">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Address</label>
+        <input type="text" id="cAddress" class="form-input" placeholder="City / Area">
+      </div>
+      <button class="btn-primary" onclick="saveCustomer()">💾 Save Customer</button>
+    </div>
+
+    <h2 class="section-title">All Customers</h2>
+    <div class="customer-list" id="customersList">
+      <div class="empty-state">No customers yet</div>
     </div>
   </div>
+
+  <script src="db.js"></script>
+  <script>
+    async function saveCustomer() {
+      const name = document.getElementById('cName').value.trim();
+      if (!name) { alert('❌ Please enter name'); return; }
+      
+      const customer = {
+        name: name,
+        phone: document.getElementById('cPhone').value.trim(),
+        address: document.getElementById('cAddress').value.trim(),
+        date: new Date().toISOString()
+      };
+      
+      await addRecord('customers', customer);
+      alert('✅ Customer saved!');
+      ['cName', 'cPhone', 'cAddress'].forEach(id => document.getElementById(id).value = '');
+      loadCustomers();
+    }
+    
+    async function loadCustomers() {
+      const customers = await getAllRecords('customers') || [];
+      const container = document.getElementById('customersList');
+      if (customers.length === 0) {
+        container.innerHTML = '<div class="empty-state">No customers yet</div>';
+        return;
+      }
+      container.innerHTML = customers.reverse().map(c => `
+        <div class="customer-item">
+          <div>
+            <strong style="color: #FFD700;">${c.name}</strong>
+            <div style="font-size: 0.85rem; color: #B8B8B8;">${c.phone || 'No phone'}</div>
+            <div style="font-size: 0.8rem; color: #666;">${c.address || ''}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initDB();
+      loadCustomers();
+    });
+  </script>
 </body>
 </html>

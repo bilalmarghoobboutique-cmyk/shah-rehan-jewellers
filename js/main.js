@@ -1,26 +1,6 @@
 // ===== SHAH REHAN JEWELLERS – MAIN JS =====
 
-// Current rates (14 Oct 2026)
-const LIVE_RATES = {
-  usdToPkr: 276.95,
-  gold: {
-    '24K': 37793,
-    '22K': 34643,
-    '21K': 33069,
-    '18K': 28345,
-    '16K': 25195,
-    '14K': 22039,
-    '12K': 18900,
-    '10K': 15748,
-    '8K': 12598
-  },
-  silver: {
-    perGram: 570.10,
-    per10Gram: 5701,
-    perTola: 6651
-  }
-};
-
+// Weight conversion
 const WEIGHT = {
   tola: 11.664,
   masha: 0.972,
@@ -28,9 +8,24 @@ const WEIGHT = {
   gram: 1
 };
 
+// Karat purity
 const KARAT_PURITY = {
   '24K': 1.0, '22K': 0.9167, '21K': 0.875, '18K': 0.75,
   '16K': 0.6667, '14K': 0.5833, '12K': 0.5, '10K': 0.4167, '8K': 0.3333
+};
+
+// Live rates (14 Oct 2026)
+const LIVE_RATES = {
+  usdToPkr: 276.95,
+  gold: {
+    '24K': 37793, '22K': 34643, '21K': 33069, '18K': 28345,
+    '16K': 25195, '14K': 22039, '12K': 18900, '10K': 15748, '8K': 12598
+  },
+  silver: {
+    perGram: 570.10,
+    per10Gram: 5701,
+    perTola: 6651
+  }
 };
 
 const BASE_RATE_24K = 37793;
@@ -124,7 +119,7 @@ function renderSilverRates() {
 // ===== TAB SWITCHING =====
 function switchRateTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
+  if (event && event.target) event.target.classList.add('active');
   
   if (tab === 'gold') {
     document.getElementById('goldRatesTab').classList.remove('hidden');
@@ -154,7 +149,6 @@ function updateUsdRate() {
 let currentProduct = null;
 let cart = JSON.parse(localStorage.getItem('srj_cart') || '[]');
 
-// ===== LOAD PRODUCTS FROM SUPABASE =====
 async function loadProducts() {
   const grid = document.getElementById('productsGrid');
   if (!grid) return;
@@ -191,7 +185,6 @@ async function loadProducts() {
   }
 }
 
-// ===== OPEN PRODUCT MODAL =====
 function openProductModal(product) {
   currentProduct = product;
   
@@ -219,7 +212,6 @@ function openProductModal(product) {
   document.body.style.overflow = 'hidden';
 }
 
-// ===== CLOSE MODAL =====
 function closeProductModal() {
   document.getElementById('productModal').classList.remove('active');
   document.body.style.overflow = '';
@@ -235,7 +227,6 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeProductModal();
 });
 
-// ===== SIZE OPTIONS =====
 function getSizeOptions(category, subcategory) {
   const sizes = {
     'Rings': ['10','11','12','13','14','15','16','17','18','19','20'],
@@ -251,7 +242,6 @@ function getSizeOptions(category, subcategory) {
   return options.map(s => `<option value="${s}">${s}</option>`).join('');
 }
 
-// ===== CALCULATE PRICE =====
 function calculatePrice() {
   if (!currentProduct) return;
   
@@ -302,7 +292,6 @@ function calculatePrice() {
   document.getElementById('priceBreakdown').classList.remove('hidden');
 }
 
-// ===== ADD TO CART =====
 function addToCart() {
   if (!currentProduct) return;
   
@@ -338,7 +327,6 @@ function addToCart() {
   closeProductModal();
 }
 
-// ===== WHATSAPP ORDER =====
 function whatsappOrder() {
   if (!currentProduct) return;
   

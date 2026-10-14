@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#FFD700">
+  <title>Sales – SRJ Software</title>
+  <link rel="manifest" href="manifest.json">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0A0A0A; color: #FFF8DC; font-family: 'Poppins', sans-serif; min-height: 100vh; }
+    .sw-header { background: linear-gradient(135deg, #1C1C1C, #2A2A2A); border-bottom: 2px solid #FFD700; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .sw-logo { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: #FFD700; font-weight: 700; }
+    .sw-nav { display: flex; overflow-x: auto; gap: 5px; padding: 10px 15px; background: #1C1C1C; border-bottom: 1px solid rgba(255,215,0,0.2); }
+    .nav-btn { padding: 10px 20px; background: transparent; border: 1px solid rgba(255,215,0,0.3); color: #FFF8DC; border-radius: 50px; cursor: pointer; font-size: 0.85rem; white-space: nowrap; }
+    .nav-btn.active { background: #FFD700; color: #0A0A0A; }
+    .sw-content { padding: 20px; max-width: 1000px; margin: 0 auto; }
+    .section-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #FFD700; margin-bottom: 15px; }
+    .form-card { background: #1C1C1C; border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .form-group { margin-bottom: 15px; }
+    .form-label { color: #FFD700; font-size: 0.85rem; display: block; margin-bottom: 6px; }
+    .form-input { width: 100%; padding: 10px 14px; background: #0A0A0A; border: 1px solid rgba(255,215,0,0.3); border-radius: 8px; color: #FFF8DC; font-size: 0.95rem; }
+    .form-input:focus { outline: none; border-color: #FFD700; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .btn-primary { padding: 12px 25px; background: linear-gradient(135deg, #FFD700, #C9A227); color: #0A0A0A; border: none; border-radius: 50px; font-weight: 700; cursor: pointer; font-size: 0.95rem; }
+    .btn-secondary { padding: 12px 25px; background: transparent; color: #FFD700; border: 2px solid #FFD700; border-radius: 50px; font-weight: 700; cursor: pointer; font-size: 0.95rem; }
+    .sales-list { background: #1C1C1C; border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 15px; }
+    .sale-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid rgba(255,215,0,0.1); }
+    .sale-item:last-child { border-bottom: none; }
+    .empty-state { text-align: center; padding: 30px; color: #B8B8B8; }
+    @media (max-width: 600px) { .form-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <div class="sw-header">
+    <div class="sw-logo">Sales</div>
+    <div style="display: flex; gap: 10px;">
+      <button class="btn-secondary" onclick="window.location.href='index.html'" style="padding: 8px 15px; font-size: 0.8rem;">← Back</button>
+    </div>
+  </div>
+
+  <div class="sw-nav">
+    <button class="nav-btn" onclick="window.location.href='index.html'">🏠 Dashboard</button>
+    <button class="nav-btn active">💰 Sales</button>
+    <button class="nav-btn" onclick="window.location.href='stock.html'">📦 Stock</button>
+    <button class="nav-btn" onclick="window.location.href='customers.html'">👥 Customers</button>
+    <button class="nav-btn" onclick="window.location.href='reports.html'">📊 Reports</button>
+    <button class="nav-btn" onclick="window.location.href='settings.html'">⚙️ Settings</button>
+  </div>
+
+  <div class="sw-content">
+
+    <h2 class="section-title">New Sale</h2>
+
+    <div class="form-card">
+      <div class="form-group">
+        <label class="form-label">Customer Name</label>
+        <input type="text" id="sCustomer" class="form-input" placeholder="Walk-in Customer">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Item Description</label>
+          <input type="text" id="sItem" class="form-input" placeholder="e.g., Gold Ring 22K">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Weight (grams)</label>
+          <input type="number" id="sWeight" class="form-input" step="0.1" placeholder="0.0">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Rate/gram (Rs)</label>
+          <input type="number" id="sRate" class="form-input" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Making + Polish (Rs)</label>
+          <input type="number" id="sMaking" class="form-input" placeholder="0">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Total Amount (Rs)</label>
+          <input type="number" id="sTotal" class="form-input" placeholder="0" readonly style="background: #2A2A2A; color: #FFD700; font-weight: 700;">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Mode</label>
+          <select id="sPayment" class="form-input">
+            <option value="cash">Cash</option>
+            <option value="easypaisa">Easypaisa</option>
+            <option value="bank">Bank Transfer</option>
+            <option value="credit">Credit (Udhaar)</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-primary" onclick="saveSale()" style="width: 100%;">💾 Save Sale</button>
+    </div>
+
+    <h2 class="section-title">Recent Sales</h2>
+    <div class="sales-list" id="salesList">
+      <div class="empty-state">No sales yet</div>
+    </div>
+
+  </div>
+
+  <script src="db.js"></script>
+  <script>
+    function formatPKR(amount) {
+      return 'Rs ' + Math.round(amount || 0).toLocaleString('en-PK');
+    }
+
+    function formatDate(d) {
+      return new Date(d).toLocaleDateString('en-PK', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    // Auto-calculate total
+    function autoCalc() {
+      const weight = parseFloat(document.getElementById('sWeight').value) || 0;
+      const rate = parseFloat(document.getElementById('sRate').value) || 0;
+      const making = parseFloat(document.getElementById('sMaking').value) || 0;
+      const total = (weight * rate) + making;
+      document.getElementById('sTotal').value = Math.round(total);
+    }
+
+    ['sWeight', 'sRate', 'sMaking'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', autoCalc);
+    });
+
+    async function saveSale() {
+      const customer = document.getElementById('sCustomer').value.trim() || 'Walk-in';
+      const item = document.getElementById('sItem').value.trim();
+      const weight = parseFloat(document.getElementById('sWeight').value) || 0;
+      const rate = parseFloat(document.getElementById('sRate').value) || 0;
+      const making = parseFloat(document.getElementById('sMaking').value) || 0;
+      const total = parseFloat(document.getElementById('sTotal').value) || 0;
+      const payment = document.getElementById('sPayment').value;
+
+      if (!item || total <= 0) {
+        alert('❌ Please enter item and valid amount');
+        return;
+      }
+
+      const sale = {
+        customer_name: customer,
+        items_summary: item,
+        weight: weight,
+        rate: rate,
+        making: making,
+        total: total,
+        payment_mode: payment,
+        date: new Date().toISOString(),
+        synced: false
+      };
+
+      try {
+        await addRecord('sales', sale);
+        alert('✅ Sale saved!');
+        clearForm();
+        loadSales();
+      } catch (error) {
+        alert('❌ Error: ' + error.message);
+      }
+    }
+
+    function clearForm() {
+      ['sCustomer', 'sItem', 'sWeight', 'sRate', 'sMaking', 'sTotal'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+    }
+
+    async function loadSales() {
+      try {
+        const sales = await getAllRecords('sales') || [];
+        const container = document.getElementById('salesList');
+
+        if (sales.length === 0) {
+          container.innerHTML = '<div class="empty-state">No sales yet</div>';
+          return;
+        }
+
+        container.innerHTML = sales.slice(-20).reverse().map(s => `
+          <div class="sale-item">
+            <div>
+              <strong style="color: #FFD700;">${s.customer_name}</strong>
+              <div style="font-size: 0.8rem; color: #B8B8B8;">${s.items_summary} • ${formatDate(s.date)}</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="color: #FFD700; font-weight: 700;">${formatPKR(s.total)}</div>
+              <div style="font-size: 0.75rem; color: #B8B8B8;">${s.payment_mode}</div>
+            </div>
+          </div>
+        `).join('');
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await initDB();
+      loadSales();
+    });
+  </script>
+
+</body>
+</html>

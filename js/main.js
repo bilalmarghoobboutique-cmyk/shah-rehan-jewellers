@@ -14,12 +14,13 @@ const KARAT_PURITY = {
   '16K': 0.6667, '14K': 0.5833, '12K': 0.5, '10K': 0.4167, '8K': 0.3333
 };
 
-// Fallback live rates (if Supabase unavailable)
+// Fallback rates (if Supabase unavailable)
 const LIVE_RATES = {
   usdToPkr: 276.95,
   gold: {
-    '24K': 430200, '22K': 394350, '21K': 376425, '18K': 322650,
-    '16K': 286800, '14K': 250950, '12K': 215100, '10K': 179250, '8K': 143400
+    '24K': 430000, '22K': 394167, '21K': 376250, '18K': 322500,
+    '16K': 286667, '14K': 250833, '12K': 215000, '10K': 179167, '8K': 143333,
+    'Pathoor': 424500
   },
   silver: {
     perGram: 570.10,
@@ -28,16 +29,13 @@ const LIVE_RATES = {
   }
 };
 
-// Track current rates in per gram (for calculations)
 let currentRatesPerGram = {};
 
 // ===== HELPERS =====
 function getRateForKarat(karat) {
-  // First check live rates (from Supabase - per tola)
   if (currentRatesPerGram[karat]) {
     return currentRatesPerGram[karat];
   }
-  // Fallback: calculate from static rates
   const ratePerTola = LIVE_RATES.gold[karat] || 0;
   return Math.round(ratePerTola / WEIGHT.tola);
 }
@@ -70,7 +68,6 @@ async function loadLiveRates() {
       return;
     }
 
-    // Update LIVE_RATES (per tola) and currentRatesPerGram
     rates.forEach(r => {
       if (r.rate_per_tola) {
         LIVE_RATES.gold[r.karat] = parseFloat(r.rate_per_tola);
@@ -78,19 +75,26 @@ async function loadLiveRates() {
       if (r.rate_per_gram) {
         currentRatesPerGram[r.karat] = parseFloat(r.rate_per_gram);
       } else if (r.rate_per_tola) {
-        // Calculate per gram if not provided
         currentRatesPerGram[r.karat] = Math.round(parseFloat(r.rate_per_tola) / WEIGHT.tola);
       }
     });
 
-    // Update last updated time
     const lastUpdated = rates[0]?.updated_at;
     const timeEl = document.getElementById('lastUpdated');
     if (timeEl && lastUpdated) {
       timeEl.textContent = new Date(lastUpdated).toLocaleString('en-PK');
     }
 
-    console.log('✅ Live rates loaded from Supabase:', rates.length, 'karats');
+    // ⭐ UPDATE TOP BAR WITH 24K + PATHOOR
+    const rate24K = LIVE_RATES.gold['24K'] || 0;
+    const pathoorRate = LIVE_RATES.gold['Pathoor'] || Math.round(rate24K - 5500);
+
+    const topBarEl = document.getElementById('topBarRate');
+    if (topBarEl && rate24K) {
+      topBarEl.innerHTML = `📊 24K Gold: <strong>Rs ${rate24K.toLocaleString()}</strong>/Tola | Pathoor: <strong>Rs ${pathoorRate.toLocaleString()}</strong>/Tola`;
+    }
+
+    console.log('✅ Live rates loaded from Supabase:', rates.length, 'entries');
 
   } catch (error) {
     console.error('⚠️ Rate fetch failed:', error);
@@ -102,19 +106,25 @@ function renderGoldRates() {
   const container = document.getElementById('goldRatesContainer');
   if (!container) return;
   
-  const karats = ['24K', '22K', '21K', '18K', '16K', '14K', '12K', '10K', '8K'];
+  // ⭐ Added 'Pathoor' at the end
+  const karats = ['24K', '22K', '21K', '18K', '16K', '14K', '12K', '10K', '8K', 'Pathoor'];
   
   container.innerHTML = karats.map(karat => {
-    const pkrPerTola = LIVE_RATES.gold[karat];
+    const pkrPerTola = LIVE_RATES.gold[karat] || 0;
     const pkrPerGram = currentRatesPerGram[karat] || Math.round(pkrPerTola / WEIGHT.tola);
     const pkrPerMasha = Math.round(pkrPerTola / 12);
     const pkrPerRatti = Math.round(pkrPerTola / 96);
     const usdPerGram = (pkrPerGram / LIVE_RATES.usdToPkr).toFixed(2);
     const usdPerTola = (pkrPerTola / LIVE_RATES.usdToPkr).toFixed(2);
     
+    // Different color for Pathoor
+    const isPathoor = karat === 'Pathoor';
+    const cardClass = isPathoor ? 'rate-card pathoor-card' : 'rate-card';
+    const titleText = isPathoor ? '🥇 PATHOOR GOLD' : `${karat} GOLD`;
+    
     return `
-      <div class="rate-card">
-        <div class="rate-karat">${karat} GOLD</div>
+      <div class="${cardClass}" style="${isPathoor ? 'border-color: #25D366; background: linear-gradient(135deg, #1C1C1C, #14361F);' : ''}">
+        <div class="rate-karat" style="${isPathoor ? 'color: #25D366;' : ''}">${titleText}</div>
         <div class="rate-row">
           <span class="rate-label">Per Tola</span>
           <span class="rate-value rate-value-pkr">Rs ${Math.round(pkrPerTola).toLocaleString()}</span>
@@ -411,10 +421,8 @@ function whatsappOrder() {
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('🚀 Loading SHAH REHAN JEWELLERS...');
   
-  // 1. Fetch live rates first
   await loadLiveRates();
   
-  // 2. Then render everything
   renderGoldRates();
   renderSilverRates();
   updateUsdRate();

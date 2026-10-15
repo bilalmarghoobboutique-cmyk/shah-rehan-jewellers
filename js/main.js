@@ -85,7 +85,7 @@ async function loadLiveRates() {
       timeEl.textContent = new Date(lastUpdated).toLocaleString('en-PK');
     }
 
-    // ⭐ UPDATE PREMIUM TOP BAR (24K + Pathoor)
+    // ⭐ UPDATE PREMIUM TOP BAR
     const rate24K = LIVE_RATES.gold['24K'] || 0;
     const pathoorRate = LIVE_RATES.gold['Pathoor'] || Math.round(rate24K - 5500);
 
@@ -95,6 +95,13 @@ async function loadLiveRates() {
     if (top24KEl) top24KEl.textContent = `Rs ${rate24K.toLocaleString()}`;
     if (topPathoorEl) topPathoorEl.textContent = `Rs ${pathoorRate.toLocaleString()}`;
 
+    // ⭐ UPDATE BISCUITS TAB LIVE RATES
+    const biscuit24KEl = document.getElementById('biscuit24KRate');
+    const biscuitPathoorEl = document.getElementById('biscuitPathoorRate');
+
+    if (biscuit24KEl) biscuit24KEl.textContent = `Rs ${rate24K.toLocaleString()}`;
+    if (biscuitPathoorEl) biscuitPathoorEl.textContent = `Rs ${pathoorRate.toLocaleString()}`;
+
     console.log('✅ Live rates loaded from Supabase:', rates.length, 'entries');
 
   } catch (error) {
@@ -102,7 +109,7 @@ async function loadLiveRates() {
   }
 }
 
-// ===== RENDER GOLD RATES (Beautiful Carousel) =====
+// ===== RENDER GOLD RATES (Carousel with Logos) =====
 function renderGoldRates() {
   const container = document.getElementById('goldRatesContainer');
   if (!container) return;
@@ -116,6 +123,9 @@ function renderGoldRates() {
     const pkrPerRatti = Math.round(pkrPerTola / 96);
     const isPathoor = karat === 'Pathoor';
     
+    // Logo image
+    const logoImg = isPathoor ? 'images/pathoor-logo.jpg' : 'images/gold-logo.jpg';
+    
     return `
       <div class="karat-slide ${index === 0 ? 'active' : ''} ${isPathoor ? 'pathoor-slide' : ''}" data-index="${index}">
         <div class="karat-box">
@@ -124,7 +134,7 @@ function renderGoldRates() {
           <div class="sparkle sparkle-3"></div>
           
           <div class="karat-header">
-            <span class="karat-icon">${isPathoor ? '🥇' : '👑'}</span>
+            <img src="${logoImg}" alt="${isPathoor ? 'Pathoor Gold' : 'Gold'}" class="karat-logo" onerror="this.style.display='none'">
             <span class="karat-title">${isPathoor ? 'PATHOOR GOLD' : karat + ' GOLD'}</span>
           </div>
           
@@ -161,7 +171,6 @@ function renderGoldRates() {
     </div>
   `;
   
-  // Start carousel
   startKaratCarousel(karats.length);
 }
 
@@ -207,7 +216,7 @@ function goToSlide(index) {
   }, 10000);
 }
 
-// ===== RENDER SILVER RATES (Beautiful Carousel) =====
+// ===== RENDER SILVER RATES (Fixed - Now shows content) =====
 function renderSilverRates() {
   const container = document.getElementById('silverRatesContainer');
   if (!container) return;
@@ -216,7 +225,7 @@ function renderSilverRates() {
   const usdPerGram = (silver.perGram / LIVE_RATES.usdToPkr).toFixed(2);
   
   container.innerHTML = `
-    <div class="silver-carousel">
+    <div class="karat-carousel">
       <div class="karat-slide active silver-slide">
         <div class="karat-box silver-box">
           <div class="sparkle sparkle-1"></div>
@@ -224,7 +233,7 @@ function renderSilverRates() {
           <div class="sparkle sparkle-3"></div>
           
           <div class="karat-header">
-            <span class="karat-icon">💍</span>
+            <img src="images/silver-logo.jpg" alt="Silver" class="karat-logo" onerror="this.style.display='none'">
             <span class="karat-title">SILVER RATE</span>
           </div>
           
@@ -253,7 +262,7 @@ function renderSilverRates() {
   `;
 }
 
-// ===== TAB SWITCHING (Gold / Silver / Biscuits) =====
+// ===== TAB SWITCHING =====
 function switchRateTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
   if (event && event.target) event.target.classList.add('active');
@@ -268,7 +277,6 @@ function switchRateTab(tab) {
   
   if (tab === 'gold' && goldTab) {
     goldTab.classList.remove('hidden');
-    // Restart carousel
     if (carouselInterval) clearInterval(carouselInterval);
     startKaratCarousel(carouselCount);
   } else if (tab === 'silver' && silverTab) {
@@ -410,7 +418,6 @@ function calculatePrice() {
     karat = karatInput.value;
   }
   
-  // Artificial – fixed price
   if (currentProduct.category === 'artificial') {
     document.getElementById('pRate').textContent = 'Fixed Price';
     document.getElementById('pWeight').textContent = '—';

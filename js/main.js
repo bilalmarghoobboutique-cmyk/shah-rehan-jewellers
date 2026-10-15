@@ -85,14 +85,15 @@ async function loadLiveRates() {
       timeEl.textContent = new Date(lastUpdated).toLocaleString('en-PK');
     }
 
-    // ⭐ UPDATE TOP BAR WITH 24K + PATHOOR
+    // ⭐ UPDATE PREMIUM TOP BAR (24K + Pathoor)
     const rate24K = LIVE_RATES.gold['24K'] || 0;
     const pathoorRate = LIVE_RATES.gold['Pathoor'] || Math.round(rate24K - 5500);
 
-    const topBarEl = document.getElementById('topBarRate');
-    if (topBarEl && rate24K) {
-      topBarEl.innerHTML = `📊 24K Gold: <strong>Rs ${rate24K.toLocaleString()}</strong>/Tola | Pathoor: <strong>Rs ${pathoorRate.toLocaleString()}</strong>/Tola`;
-    }
+    const top24KEl = document.getElementById('top24K');
+    const topPathoorEl = document.getElementById('topPathoor');
+
+    if (top24KEl) top24KEl.textContent = `Rs ${rate24K.toLocaleString()}`;
+    if (topPathoorEl) topPathoorEl.textContent = `Rs ${pathoorRate.toLocaleString()}`;
 
     console.log('✅ Live rates loaded from Supabase:', rates.length, 'entries');
 
@@ -101,96 +102,69 @@ async function loadLiveRates() {
   }
 }
 
-// ===== RENDER GOLD RATES =====
+// ===== RENDER GOLD RATES (Compact Line Style) =====
 function renderGoldRates() {
   const container = document.getElementById('goldRatesContainer');
   if (!container) return;
   
-  // ⭐ Added 'Pathoor' at the end
   const karats = ['24K', '22K', '21K', '18K', '16K', '14K', '12K', '10K', '8K', 'Pathoor'];
   
-  container.innerHTML = karats.map(karat => {
+  container.innerHTML = karats.map((karat, index) => {
     const pkrPerTola = LIVE_RATES.gold[karat] || 0;
     const pkrPerGram = currentRatesPerGram[karat] || Math.round(pkrPerTola / WEIGHT.tola);
-    const pkrPerMasha = Math.round(pkrPerTola / 12);
-    const pkrPerRatti = Math.round(pkrPerTola / 96);
-    const usdPerGram = (pkrPerGram / LIVE_RATES.usdToPkr).toFixed(2);
-    const usdPerTola = (pkrPerTola / LIVE_RATES.usdToPkr).toFixed(2);
-    
-    // Different color for Pathoor
     const isPathoor = karat === 'Pathoor';
-    const cardClass = isPathoor ? 'rate-card pathoor-card' : 'rate-card';
-    const titleText = isPathoor ? '🥇 PATHOOR GOLD' : `${karat} GOLD`;
+    const titleText = isPathoor ? '🥇 Pathoor Gold' : `${karat} Gold`;
     
     return `
-      <div class="${cardClass}" style="${isPathoor ? 'border-color: #25D366; background: linear-gradient(135deg, #1C1C1C, #14361F);' : ''}">
-        <div class="rate-karat" style="${isPathoor ? 'color: #25D366;' : ''}">${titleText}</div>
-        <div class="rate-row">
-          <span class="rate-label">Per Tola</span>
-          <span class="rate-value rate-value-pkr">Rs ${Math.round(pkrPerTola).toLocaleString()}</span>
-        </div>
-        <div class="rate-row">
-          <span class="rate-label">Per Gram</span>
-          <span class="rate-value rate-value-pkr">Rs ${pkrPerGram.toLocaleString()}</span>
-        </div>
-        <div class="rate-row">
-          <span class="rate-label">Per Masha</span>
-          <span class="rate-value rate-value-pkr">Rs ${pkrPerMasha.toLocaleString()}</span>
-        </div>
-        <div class="rate-row">
-          <span class="rate-label">Per Ratti</span>
-          <span class="rate-value rate-value-pkr">Rs ${pkrPerRatti}</span>
-        </div>
-        <div class="rate-row" style="border-top: 1px solid rgba(255,215,0,0.2); margin-top: 8px; padding-top: 8px;">
-          <span class="rate-label">USD/Gram</span>
-          <span class="rate-value rate-value-usd">$${usdPerGram}</span>
-        </div>
-        <div class="rate-row">
-          <span class="rate-label">USD/Tola</span>
-          <span class="rate-value rate-value-usd">$${usdPerTola}</span>
-        </div>
+      <div class="rate-line ${isPathoor ? 'pathoor-line' : ''}" style="animation-delay: ${index * 0.1}s">
+        <span class="rate-line-title">${titleText}</span>
+        <span class="rate-line-value">Rs ${Math.round(pkrPerTola).toLocaleString()}<small>/tola</small></span>
+        <span class="rate-line-gram">Rs ${pkrPerGram.toLocaleString()}<small>/g</small></span>
       </div>
     `;
   }).join('');
 }
 
-// ===== RENDER SILVER RATES =====
+// ===== RENDER SILVER RATES (Compact Line Style) =====
 function renderSilverRates() {
   const container = document.getElementById('silverRatesContainer');
   if (!container) return;
   
   const silver = LIVE_RATES.silver;
-  const usdPerGram = (silver.perGram / LIVE_RATES.usdToPkr).toFixed(2);
-  const usdPer10Gram = (silver.per10Gram / LIVE_RATES.usdToPkr).toFixed(2);
-  const usdPerTola = (silver.perTola / LIVE_RATES.usdToPkr).toFixed(2);
   
   container.innerHTML = `
-    <div class="silver-card">
-      <div class="rate-karat">SILVER</div>
-      <div class="rate-row"><span class="rate-label">Per Gram</span><span class="rate-value rate-value-pkr">Rs ${silver.perGram}</span></div>
-      <div class="rate-row"><span class="rate-label">Per 10 Gram</span><span class="rate-value rate-value-pkr">Rs ${silver.per10Gram.toLocaleString()}</span></div>
-      <div class="rate-row"><span class="rate-label">Per Tola</span><span class="rate-value rate-value-pkr">Rs ${silver.perTola.toLocaleString()}</span></div>
-      <div class="rate-row" style="border-top: 1px solid rgba(192,192,192,0.3); margin-top: 8px; padding-top: 8px;">
-        <span class="rate-label">USD/Gram</span>
-        <span class="rate-value rate-value-usd">$${usdPerGram}</span>
-      </div>
-      <div class="rate-row"><span class="rate-label">USD/10 Gram</span><span class="rate-value rate-value-usd">$${usdPer10Gram}</span></div>
-      <div class="rate-row"><span class="rate-label">USD/Tola</span><span class="rate-value rate-value-usd">$${usdPerTola}</span></div>
+    <div class="rate-line silver-line">
+      <span class="rate-line-title">💍 Silver</span>
+      <span class="rate-line-value">Rs ${silver.perTola.toLocaleString()}<small>/tola</small></span>
+      <span class="rate-line-gram">Rs ${silver.perGram.toFixed(2)}<small>/g</small></span>
+    </div>
+    <div class="rate-line silver-line">
+      <span class="rate-line-title">💍 Silver (10g)</span>
+      <span class="rate-line-value">Rs ${silver.per10Gram.toLocaleString()}<small>/10g</small></span>
+      <span class="rate-line-gram">$${(silver.per10Gram / LIVE_RATES.usdToPkr).toFixed(2)}<small>/10g</small></span>
     </div>
   `;
 }
 
-// ===== TAB SWITCHING =====
+// ===== TAB SWITCHING (Gold / Silver / Biscuits) =====
 function switchRateTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
   if (event && event.target) event.target.classList.add('active');
   
-  if (tab === 'gold') {
-    document.getElementById('goldRatesTab').classList.remove('hidden');
-    document.getElementById('silverRatesTab').classList.add('hidden');
-  } else {
-    document.getElementById('silverRatesTab').classList.remove('hidden');
-    document.getElementById('goldRatesTab').classList.add('hidden');
+  const goldTab = document.getElementById('goldRatesTab');
+  const silverTab = document.getElementById('silverRatesTab');
+  const biscuitsTab = document.getElementById('biscuitsTab');
+  
+  if (goldTab) goldTab.classList.add('hidden');
+  if (silverTab) silverTab.classList.add('hidden');
+  if (biscuitsTab) biscuitsTab.classList.add('hidden');
+  
+  if (tab === 'gold' && goldTab) {
+    goldTab.classList.remove('hidden');
+  } else if (tab === 'silver' && silverTab) {
+    silverTab.classList.remove('hidden');
+  } else if (tab === 'biscuits' && biscuitsTab) {
+    biscuitsTab.classList.remove('hidden');
   }
 }
 
@@ -437,4 +411,5 @@ setInterval(async () => {
   console.log('🔄 Auto-refreshing rates...');
   await loadLiveRates();
   renderGoldRates();
+  renderSilverRates();
 }, 15 * 60 * 1000);

@@ -937,4 +937,343 @@ html { scroll-behavior: smooth; }
 @media print {
   .floating-whatsapp, header, footer, .site-header, .site-footer, .whatsapp-btn, nav { display: none !important; }
   body { background: white; color: black; }
+}/* ===================== PREMIUM TOP BAR ===================== */
+.top-bar {
+  background: linear-gradient(90deg, #1A1A1A, #2A2A2A, #1A1A1A);
+  border-bottom: 1px solid rgba(255,215,0,0.3);
+  padding: 10px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.top-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,215,0,0.15), transparent);
+  animation: shine 4s infinite;
+}
+
+@keyframes shine {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+.top-bar-rates {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.rate-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,215,0,0.05));
+  border: 1px solid rgba(255,215,0,0.4);
+  border-radius: 50px;
+  transition: all 0.3s;
+  animation: pulse-gold 2s infinite;
+}
+
+.rate-item.pathoor-item {
+  background: linear-gradient(135deg, rgba(37,211,102,0.15), rgba(37,211,102,0.05));
+  border-color: rgba(37,211,102,0.4);
+  animation: pulse-green 2s infinite;
+}
+
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,215,0,0.4); }
+  50% { box-shadow: 0 0 15px 3px rgba(255,215,0,0.4); }
+}
+
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(37,211,102,0.4); }
+  50% { box-shadow: 0 0 15px 3px rgba(37,211,102,0.4); }
+}
+
+.rate-icon {
+  font-size: 1.1rem;
+}
+
+.rate-label {
+  color: #B8B8B8;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.rate-value {
+  color: #FFD700;
+  font-weight: 700;
+  font-size: 0.95rem;
+  animation: blink-soft 3s infinite;
+}
+
+.pathoor-item .rate-value {
+  color: #25D366;
+}
+
+@keyframes blink-soft {
+  0%, 90%, 100% { opacity: 1; }
+  95% { opacity: 0.6; }
+}
+
+.rate-unit {
+  color: #888;
+  font-size: 0.75rem;
+}
+
+.divider {
+  color: rgba(255,215,0,0.4);
+  font-size: 1.2rem;
+}
+
+.top-bar-contact {
+  color: #FFD700;
+  font-weight: 600;
+}
+
+/* ===================== REAL LOGO CATEGORIES ===================== */
+.category-logo {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.4s ease;
+}
+
+.category-logo svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 8px rgba(255,215,0,0.3));
+}
+
+.category-card:hover .category-logo {
+  transform: scale(1.15) rotate(5deg);
+}
+
+.category-card:hover .category-logo svg {
+  filter: drop-shadow(0 0 15px rgba(255,215,0,0.6));
+}
+
+/* ===================== BISCUITS SECTION ===================== */
+.biscuits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.biscuit-card {
+  background: linear-gradient(135deg, #1C1C1C, #2A2A2A);
+  border: 2px solid rgba(255,215,0,0.3);
+  border-radius: 20px;
+  padding: 30px;
+  text-align: center;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.biscuit-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #FFD700, #FFF8DC, #FFD700);
+}
+
+.biscuit-card:hover {
+  transform: translateY(-8px);
+  border-color: #FFD700;
+  box-shadow: 0 20px 50px rgba(255,215,0,0.25);
+}
+
+.biscuit-card img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #FFD700;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(255,215,0,0.3);
+  transition: transform 0.4s;
+}
+
+.biscuit-card:hover img {
+  transform: scale(1.05) rotate(2deg);
+}
+
+.biscuit-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  color: #FFD700;
+  margin-bottom: 10px;
+}
+
+.biscuit-card p {
+  color: #B8B8B8;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.btn-biscuit {
+  display: inline-block;
+  padding: 12px 30px;
+  background: linear-gradient(135deg, #25D366, #128C7E);
+  color: white;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.btn-biscuit:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(37,211,102,0.4);
+}
+
+/* ===================== BLOG SECTION ===================== */
+.blog-section {
+  padding: 80px 0;
+  background: linear-gradient(180deg, #0A0A0A, #1A1A1A);
+}
+
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  margin-top: 40px;
+}
+
+.blog-card {
+  background: linear-gradient(135deg, #1C1C1C, #2A2A2A);
+  border: 1px solid rgba(255,215,0,0.2);
+  border-radius: 16px;
+  padding: 30px 25px;
+  text-decoration: none;
+  color: #FFF8DC;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.blog-card:hover {
+  transform: translateY(-8px);
+  border-color: #FFD700;
+  box-shadow: 0 20px 50px rgba(255,215,0,0.2);
+}
+
+.blog-icon {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+
+.blog-card h3 {
+  font-family: 'Playfair Display', serif;
+  color: #FFD700;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+.blog-card p {
+  color: #B8B8B8;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.blog-read {
+  color: #FFD700;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s;
+}
+
+.blog-card:hover .blog-read {
+  letter-spacing: 1px;
+}
+
+/* ===================== RATE TABS UPDATE ===================== */
+.tab-btn {
+  padding: 12px 30px;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ===================== MOBILE ===================== */
+@media (max-width: 768px) {
+  .top-bar-rates { gap: 8px; }
+  .rate-item { padding: 4px 10px; font-size: 0.75rem; }
+  .rate-value { font-size: 0.85rem; }
+  .rate-label { display: none; }
+  .divider { display: none; }
+  .blog-card { padding: 20px; }
+}/* ===== COMPACT RATE LINE CARDS ===== */
+.rates-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rate-line {
+  padding: 14px 20px;
+  border-radius: 12px;
+  transition: all 0.3s;
+}
+
+.rate-line:hover {
+  transform: translateX(8px);
+  border-color: #FFD700;
+  box-shadow: 0 10px 25px rgba(255,215,0,0.2);
+}
+
+.rate-line-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.rate-line-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: #FFD700;
+  font-weight: 700;
+  min-width: 130px;
+}
+
+.rate-line-value {
+  color: #FFF8DC;
+  font-weight: 700;
+  font-size: 1.15rem;
+}
+
+.rate-line-value small {
+  color: #888;
+  font-size: 0.75rem;
+  margin-left: 3px;
+}
+
+.rate-line-gram {
+  color: #90EE90;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.rate-line-gram small {
+  color: #888;
+  font-size: 0.7rem;
 }

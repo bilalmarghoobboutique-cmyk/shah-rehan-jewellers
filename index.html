@@ -15,10 +15,25 @@
 </head>
 <body>
 
-  <!-- TOP BAR -->
+  <!-- ===================== PREMIUM TOP BAR ===================== -->
   <div class="top-bar">
     <div class="container mx-auto px-4 flex justify-between items-center text-sm">
-   <span class="top-bar-text" id="topBarRate">📊 Loading live rates...</span>   <span class="top-bar-contact">📞 0092 326 6501314</span>
+      <div class="top-bar-rates" id="topBarRates">
+        <span class="rate-item">
+          <span class="rate-icon">👑</span>
+          <span class="rate-label">24K Gold</span>
+          <span class="rate-value" id="top24K">Loading...</span>
+          <span class="rate-unit">/tola</span>
+        </span>
+        <span class="divider">|</span>
+        <span class="rate-item pathoor-item">
+          <span class="rate-icon">🥇</span>
+          <span class="rate-label">Pathoor</span>
+          <span class="rate-value" id="topPathoor">Loading...</span>
+          <span class="rate-unit">/tola</span>
+        </span>
+      </div>
+      <span class="top-bar-contact">📞 0092 326 6501314</span>
     </div>
   </div>
 
@@ -31,6 +46,7 @@
         <a href="collections.html" class="nav-link">Collections</a>
         <a href="about.html" class="nav-link">About</a>
         <a href="contact.html" class="nav-link">Contact</a>
+        <a href="blog.html" class="nav-link">Blog</a>
       </nav>
       <div style="display: flex; gap: 12px; align-items: center;">
         <a href="cart.html" style="position: relative; color: #FFD700; font-size: 1.5rem; text-decoration: none;">
@@ -66,8 +82,9 @@
       <p class="section-subtitle-urdu" dir="rtl">آج کا سونے اور چاندی کا ریٹ</p>
       
       <div class="rate-tabs">
-        <button class="tab-btn active" onclick="switchRateTab('gold')">Gold</button>
-        <button class="tab-btn" onclick="switchRateTab('silver')">Silver</button>
+        <button class="tab-btn active" onclick="switchRateTab('gold')">👑 Gold</button>
+        <button class="tab-btn" onclick="switchRateTab('silver')">💍 Silver</button>
+        <button class="tab-btn" onclick="switchRateTab('biscuits')">🪙 Biscuits</button>
       </div>
 
       <div id="goldRatesTab" class="rates-content">
@@ -76,6 +93,23 @@
 
       <div id="silverRatesTab" class="rates-content hidden">
         <div id="silverRatesContainer" class="rates-grid-silver"></div>
+      </div>
+
+      <div id="biscuitsTab" class="rates-content hidden">
+        <div class="biscuits-grid">
+          <div class="biscuit-card">
+            <img src="images/gold-biscuit.jpg" alt="Gold Biscuit" onerror="this.src='images/placeholder.svg'">
+            <h3>Gold Biscuit</h3>
+            <p>24K Pure Gold • 1 Tola, 5 Tola, 10 Tola</p>
+            <a href="https://wa.me/923266501314?text=Gold%20Biscuit%20ka%20rate%20bata%20dein" class="btn-biscuit">WhatsApp for Rate</a>
+          </div>
+          <div class="biscuit-card">
+            <img src="images/silver-biscuit.jpg" alt="Silver Biscuit" onerror="this.src='images/placeholder.svg'">
+            <h3>Silver Biscuit</h3>
+            <p>999 Pure Silver • 1 Tola, 5 Tola, 10 Tola</p>
+            <a href="https://wa.me/923266501314?text=Silver%20Biscuit%20ka%20rate%20bata%20dein" class="btn-biscuit">WhatsApp for Rate</a>
+          </div>
+        </div>
       </div>
 
       <div class="usd-rate">
@@ -89,26 +123,66 @@
   <section class="categories-section">
     <div class="container mx-auto px-4">
       <h2 class="section-title">Our Collections</h2>
+      
       <div class="categories-grid">
         <a href="gold.html" class="category-card">
-          <div class="category-icon">👑</div>
-          <div class="category-name">Gold</div>
+          <div class="category-logo">
+            <svg viewBox="0 0 100 100" fill="none">
+              <circle cx="50" cy="50" r="40" stroke="#FFD700" stroke-width="2"/>
+              <path d="M30 50 L50 30 L70 50 L50 70 Z" fill="#FFD700" opacity="0.3"/>
+              <path d="M30 50 L50 30 L70 50 L50 70 Z" stroke="#FFD700" stroke-width="1.5"/>
+              <text x="50" y="58" text-anchor="middle" font-family="Playfair Display" font-size="20" font-weight="900" fill="#FFD700">Au</text>
+            </svg>
+          </div>
+          <div class="category-name">Gold Jewellery</div>
         </a>
+
         <a href="silver.html" class="category-card">
-          <div class="category-icon">💍</div>
-          <div class="category-name">Silver</div>
+          <div class="category-logo">
+            <svg viewBox="0 0 100 100" fill="none">
+              <circle cx="50" cy="50" r="40" stroke="#C0C0C0" stroke-width="2"/>
+              <path d="M30 50 L50 30 L70 50 L50 70 Z" fill="#C0C0C0" opacity="0.3"/>
+              <path d="M30 50 L50 30 L70 50 L50 70 Z" stroke="#C0C0C0" stroke-width="1.5"/>
+              <text x="50" y="58" text-anchor="middle" font-family="Playfair Display" font-size="20" font-weight="900" fill="#C0C0C0">Ag</text>
+            </svg>
+          </div>
+          <div class="category-name">Silver Jewellery</div>
         </a>
+
         <a href="diamond.html" class="category-card">
-          <div class="category-icon">💎</div>
+          <div class="category-logo">
+            <svg viewBox="0 0 100 100" fill="none">
+              <circle cx="50" cy="50" r="40" stroke="#93C5FD" stroke-width="2"/>
+              <polygon points="50,25 70,40 65,70 35,70 30,40" fill="#93C5FD" opacity="0.3"/>
+              <polygon points="50,25 70,40 65,70 35,70 30,40" stroke="#93C5FD" stroke-width="1.5"/>
+              <text x="50" y="58" text-anchor="middle" font-family="Playfair Display" font-size="18" font-weight="900" fill="#93C5FD">C</text>
+            </svg>
+          </div>
           <div class="category-name">Diamond</div>
         </a>
+
         <a href="artificial.html" class="category-card">
-          <div class="category-icon">✨</div>
+          <div class="category-logo">
+            <svg viewBox="0 0 100 100" fill="none">
+              <circle cx="50" cy="50" r="40" stroke="#F472B6" stroke-width="2"/>
+              <path d="M50 30 L60 45 L75 50 L60 55 L50 70 L40 55 L25 50 L40 45 Z" fill="#F472B6" opacity="0.3"/>
+              <path d="M50 30 L60 45 L75 50 L60 55 L50 70 L40 55 L25 50 L40 45 Z" stroke="#F472B6" stroke-width="1.5"/>
+            </svg>
+          </div>
           <div class="category-name">Artificial</div>
         </a>
+
         <a href="coins.html" class="category-card">
-          <div class="category-icon">🪙</div>
-          <div class="category-name">Coins</div>
+          <div class="category-logo">
+            <svg viewBox="0 0 100 100" fill="none">
+              <ellipse cx="50" cy="40" rx="30" ry="12" fill="#FFD700" opacity="0.3"/>
+              <ellipse cx="50" cy="40" rx="30" ry="12" stroke="#FFD700" stroke-width="1.5"/>
+              <ellipse cx="50" cy="55" rx="30" ry="12" fill="#C0C0C0" opacity="0.3"/>
+              <ellipse cx="50" cy="55" rx="30" ry="12" stroke="#C0C0C0" stroke-width="1.5"/>
+              <text x="50" y="60" text-anchor="middle" font-family="Playfair Display" font-size="14" font-weight="900" fill="#FFD700">Au/Ag</text>
+            </svg>
+          </div>
+          <div class="category-name">Gold & Silver Biscuits</div>
         </a>
       </div>
     </div>
@@ -122,6 +196,39 @@
       
       <div id="productsGrid" class="products-grid">
         <div class="loading-spinner">Loading products...</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOG SECTION -->
+  <section class="blog-section">
+    <div class="container mx-auto px-4">
+      <h2 class="section-title">Latest from Our Blog</h2>
+      <p class="section-subtitle-urdu" dir="rtl">ہمارے بلاگ سے تازہ ترین</p>
+      
+      <div class="blog-grid">
+        <a href="blog.html" class="blog-card">
+          <div class="blog-icon">📰</div>
+          <h3>Gold Rate Today</h3>
+          <p>Daily Lahore gold rate updates and market analysis</p>
+          <span class="blog-read">Read More →</span>
+        </a>
+        <a href="blog.html" class="blog-card">
+          <div class="blog-icon">💍</div>
+          <h3>Bridal Jewellery Trends 2026</h3>
+          <p>Latest bridal sets and design inspirations</p>
+          <span class="blog-read">Read More →</span>
+        </a>
+        <a href="blog.html" class="blog-card">
+          <div class="blog-icon">📊</div>
+          <h3>Investment in Gold</h3>
+          <p>Why gold biscuits are a smart investment</p>
+          <span class="blog-read">Read More →</span>
+        </a>
+      </div>
+      
+      <div style="text-align: center; margin-top: 30px;">
+        <a href="blog.html" class="btn-gold">📚 View All Blog Posts</a>
       </div>
     </div>
   </section>
@@ -214,11 +321,14 @@
           <h4>Quick Links</h4>
           <a href="about.html">About Us</a>
           <a href="contact.html">Contact</a>
+          <a href="blog.html">Blog</a>
           <a href="disclaimer.html">Disclaimer</a>
         </div>
         <div>
           <h4>Follow Us</h4>
           <a href="https://wa.me/923266501314">WhatsApp</a>
+          <a href="#">Instagram</a>
+          <a href="#">Facebook</a>
         </div>
       </div>
       

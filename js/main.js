@@ -102,46 +102,153 @@ async function loadLiveRates() {
   }
 }
 
-// ===== RENDER GOLD RATES (Compact Line Style) =====
+// ===== RENDER GOLD RATES (Beautiful Carousel) =====
 function renderGoldRates() {
   const container = document.getElementById('goldRatesContainer');
   if (!container) return;
   
   const karats = ['24K', '22K', '21K', '18K', '16K', '14K', '12K', '10K', '8K', 'Pathoor'];
   
-  container.innerHTML = karats.map((karat, index) => {
+  const slides = karats.map((karat, index) => {
     const pkrPerTola = LIVE_RATES.gold[karat] || 0;
     const pkrPerGram = currentRatesPerGram[karat] || Math.round(pkrPerTola / WEIGHT.tola);
+    const pkrPerMasha = Math.round(pkrPerTola / 12);
+    const pkrPerRatti = Math.round(pkrPerTola / 96);
     const isPathoor = karat === 'Pathoor';
-    const titleText = isPathoor ? '🥇 Pathoor Gold' : `${karat} Gold`;
     
     return `
-      <div class="rate-line ${isPathoor ? 'pathoor-line' : ''}" style="animation-delay: ${index * 0.1}s">
-        <span class="rate-line-title">${titleText}</span>
-        <span class="rate-line-value">Rs ${Math.round(pkrPerTola).toLocaleString()}<small>/tola</small></span>
-        <span class="rate-line-gram">Rs ${pkrPerGram.toLocaleString()}<small>/g</small></span>
+      <div class="karat-slide ${index === 0 ? 'active' : ''} ${isPathoor ? 'pathoor-slide' : ''}" data-index="${index}">
+        <div class="karat-box">
+          <div class="sparkle sparkle-1"></div>
+          <div class="sparkle sparkle-2"></div>
+          <div class="sparkle sparkle-3"></div>
+          
+          <div class="karat-header">
+            <span class="karat-icon">${isPathoor ? '🥇' : '👑'}</span>
+            <span class="karat-title">${isPathoor ? 'PATHOOR GOLD' : karat + ' GOLD'}</span>
+          </div>
+          
+          <div class="karat-main-rate">
+            <div class="rate-label">Per Tola</div>
+            <div class="rate-tola">Rs ${Math.round(pkrPerTola).toLocaleString()}</div>
+          </div>
+          
+          <div class="karat-details">
+            <div class="detail-item">
+              <div class="detail-label">Per Gram</div>
+              <div class="detail-value">Rs ${pkrPerGram.toLocaleString()}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Per Masha</div>
+              <div class="detail-value">Rs ${pkrPerMasha.toLocaleString()}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Per Ratti</div>
+              <div class="detail-value">Rs ${pkrPerRatti}</div>
+            </div>
+          </div>
+        </div>
       </div>
     `;
   }).join('');
+  
+  container.innerHTML = `
+    <div class="karat-carousel">
+      ${slides}
+    </div>
+    <div class="carousel-dots" id="carouselDots">
+      ${karats.map((_, i) => `<span class="dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})"></span>`).join('')}
+    </div>
+  `;
+  
+  // Start carousel
+  startKaratCarousel(karats.length);
 }
 
-// ===== RENDER SILVER RATES (Compact Line Style) =====
+// ===== CAROUSEL LOGIC =====
+let carouselInterval = null;
+let currentSlide = 0;
+let carouselCount = 0;
+
+function startKaratCarousel(total) {
+  carouselCount = total;
+  currentSlide = 0;
+  
+  if (carouselInterval) clearInterval(carouselInterval);
+  
+  carouselInterval = setInterval(() => {
+    currentSlide = (currentSlide + 1) % total;
+    showSlide(currentSlide);
+  }, 10000);
+}
+
+function showSlide(index) {
+  const slides = document.querySelectorAll('.karat-slide');
+  const dots = document.querySelectorAll('.carousel-dots .dot');
+  
+  slides.forEach((slide, i) => {
+    slide.classList.toggle('active', i === index);
+  });
+  
+  dots.forEach((dot, i) => {
+    dot.classList.toggle('active', i === index);
+  });
+  
+  currentSlide = index;
+}
+
+function goToSlide(index) {
+  if (carouselInterval) clearInterval(carouselInterval);
+  showSlide(index);
+  
+  carouselInterval = setInterval(() => {
+    currentSlide = (currentSlide + 1) % carouselCount;
+    showSlide(currentSlide);
+  }, 10000);
+}
+
+// ===== RENDER SILVER RATES (Beautiful Carousel) =====
 function renderSilverRates() {
   const container = document.getElementById('silverRatesContainer');
   if (!container) return;
   
   const silver = LIVE_RATES.silver;
+  const usdPerGram = (silver.perGram / LIVE_RATES.usdToPkr).toFixed(2);
   
   container.innerHTML = `
-    <div class="rate-line silver-line">
-      <span class="rate-line-title">💍 Silver</span>
-      <span class="rate-line-value">Rs ${silver.perTola.toLocaleString()}<small>/tola</small></span>
-      <span class="rate-line-gram">Rs ${silver.perGram.toFixed(2)}<small>/g</small></span>
-    </div>
-    <div class="rate-line silver-line">
-      <span class="rate-line-title">💍 Silver (10g)</span>
-      <span class="rate-line-value">Rs ${silver.per10Gram.toLocaleString()}<small>/10g</small></span>
-      <span class="rate-line-gram">$${(silver.per10Gram / LIVE_RATES.usdToPkr).toFixed(2)}<small>/10g</small></span>
+    <div class="silver-carousel">
+      <div class="karat-slide active silver-slide">
+        <div class="karat-box silver-box">
+          <div class="sparkle sparkle-1"></div>
+          <div class="sparkle sparkle-2"></div>
+          <div class="sparkle sparkle-3"></div>
+          
+          <div class="karat-header">
+            <span class="karat-icon">💍</span>
+            <span class="karat-title">SILVER RATE</span>
+          </div>
+          
+          <div class="karat-main-rate">
+            <div class="rate-label">Per Tola</div>
+            <div class="rate-tola">Rs ${silver.perTola.toLocaleString()}</div>
+          </div>
+          
+          <div class="karat-details">
+            <div class="detail-item">
+              <div class="detail-label">Per Gram</div>
+              <div class="detail-value">Rs ${silver.perGram.toFixed(2)}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Per 10 Gram</div>
+              <div class="detail-value">Rs ${silver.per10Gram.toLocaleString()}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">USD/Gram</div>
+              <div class="detail-value">$${usdPerGram}</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   `;
 }
@@ -161,6 +268,9 @@ function switchRateTab(tab) {
   
   if (tab === 'gold' && goldTab) {
     goldTab.classList.remove('hidden');
+    // Restart carousel
+    if (carouselInterval) clearInterval(carouselInterval);
+    startKaratCarousel(carouselCount);
   } else if (tab === 'silver' && silverTab) {
     silverTab.classList.remove('hidden');
   } else if (tab === 'biscuits' && biscuitsTab) {

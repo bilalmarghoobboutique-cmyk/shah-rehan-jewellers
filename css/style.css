@@ -2036,4 +2036,50 @@ html { scroll-behavior: smooth; }
   .biscuit-units { grid-template-columns: 1fr 1fr; }
   .customer-form .form-row { grid-template-columns: 1fr; }
   .biscuit-metal-name { font-size: 1.4rem; }
+}/* ===== TAB LOGOS ===== */
+.tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 25px;
+}
+
+.tab-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #FFD700;
+  box-shadow: 0 0 10px rgba(255,215,0,0.4);
+}
+
+.tab-btn.active .tab-logo {
+  border-color: #0A0A0A;
+  box-shadow: 0 0 15px rgba(255,215,0,0.8);
+}
+
+/* ===== TOP BAR LOGO IMAGES ===== */
+.rate-icon-img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #FFD700;
+  box-shadow: 0 0 10px rgba(255,215,0,0.5);
+}
+
+.pathoor-item .rate-icon-img {
+  border-color: #25D366;
+  box-shadow: 0 0 10px rgba(37,211,102,0.5);
+}
+
+@media (max-width: 768px) {
+  .rate-icon-img {
+    width: 18px;
+    height: 18px;
+  }
+  .tab-logo {
+    width: 22px;
+    height: 22px;
+  }
 }

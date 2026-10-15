@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gold Collection – SHAH REHAN JEWELLERS</title>
+  <meta name="description" content="Premium 24K to 8K gold jewellery in Lahore Cantt. Hallmark certified, custom designs, live rates.">
   <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
@@ -33,7 +34,7 @@
 
   <!-- CATEGORY HERO -->
   <section class="cat-hero gold-hero">
-    <img src="images/gold-logo.jpg" alt="Gold" class="cat-hero-logo">
+    <img src="images/gold-logo.jpg" alt="Gold" class="cat-hero-logo" onerror="this.src='images/placeholder.svg'">
     <h1>Gold Collection</h1>
     <p>PURE GOLD • HALLMARK CERTIFIED</p>
   </section>
@@ -112,16 +113,41 @@
   <div id="productModal" class="modal-overlay">
     <div class="modal-content product-modal">
       <button class="modal-close" onclick="closeProductModal()">×</button>
+      
       <div class="modal-grid">
         <div class="modal-left">
           <img id="modalImage" src="" alt="Product" class="modal-image">
         </div>
+        
         <div class="modal-right">
           <h2 class="modal-title">SHAH REHAN JEWELLERS</h2>
           <h3 id="modalProductName" class="product-name"></h3>
           <p id="modalProductCode" class="product-code"></p>
           <p id="modalDescription" class="product-description"></p>
-          
+
+          <!-- PRODUCT DETAILS BOX -->
+          <div id="productDetailsBox" class="product-details-box"></div>
+
+          <!-- CUSTOM WEIGHT BUTTON -->
+          <button id="customWeightBtn" class="btn-custom-weight" onclick="toggleCustomWeight()" style="display:none;">
+            ⚖️ Apni Marzi ka Wazan Banwain
+          </button>
+
+          <!-- CUSTOM WEIGHT NOTICE BOX -->
+          <div id="customWeightBox" style="display: none;">
+            <div class="custom-weight-notice">
+              <div class="notice-icon">⚖️</div>
+              <div>
+                <strong>Custom Weight Order</strong>
+                <p>Apni pasand ka weight daalein. Hum aapke liye custom jewellery banayenge.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- DEFAULT PRICE BOX -->
+          <div id="defaultPriceBox"></div>
+
+          <!-- KARAT SECTION -->
           <div id="karatSection" class="form-group">
             <label class="form-label urdu" dir="rtl">آپ کس کیرٹ میں بنوانا چاہتے ہیں؟</label>
             <div class="karat-options">
@@ -136,7 +162,8 @@
               <label class="karat-option"><input type="radio" name="karat" value="8K"> 8K</label>
             </div>
           </div>
-          
+
+          <!-- COLOR SECTION (Artificial only - hidden for gold) -->
           <div id="colorSection" class="form-group" style="display: none;">
             <label class="form-label urdu" dir="rtl">رنگ منتخب کریں</label>
             <select id="modalColor" class="form-input">
@@ -147,12 +174,16 @@
             </select>
           </div>
           
+          <!-- SIZE -->
           <div class="form-group">
             <label class="form-label urdu" dir="rtl">آپ کا سائز</label>
-            <select id="modalSize" class="form-input"><option value="">Select Size</option></select>
+            <select id="modalSize" class="form-input">
+              <option value="">Select Size</option>
+            </select>
           </div>
           
-          <div id="weightSection" class="form-group">
+          <!-- WEIGHT (Hidden by default) -->
+          <div id="weightSection" class="form-group" style="display: none;">
             <label class="form-label urdu" dir="rtl">آپ کا مطلوبہ وزن</label>
             <div class="weight-input-group">
               <input type="number" id="modalWeight" class="form-input" placeholder="Enter weight" step="0.1" min="0.1">
@@ -187,11 +218,41 @@
     </div>
   </div>
 
+  <!-- FOOTER -->
   <footer class="site-footer">
-    <div class="container mx-auto px-4 py-12 text-center">
-      <p class="footer-brand">SHAH REHAN JEWELLERS</p>
-      <p style="color: #B8B8B8; margin: 15px 0;">Main Bazar #2, Ghaziabad, Lahore Cantt</p>
-      <p style="font-size: 9px; color: #666; margin-top: 30px;">Designed by Bilal Marghoob Creations | 0092 326 69501314</p>
+    <div class="container mx-auto px-4 py-12">
+      <div class="footer-grid">
+        <div>
+          <h3 class="footer-brand">SHAH REHAN JEWELLERS</h3>
+          <p>Main Bazar #2, Ghaziabad, Lahore Cantt</p>
+          <p>📞 0092 326 6501314</p>
+          <p>✉️ shahrehanjewellers@google.com</p>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <a href="about.html">About Us</a>
+          <a href="contact.html">Contact</a>
+          <a href="blog.html">Blog</a>
+          <a href="disclaimer.html">Disclaimer</a>
+        </div>
+        <div>
+          <h4>Follow Us</h4>
+          <a href="https://wa.me/923266501314">WhatsApp</a>
+          <a href="#">Instagram</a>
+          <a href="#">Facebook</a>
+        </div>
+      </div>
+      
+      <div class="footer-taglines">
+        <p dir="rtl">آپ کا آرڈر رازداری کے ساتھ آپ تک پہنچایا جائے گا</p>
+        <p dir="rtl">آخر میں آپ کا اعتماد، ہماری ضمانت</p>
+        <p dir="rtl">ہر قدم مکمل شفافیت کے ساتھ</p>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>© 2026 SHAH REHAN JEWELLERS. All Rights Reserved.</p>
+        <p class="creator-credit">Designed by Bilal Marghoob Creations | 0092 326 69501314</p>
+      </div>
     </div>
   </footer>
 

@@ -87,60 +87,59 @@
         <button class="tab-btn" onclick="switchRateTab('biscuits')">🪙 Biscuits</button>
       </div>
 
+      <!-- GOLD TAB -->
       <div id="goldRatesTab" class="rates-content">
         <div id="goldRatesContainer" class="rates-grid"></div>
       </div>
 
+      <!-- SILVER TAB -->
       <div id="silverRatesTab" class="rates-content hidden">
         <div id="silverRatesContainer" class="rates-grid-silver"></div>
       </div>
 
+      <!-- BISCUITS TAB -->
       <div id="biscuitsTab" class="rates-content hidden">
         <div class="biscuits-grid">
-          
-          <!-- GOLD BISCUIT -->
+
+          <!-- ===== GOLD BISCUIT ===== -->
           <div class="biscuit-card">
             <div class="biscuit-logo-wrap">
               <img src="images/gold-buiscuit-logo.jpg" alt="Gold Biscuit" onerror="this.src='images/placeholder.svg'">
             </div>
             <h3>🪙 Gold Biscuit</h3>
-            <p>24K Pure Gold • 1 Tola, 5 Tola, 10 Tola</p>
-            
-            <div class="biscuit-live-rates">
-              <div class="biscuit-rate-row">
-                <img src="images/gold-logo.jpg" alt="24K Gold" class="biscuit-mini-logo" onerror="this.style.display='none'">
-                <span class="biscuit-rate-label">24K Gold</span>
-                <span class="biscuit-rate-value" id="biscuit24KRate">Rs --</span>
-              </div>
-              <div class="biscuit-rate-row pathoor-row">
-                <img src="images/pathoor-logo.jpg" alt="Pathoor" class="biscuit-mini-logo" onerror="this.style.display='none'">
-                <span class="biscuit-rate-label">Pathoor</span>
-                <span class="biscuit-rate-value" id="biscuitPathoorRate">Rs --</span>
-              </div>
+            <p class="biscuit-subtitle">24K Pure Gold • Live Rate</p>
+
+            <div class="biscuit-units" id="goldBiscuitUnits">
+              <div class="loading-units">Loading rates...</div>
             </div>
-            
-            <a href="https://wa.me/923266501314?text=Gold%20Biscuit%20ka%20rate%20bata%20dein" class="btn-biscuit">📱 WhatsApp for Rate</a>
           </div>
-          
-          <!-- SILVER BISCUIT -->
+
+          <!-- ===== PATHOOR BISCUIT ===== -->
+          <div class="biscuit-card pathoor-biscuit-card">
+            <div class="biscuit-logo-wrap pathoor-logo-wrap">
+              <img src="images/pathoor-logo.jpg" alt="Pathoor Gold" onerror="this.src='images/placeholder.svg'">
+            </div>
+            <h3>🥇 Pathoor Gold</h3>
+            <p class="biscuit-subtitle">Local Market Rate • Live</p>
+
+            <div class="biscuit-units" id="pathoorBiscuitUnits">
+              <div class="loading-units">Loading rates...</div>
+            </div>
+          </div>
+
+          <!-- ===== SILVER BISCUIT ===== -->
           <div class="biscuit-card silver-biscuit-card">
-            <div class="biscuit-logo-wrap">
-              <img src="images/silver-biscuit-logo.jpg" alt="Silver Biscuit" onerror="this.src='images/placeholder.svg'">
+            <div class="biscuit-logo-wrap silver-logo-wrap">
+              <img src="images/silver-1.jpg" alt="Silver Biscuit" onerror="this.src='images/placeholder.svg'">
             </div>
             <h3>🥈 Silver Biscuit</h3>
-            <p>999 Pure Silver • 1 Tola, 5 Tola, 10 Tola</p>
-            
-            <div class="biscuit-live-rates">
-              <div class="biscuit-rate-row silver-row">
-                <img src="images/silver-logo.jpg" alt="Silver" class="biscuit-mini-logo" onerror="this.style.display='none'">
-                <span class="biscuit-rate-label">Silver</span>
-                <span class="biscuit-rate-value">Rs 6,651</span>
-              </div>
+            <p class="biscuit-subtitle">999 Pure Silver • Live Rate</p>
+
+            <div class="biscuit-units" id="silverBiscuitUnits">
+              <div class="loading-units">Loading rates...</div>
             </div>
-            
-            <a href="https://wa.me/923266501314?text=Silver%20Biscuit%20ka%20rate%20bata%20dein" class="btn-biscuit">📱 WhatsApp for Rate</a>
           </div>
-          
+
         </div>
       </div>
 

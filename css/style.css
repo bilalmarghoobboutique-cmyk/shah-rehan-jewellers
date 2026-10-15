@@ -2082,4 +2082,228 @@ html { scroll-behavior: smooth; }
     width: 22px;
     height: 22px;
   }
+}/* ===== CATEGORY HERO WITH LOGO ===== */
+.cat-hero {
+  height: 50vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.cat-hero-logo {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #FFD700;
+  box-shadow: 0 0 40px rgba(255,215,0,0.6);
+  margin-bottom: 20px;
+  animation: logo-bounce 3s infinite;
+}
+
+.silver-hero .cat-hero-logo {
+  border-color: #C0C0C0;
+  box-shadow: 0 0 40px rgba(192,192,192,0.6);
+}
+
+.diamond-hero .cat-hero-logo {
+  border-color: #93C5FD;
+  box-shadow: 0 0 40px rgba(147,197,253,0.6);
+}
+
+.artificial-hero .cat-hero-logo {
+  border-color: #F472B6;
+  box-shadow: 0 0 40px rgba(244,114,182,0.6);
+}
+
+.cat-hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+  color: #FFD700;
+  margin-bottom: 10px;
+  text-shadow: 0 0 25px rgba(255,215,0,0.5);
+}
+
+.silver-hero h1 { color: #C0C0C0; }
+.diamond-hero h1 { color: #93C5FD; }
+.artificial-hero h1 { color: #F472B6; }
+
+.cat-hero p {
+  color: #FFF8DC;
+  letter-spacing: 4px;
+  font-size: 0.9rem;
+}
+
+@keyframes logo-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ===== PRODUCT PRICE WITH DISCOUNT ===== */
+.price-row-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.original-price {
+  color: #999;
+  text-decoration: line-through;
+  font-size: 0.9rem;
+}
+
+.discounted-price {
+  color: #25D366;
+  font-weight: 800;
+  font-size: 1.15rem;
+}
+
+.discount-badge {
+  background: linear-gradient(135deg, #DC2626, #991B1B);
+  color: white;
+  padding: 3px 10px;
+  border-radius: 50px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.sold-qty {
+  color: #B8B8B8;
+  font-size: 0.8rem;
+  margin-top: 6px;
+}
+
+/* ===== CELEBRITY REVIEWS CAROUSEL ===== */
+.reviews-section {
+  padding: 60px 0;
+  background: linear-gradient(180deg, #0A0A0A, #1A1A1A);
+}
+
+.review-carousel {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+  margin-top: 40px;
+}
+
+.reviews-track {
+  display: flex;
+  transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.review-card {
+  min-width: 100%;
+  background: linear-gradient(135deg, #1C1C1C, #2A2A2A);
+  border: 2px solid rgba(255,215,0,0.3);
+  border-radius: 20px;
+  padding: 40px 30px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.review-photo {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #FFD700;
+  box-shadow: 0 0 30px rgba(255,215,0,0.5);
+  margin: 0 auto 20px;
+}
+
+.review-stars {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+}
+
+.review-text {
+  color: #FFF8DC;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  font-style: italic;
+  margin-bottom: 15px;
+}
+
+.review-name {
+  color: #FFD700;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.reviews-dots {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.rev-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255,215,0,0.3);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.rev-dot.active {
+  background: #FFD700;
+  width: 30px;
+  border-radius: 10px;
+}
+
+/* ===== WRITE A REVIEW ===== */
+.write-review-section {
+  padding: 60px 0;
+  background: #0A0A0A;
+}
+
+.review-form {
+  background: linear-gradient(135deg, #1C1C1C, #2A2A2A);
+  border: 2px solid rgba(255,215,0,0.3);
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 700px;
+  margin: 30px auto 0;
+}
+
+.review-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.review-form .form-group { margin-bottom: 20px; }
+.review-form .form-label {
+  color: #FFD700;
+  font-size: 0.85rem;
+  display: block;
+  margin-bottom: 8px;
+}
+.review-form .form-input {
+  width: 100%;
+  padding: 12px 15px;
+  background: #0A0A0A;
+  border: 1px solid rgba(255,215,0,0.3);
+  border-radius: 10px;
+  color: #FFF8DC;
+  font-size: 0.95rem;
+  font-family: 'Poppins', sans-serif;
+}
+.review-form .form-input:focus {
+  outline: none;
+  border-color: #FFD700;
+  box-shadow: 0 0 15px rgba(255,215,0,0.2);
+}
+
+@media (max-width: 768px) {
+  .review-form .form-row { grid-template-columns: 1fr; }
+  .cat-hero h1 { font-size: 2rem; }
+  .cat-hero-logo { width: 90px; height: 90px; }
 }

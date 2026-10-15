@@ -4,22 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Artificial Jewellery – SHAH REHAN JEWELLERS</title>
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-  <style>
-    body { background: #0A0A0A; color: #FFF8DC; font-family: 'Poppins', sans-serif; }
-    .cat-hero { height: 45vh; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
-    .cat-hero-bg { position: absolute; inset: 0; background: radial-gradient(circle at 40% 50%, rgba(244,114,182,0.4), transparent 60%), linear-gradient(135deg, #1A1A1A, #0A0A0A); }
-    .cat-hero h1 { font-family: 'Playfair Display', serif; font-size: 4rem; color: #F472B6; position: relative; z-index: 10; text-shadow: 0 4px 30px rgba(244,114,182,0.5); }
-    .cat-hero p { color: #FFF8DC; position: relative; z-index: 10; letter-spacing: 4px; margin-top: 10px; }
-    .container-main { max-width: 1400px; margin: 0 auto; padding: 40px 20px; }
-    .filters { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 30px; padding: 20px; background: #1C1C1C; border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; }
-    .filter-btn { padding: 8px 18px; background: transparent; border: 1px solid #FFD700; color: #FFD700; border-radius: 50px; cursor: pointer; font-size: 0.85rem; transition: all 0.3s; }
-    .filter-btn:hover, .filter-btn.active { background: #FFD700; color: #0A0A0A; }
-    .filter-select { padding: 8px 15px; background: #0A0A0A; border: 1px solid rgba(255,215,0,0.3); color: #FFF8DC; border-radius: 50px; font-size: 0.85rem; cursor: pointer; }
-    .filter-label { color: #B8B8B8; font-size: 0.85rem; }
-  </style>
 </head>
 <body>
 
@@ -31,6 +19,7 @@
         <a href="collections.html" class="nav-link">Collections</a>
         <a href="about.html" class="nav-link">About</a>
         <a href="contact.html" class="nav-link">Contact</a>
+        <a href="blog.html" class="nav-link">Blog</a>
       </nav>
       <div style="display: flex; gap: 12px; align-items: center;">
         <a href="cart.html" style="position: relative; color: #FFD700; font-size: 1.5rem; text-decoration: none;">
@@ -42,12 +31,10 @@
     </div>
   </header>
 
-  <section class="cat-hero">
-    <div class="cat-hero-bg"></div>
-    <div style="text-align: center;">
-      <h1>✨ Artificial Jewellery</h1>
-      <p>ELEGANT • AFFORDABLE • FIXED PRICE</p>
-    </div>
+  <section class="cat-hero artificial-hero">
+    <img src="images/artificial-logo.jpg" alt="Artificial" class="cat-hero-logo">
+    <h1>Artificial Jewellery</h1>
+    <p>ELEGANT • AFFORDABLE • FIXED PRICE</p>
   </section>
 
   <div class="container-main">
@@ -59,7 +46,6 @@
       <button class="filter-btn" onclick="filterBySubcategory('Earrings')">Earrings</button>
       <button class="filter-btn" onclick="filterBySubcategory('Rings')">Rings</button>
       <button class="filter-btn" onclick="filterBySubcategory('Bangles')">Bangles</button>
-      
       <select class="filter-select" onchange="sortProducts(this.value)">
         <option value="new">Sort: Newest</option>
         <option value="low">Price: Low to High</option>
@@ -72,6 +58,47 @@
     </div>
   </div>
 
+  <!-- CELEBRITY REVIEWS -->
+  <section class="reviews-section">
+    <div class="container-main">
+      <h2 class="section-title">⭐ Celebrity Reviews</h2>
+      <p class="section-subtitle-urdu" dir="rtl">ہمارے معزز گاہکوں کی رائے</p>
+      <div class="review-carousel" id="reviewCarousel"></div>
+    </div>
+  </section>
+
+  <!-- WRITE A REVIEW -->
+  <section class="write-review-section">
+    <div class="container-main">
+      <h2 class="section-title">✍️ Write Your Review</h2>
+      <p class="section-subtitle-urdu" dir="rtl">اپنی رائے دیں</p>
+      <form class="review-form" onsubmit="submitReview(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Your Name *</label>
+            <input type="text" id="reviewName" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Rating *</label>
+            <select id="reviewRating" class="form-input" required>
+              <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+              <option value="4">⭐⭐⭐⭐ Very Good</option>
+              <option value="3">⭐⭐⭐ Good</option>
+              <option value="2">⭐⭐ Fair</option>
+              <option value="1">⭐ Poor</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Your Review *</label>
+          <textarea id="reviewText" class="form-input" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn-gold" style="width: 100%; padding: 15px;">Submit Review</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- MODAL -->
   <div id="productModal" class="modal-overlay">
     <div class="modal-content product-modal">
       <button class="modal-close" onclick="closeProductModal()">×</button>
@@ -86,19 +113,12 @@
           <p id="modalDescription" class="product-description"></p>
           
           <div id="karatSection" class="form-group" style="display: none;">
-            <label class="form-label urdu" dir="rtl">آپ کس کیرٹ میں بنوانا چاہتے ہیں؟</label>
-            <div class="karat-options">
-              <label class="karat-option"><input type="radio" name="karat" value="N/A" checked> N/A</label>
-            </div>
+            <label class="form-label">Karat</label>
+            <input type="hidden" name="karat" value="N/A">
           </div>
           
-          <div class="form-group">
-            <label class="form-label urdu" dir="rtl">آپ کا سائز</label>
-            <select id="modalSize" class="form-input"><option value="">Select Size</option></select>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label urdu" dir="rtl">آپ کا مطلوبہ رنگ</label>
+          <div id="colorSection" class="form-group">
+            <label class="form-label urdu" dir="rtl">رنگ منتخب کریں</label>
             <select id="modalColor" class="form-input">
               <option value="Golden">Golden</option>
               <option value="Silver">Silver</option>
@@ -107,19 +127,20 @@
             </select>
           </div>
           
-          <div class="form-group" style="display: none;">
-            <label class="form-label urdu">وزن</label>
-            <input type="number" id="modalWeight" class="form-input" value="1" readonly>
-            <select id="modalUnit" class="form-input" style="display: none;">
-              <option value="gram" selected>Gram</option>
-            </select>
+          <div class="form-group">
+            <label class="form-label urdu" dir="rtl">آپ کا سائز</label>
+            <select id="modalSize" class="form-input"><option value="">Select Size</option></select>
+          </div>
+          
+          <div id="weightSection" class="form-group" style="display: none;">
+            <input type="hidden" id="modalWeight" value="0">
+            <input type="hidden" id="modalUnit" value="gram">
           </div>
           
           <button onclick="calculatePrice()" class="btn-calculate">Show Price</button>
           
           <div id="priceBreakdown" class="price-breakdown hidden">
-            <div class="price-row"><span>Fixed Price</span><span id="pGold">Rs 0</span></div>
-            <div class="price-row"><span>GST (3%)</span><span id="pGST">Rs 0</span></div>
+            <div class="price-row"><span>Price</span><span id="pGold">Rs 0</span></div>
             <div class="price-row total-row"><span>TOTAL</span><span id="pTotal">Rs 0</span></div>
           </div>
           
@@ -127,7 +148,6 @@
             <button onclick="addToCart()" class="btn-gold">Add to Cart</button>
             <button onclick="whatsappOrder()" class="btn-whatsapp">WhatsApp Order</button>
           </div>
-          
           <p class="urdu-tagline urdu" dir="rtl">آپ کا آرڈر رازداری کے ساتھ آپ تک پہنچایا جائے گا</p>
         </div>
       </div>
@@ -138,7 +158,6 @@
     <div class="container mx-auto px-4 py-12 text-center">
       <p class="footer-brand">SHAH REHAN JEWELLERS</p>
       <p style="color: #B8B8B8; margin: 15px 0;">Main Bazar #2, Ghaziabad, Lahore Cantt</p>
-      <p style="color: #B8B8B8;">📞 0092 326 6501314</p>
       <p style="font-size: 9px; color: #666; margin-top: 30px;">Designed by Bilal Marghoob Creations | 0092 326 69501314</p>
     </div>
   </footer>

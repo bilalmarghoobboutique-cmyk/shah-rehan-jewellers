@@ -92,7 +92,7 @@ async function loadCategoryProducts(category) {
   }
 }
 
-// ===== RENDER PRODUCTS =====
+// ===== RENDER PRODUCTS (With Discount + Thin Cut Line) =====
 function renderProducts(products) {
   const grid = document.getElementById('categoryProductsGrid');
   
@@ -104,12 +104,31 @@ function renderProducts(products) {
   grid.innerHTML = products.map(p => {
     const isArtificial = p.category === 'artificial';
     const isDiamond = p.category === 'diamond';
+    const isGold = p.category === 'gold';
+    const isSilver = p.category === 'silver';
+    
     const originalPrice = p.price || 0;
     const discountPct = p.discount_percent || 5;
     const discountedPrice = (isDiamond || isArtificial) ? Math.round(originalPrice * (1 - discountPct/100)) : originalPrice;
     const soldQty = p.sold_qty || Math.floor(Math.random() * 50) + 10;
     const weight = p.weight || 0;
-    const goldQuality = p.karat || (p.category === 'silver' ? 'Silver' : (isArtificial ? 'Artificial' : '24K'));
+    const goldQuality = p.karat || (isSilver ? 'Silver' : (isArtificial ? 'Artificial' : '24K'));
+    
+    let priceHtml = '';
+    if ((isDiamond || isArtificial) && discountPct > 0) {
+      priceHtml = `
+        <div class="price-row-wrapper">
+          <div class="original-price-box">
+            <span class="original-price">Rs ${originalPrice.toLocaleString()}</span>
+          </div>
+          <div class="discounted-price-box">
+            <span class="discounted-price">Rs ${discountedPrice.toLocaleString()}</span>
+          </div>
+        </div>
+      `;
+    } else {
+      priceHtml = `<p class="price">${formatPKR(originalPrice)}</p>`;
+    }
     
     return `
       <div class="product-card" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
@@ -125,18 +144,10 @@ function renderProducts(products) {
         <div class="product-info">
           <span class="category-tag">${goldQuality}</span>
           <h3>${p.name}</h3>
-          ${(isDiamond || isArtificial) && discountPct > 0 ? `
-            <div class="price-row-wrapper">
-              <span class="original-price">Rs ${originalPrice.toLocaleString()}</span>
-              <span class="discounted-price">Rs ${discountedPrice.toLocaleString()}</span>
-            </div>
-          ` : `
-            <p class="price">${formatPKR(originalPrice)}</p>
-          `}
+          ${priceHtml}
           ${weight > 0 ? `<p class="product-weight-info">⚖️ ${weight}g</p>` : ''}
           <p class="sold-qty">🛒 ${soldQty} sold</p>
           
-          <!-- READYMADE BUY BUTTONS -->
           <div class="readymade-buttons" onclick="event.stopPropagation()">
             <button class="btn-readymade-cart" onclick='quickAddToCart(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
               🛒 Add to Cart
@@ -151,7 +162,7 @@ function renderProducts(products) {
   }).join('');
 }
 
-// ===== QUICK ADD TO CART (Readymade) =====
+// ===== QUICK ADD TO CART =====
 function quickAddToCart(product) {
   const isArtificial = product.category === 'artificial';
   const isDiamond = product.category === 'diamond';
@@ -161,7 +172,6 @@ function quickAddToCart(product) {
     ? Math.round(originalPrice * (1 - discountPct/100)) 
     : originalPrice;
   
-  // For gold/silver, calculate price based on product weight
   let finalPrice = discountedPrice;
   if ((product.category === 'gold' || product.category === 'silver') && product.weight) {
     const ratePerGram = product.category === 'silver' 
@@ -194,7 +204,7 @@ function quickAddToCart(product) {
   alert('✅ Added to cart!\n\n' + product.name + '\nPrice: Rs ' + finalPrice.toLocaleString() + '\n\nItems in cart: ' + cart.length);
 }
 
-// ===== QUICK WHATSAPP (Readymade) =====
+// ===== QUICK WHATSAPP =====
 function quickWhatsApp(product) {
   const originalPrice = product.price || 0;
   const discountPct = product.discount_percent || 0;
@@ -227,12 +237,17 @@ function quickWhatsApp(product) {
 }
 
 // ===== FILTERS =====
-function filterByKarat(karat) {
+function filterByKarat(karat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
   if (!karat) { renderProducts(allProducts); return; }
   renderProducts(allProducts.filter(p => p.karat === karat));
 }
 
-function filterBySubcategory(sub) {
+function filterBySubcategory(sub, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  if (!sub) { renderProducts(allProducts); return; }
   renderProducts(allProducts.filter(p => p.subcategory === sub));
 }
 
@@ -397,7 +412,7 @@ function openProductModal(product) {
   
   if (priceBreakdown) priceBreakdown.classList.add('hidden');
   
-  // ===== DEFAULT READYMADE BUTTONS (For gold/silver) =====
+  // ===== DEFAULT READYMADE BUTTONS =====
   const readymadeButtons = document.getElementById('readymadeButtons');
   if (readymadeButtons) {
     readymadeButtons.style.display = (isGold || isSilver) ? 'grid' : 'none';
@@ -407,7 +422,7 @@ function openProductModal(product) {
   document.body.style.overflow = 'hidden';
 }
 
-// ===== READYMADE BUY FROM MODAL (Default weight) =====
+// ===== READYMADE BUY FROM MODAL =====
 function buyReadymade() {
   if (!currentProduct) return;
   quickAddToCart(currentProduct);
@@ -466,12 +481,11 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') closeProductModal();
 });
 
-// ===== SIZE OPTIONS (Category-wise) =====
+// ===== SIZE OPTIONS =====
 function getSizeOptions(category, subcategory) {
   const sub = (subcategory || '').toLowerCase();
   const cat = (category || '').toLowerCase();
   
-  // RINGS
   if (sub.includes('ring') || sub.includes('baby ring')) {
     if (sub.includes('baby')) {
       return ['1','2','3','4','5','6','7','8','9'].map(s => `<option value="${s}">${s}</option>`).join('');
@@ -480,37 +494,31 @@ function getSizeOptions(category, subcategory) {
       .map(s => `<option value="${s}">${s}</option>`).join('');
   }
   
-  // BANGLES
   if (sub.includes('bangle') || sub.includes('kara') || sub.includes('choori')) {
     return ['2.2','2.4','2.6','2.8','2.10','2.12']
       .map(s => `<option value="${s}">${s}</option>`).join('');
   }
   
-  // BRACELETS
   if (sub.includes('bracelet')) {
     return ['6"','6.5"','7"','7.5"','8"','8.5"']
       .map(s => `<option value="${s}">${s}</option>`).join('');
   }
   
-  // CHAINS
   if (sub.includes('chain')) {
     return ['14"','16"','18"','20"','22"','24"','26"','30"']
       .map(s => `<option value="${s}">${s}</option>`).join('');
   }
   
-  // ANKLETS
   if (sub.includes('anklet') || sub.includes('payal')) {
     return ['9"','10"','11"','12"']
       .map(s => `<option value="${s}">${s}</option>`).join('');
   }
   
-  // NECKLACE SETS
   if (sub.includes('necklace') || sub.includes('haar') || sub.includes('choker')) {
     return ['14"','16"','18"','20"','22"','24"']
       .map(s => `<option value="${s}">${s}</option>`).join('');
   }
   
-  // EARRINGS - Types
   if (sub.includes('earring') || sub.includes('jhumka')) {
     return `
       <option value="Stud">Stud</option>
@@ -521,23 +529,19 @@ function getSizeOptions(category, subcategory) {
     `;
   }
   
-  // PENDANTS
   if (sub.includes('pendant')) {
     return ['16"','18"','20"','22"'].map(s => `<option value="${s}">${s}</option>`).join('');
   }
   
-  // COINS
   if (sub.includes('coin')) {
     return ['1g','2g','2.5g','5g','10g','20g','50g','100g']
       .map(s => `<option value="${s}">${s}</option>`).join('');
   }
   
-  // BRIDAL SETS / OTHER
   if (sub.includes('bridal')) {
     return `<option value="Standard">Standard</option>`;
   }
   
-  // DEFAULT
   return ['Small','Medium','Large','Standard'].map(s => `<option value="${s}">${s}</option>`).join('');
 }
 
@@ -602,7 +606,7 @@ function calculatePrice() {
   document.getElementById('priceBreakdown').classList.remove('hidden');
 }
 
-// ===== ADD TO CART (From custom weight) =====
+// ===== ADD TO CART (Custom weight) =====
 function addToCart() {
   if (!currentProduct) return;
   

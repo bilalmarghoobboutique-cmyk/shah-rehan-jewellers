@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Artificial Jewellery – SHAH REHAN JEWELLERS</title>
+  <meta name="description" content="Elegant artificial jewellery in Lahore Cantt. Affordable prices.">
   <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;600;700&family=Noto+Nastaliq+Urdu:wght@400;700&display=swap" rel="stylesheet">
@@ -32,25 +33,29 @@
   </header>
 
   <section class="cat-hero artificial-hero">
-    <img src="images/artificial-logo.jpg" alt="Artificial" class="cat-hero-logo">
+    <img src="images/artificial-logo.jpg" alt="Artificial" class="cat-hero-logo" onerror="this.src='images/placeholder.svg'">
     <h1>Artificial Jewellery</h1>
     <p>ELEGANT • AFFORDABLE • FIXED PRICE</p>
   </section>
 
   <div class="container-main">
-    <div class="filters">
-      <span class="filter-label">Filter:</span>
-      <button class="filter-btn active" onclick="renderProducts(allProducts)">All</button>
-      <button class="filter-btn" onclick="filterBySubcategory('Bridal Sets')">Bridal Sets</button>
-      <button class="filter-btn" onclick="filterBySubcategory('Necklace Sets')">Necklace Sets</button>
-      <button class="filter-btn" onclick="filterBySubcategory('Earrings')">Earrings</button>
-      <button class="filter-btn" onclick="filterBySubcategory('Rings')">Rings</button>
-      <button class="filter-btn" onclick="filterBySubcategory('Bangles')">Bangles</button>
-      <select class="filter-select" onchange="sortProducts(this.value)">
-        <option value="new">Sort: Newest</option>
-        <option value="low">Price: Low to High</option>
-        <option value="high">Price: High to Low</option>
-      </select>
+    <div class="filters-bar">
+      <div class="filter-group">
+        <span class="filter-label">Filter:</span>
+        <button class="filter-btn active" onclick="renderProducts(allProducts)">All</button>
+        <button class="filter-btn" onclick="filterBySubcategory('Bridal Sets')">Bridal Sets</button>
+        <button class="filter-btn" onclick="filterBySubcategory('Necklace Sets')">Necklace Sets</button>
+        <button class="filter-btn" onclick="filterBySubcategory('Earrings')">Earrings</button>
+        <button class="filter-btn" onclick="filterBySubcategory('Rings')">Rings</button>
+        <button class="filter-btn" onclick="filterBySubcategory('Bangles')">Bangles</button>
+      </div>
+      <div class="sort-group">
+        <select class="filter-select" onchange="sortProducts(this.value)">
+          <option value="new">Sort: Newest</option>
+          <option value="low">Price: Low to High</option>
+          <option value="high">Price: High to Low</option>
+        </select>
+      </div>
     </div>
     
     <div id="categoryProductsGrid" class="products-grid">
@@ -58,7 +63,6 @@
     </div>
   </div>
 
-  <!-- CELEBRITY REVIEWS -->
   <section class="reviews-section">
     <div class="container-main">
       <h2 class="section-title">⭐ Celebrity Reviews</h2>
@@ -67,7 +71,6 @@
     </div>
   </section>
 
-  <!-- WRITE A REVIEW -->
   <section class="write-review-section">
     <div class="container-main">
       <h2 class="section-title">✍️ Write Your Review</h2>
@@ -98,25 +101,26 @@
     </div>
   </section>
 
-  <!-- MODAL -->
+  <!-- PRODUCT MODAL -->
   <div id="productModal" class="modal-overlay">
     <div class="modal-content product-modal">
       <button class="modal-close" onclick="closeProductModal()">×</button>
+      
       <div class="modal-grid">
         <div class="modal-left">
           <img id="modalImage" src="" alt="Product" class="modal-image">
         </div>
+        
         <div class="modal-right">
           <h2 class="modal-title">SHAH REHAN JEWELLERS</h2>
           <h3 id="modalProductName" class="product-name"></h3>
           <p id="modalProductCode" class="product-code"></p>
           <p id="modalDescription" class="product-description"></p>
-          
-          <div id="karatSection" class="form-group" style="display: none;">
-            <label class="form-label">Karat</label>
-            <input type="hidden" name="karat" value="N/A">
-          </div>
-          
+
+          <!-- PRODUCT DETAILS BOX (Price + Discount + Weight + Sold auto) -->
+          <div id="productDetailsBox" class="product-details-box"></div>
+
+          <!-- COLOR SECTION -->
           <div id="colorSection" class="form-group">
             <label class="form-label urdu" dir="rtl">رنگ منتخب کریں</label>
             <select id="modalColor" class="form-input">
@@ -126,28 +130,27 @@
               <option value="Multi">Multi</option>
             </select>
           </div>
-          
+
+          <!-- SIZE -->
           <div class="form-group">
             <label class="form-label urdu" dir="rtl">آپ کا سائز</label>
             <select id="modalSize" class="form-input"><option value="">Select Size</option></select>
           </div>
-          
-          <div id="weightSection" class="form-group" style="display: none;">
-            <input type="hidden" id="modalWeight" value="0">
-            <input type="hidden" id="modalUnit" value="gram">
-          </div>
-          
-          <button onclick="calculatePrice()" class="btn-calculate">Show Price</button>
-          
-          <div id="priceBreakdown" class="price-breakdown hidden">
-            <div class="price-row"><span>Price</span><span id="pGold">Rs 0</span></div>
-            <div class="price-row total-row"><span>TOTAL</span><span id="pTotal">Rs 0</span></div>
-          </div>
-          
+
+          <!-- HIDDEN ELEMENTS (for JS compatibility) -->
+          <div id="karatSection" style="display:none;"><input type="hidden" name="karat" value="N/A"></div>
+          <div id="weightSection" style="display:none;"><input type="hidden" id="modalWeight" value="0"><input type="hidden" id="modalUnit" value="gram"></div>
+          <div id="customWeightBox" style="display:none;"></div>
+          <div id="customWeightBtn" style="display:none;"></div>
+          <div id="autoPriceDisplay" style="display:none;"></div>
+          <div id="priceBreakdown" class="hidden"></div>
+
+          <!-- BUTTONS -->
           <div class="modal-buttons">
             <button onclick="addToCart()" class="btn-gold">Add to Cart</button>
             <button onclick="whatsappOrder()" class="btn-whatsapp">WhatsApp Order</button>
           </div>
+
           <p class="urdu-tagline urdu" dir="rtl">آپ کا آرڈر رازداری کے ساتھ آپ تک پہنچایا جائے گا</p>
         </div>
       </div>
@@ -155,10 +158,37 @@
   </div>
 
   <footer class="site-footer">
-    <div class="container mx-auto px-4 py-12 text-center">
-      <p class="footer-brand">SHAH REHAN JEWELLERS</p>
-      <p style="color: #B8B8B8; margin: 15px 0;">Main Bazar #2, Ghaziabad, Lahore Cantt</p>
-      <p style="font-size: 9px; color: #666; margin-top: 30px;">Designed by Bilal Marghoob Creations | 0092 326 69501314</p>
+    <div class="container mx-auto px-4 py-12">
+      <div class="footer-grid">
+        <div>
+          <h3 class="footer-brand">SHAH REHAN JEWELLERS</h3>
+          <p>Main Bazar #2, Ghaziabad, Lahore Cantt</p>
+          <p>📞 0092 326 6501314</p>
+          <p>✉️ shahrehanjewellers@google.com</p>
+        </div>
+        <div>
+          <h4>Quick Links</h4>
+          <a href="about.html">About Us</a>
+          <a href="contact.html">Contact</a>
+          <a href="blog.html">Blog</a>
+          <a href="disclaimer.html">Disclaimer</a>
+        </div>
+        <div>
+          <h4>Follow Us</h4>
+          <a href="https://wa.me/923266501314">WhatsApp</a>
+          <a href="#">Instagram</a>
+          <a href="#">Facebook</a>
+        </div>
+      </div>
+      <div class="footer-taglines">
+        <p dir="rtl">آپ کا آرڈر رازداری کے ساتھ آپ تک پہنچایا جائے گا</p>
+        <p dir="rtl">آخر میں آپ کا اعتماد، ہماری ضمانت</p>
+        <p dir="rtl">ہر قدم مکمل شفافیت کے ساتھ</p>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2026 SHAH REHAN JEWELLERS. All Rights Reserved.</p>
+        <p class="creator-credit">Designed by Bilal Marghoob Creations | 0092 326 69501314</p>
+      </div>
     </div>
   </footer>
 

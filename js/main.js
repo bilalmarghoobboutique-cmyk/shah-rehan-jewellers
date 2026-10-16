@@ -80,7 +80,6 @@ async function loadLiveRates() {
     renderGoldRates();
     renderSilverRates();
 
-    // Initialize charts
     setTimeout(() => {
       initGoldChart();
       initSilverChart();
@@ -260,12 +259,68 @@ function updateCartCount() {
 }
 
 // =====================================================
-// PRODUCT SYSTEM
+// PRODUCT SYSTEM (Homepage - Advanced with Custom Weight)
 // =====================================================
 
 let currentProduct = null;
 let cart = JSON.parse(localStorage.getItem('srj_cart') || '[]');
 
+// Calculate Gold/Silver product price
+function calculateGoldSilverPrice(product) {
+  const isSilver = product.category === 'silver';
+  const weight = product.weight || 0;
+  if (!weight) return product.price || 0;
+  
+  const ratePerGram = isSilver 
+    ? (LIVE_RATES.silver.perGram || 570.10) 
+    : getRateForKarat(product.karat || '24K');
+  const metalValue = ratePerGram * weight;
+  const making = metalValue * 0.15;
+  const polish = metalValue * 0.10;
+  const subtotal = metalValue + making + polish;
+  const gst = subtotal * 0.03;
+  return Math.round(subtotal + gst);
+}
+
+// Get product prices with discount
+function getProductPrices(product) {
+  const isGold = product.category === 'gold';
+  const isSilver = product.category === 'silver';
+  
+  let originalPrice, discountedPrice, discountPct;
+  
+  if (isGold || isSilver) {
+    const calculated = calculateGoldSilverPrice(product);
+    const mrp = product.price || 0;
+    
+    if (product.discount_percent && product.discount_percent > 0) {
+      originalPrice = mrp || calculated;
+      discountPct = product.discount_percent;
+      discountedPrice = Math.round(originalPrice * (1 - discountPct/100));
+    } else if (mrp > 0 && calculated > 0 && mrp !== calculated) {
+      if (mrp > calculated) {
+        originalPrice = mrp;
+        discountedPrice = calculated;
+      } else {
+        originalPrice = calculated;
+        discountedPrice = mrp;
+      }
+      discountPct = Math.round(((originalPrice - discountedPrice) / originalPrice) * 100);
+    } else {
+      originalPrice = calculated || mrp;
+      discountedPrice = originalPrice;
+      discountPct = 0;
+    }
+  } else {
+    originalPrice = product.price || 0;
+    discountPct = product.discount_percent || 5;
+    discountedPrice = Math.round(originalPrice * (1 - discountPct/100));
+  }
+  
+  return { originalPrice, discountedPrice, discountPct };
+}
+
+// Load products
 async function loadProducts() {
   const grid = document.getElementById('productsGrid');
   if (!grid) return;
@@ -280,35 +335,7 @@ async function loadProducts() {
     }
     
     grid.innerHTML = products.map(p => {
-      const isGold = p.category === 'gold';
-      const isSilver = p.category === 'silver';
-      const isDiamond = p.category === 'diamond';
-      const isArtificial = p.category === 'artificial';
-      
-      let originalPrice, discountedPrice, discountPct;
-      
-      if (isGold || isSilver) {
-        const weight = p.weight || 0;
-        let calculatedPrice = p.price || 0;
-        if (weight) {
-          const ratePerGram = isSilver 
-            ? (LIVE_RATES.silver.perGram || 570.10) 
-            : getRateForKarat(p.karat || '24K');
-          const metalValue = ratePerGram * weight;
-          const making = metalValue * 0.15;
-          const polish = metalValue * 0.10;
-          calculatedPrice = Math.round((metalValue + making + polish) * 1.03);
-        }
-        originalPrice = p.price || calculatedPrice;
-        discountedPrice = calculatedPrice;
-        discountPct = originalPrice > discountedPrice 
-          ? Math.round(((originalPrice - discountedPrice) / originalPrice) * 100) 
-          : 0;
-      } else {
-        originalPrice = p.price || 0;
-        discountPct = p.discount_percent || 5;
-        discountedPrice = Math.round(originalPrice * (1 - discountPct/100));
-      }
+      const { originalPrice, discountedPrice, discountPct } = getProductPrices(p);
       
       return `
         <div class="product-card" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
@@ -333,27 +360,154 @@ async function loadProducts() {
               ` : ''}
               <div class="final-price-highlight">
                 <span class="final-price-value">Rs ${discountedPrice.toLocaleString()}</span>
+                ${discountPct > 0 ? `<span class="inline-discount-tag">${discountPct}% OFF</span>` : ''}
               </div>
             </div>
           </div>
         </div>
       `;
     }).join('');
-  } catch (error) { grid.innerHTML = '<div class="loading-spinner">Error loading products</div>'; }
+  } catch (error) { 
+    grid.innerHTML = '<div class="loading-spinner">Error loading products</div>'; 
+  }
 }
 
+// Open Product Modal (Advanced)
 function openProductModal(product) {
   currentProduct = product;
+  
   document.getElementById('modalImage').src = product.image_url || 'images/placeholder.svg';
   document.getElementById('modalProductName').textContent = product.name;
   document.getElementById('modalProductCode').textContent = `Code: SRJ-${product.id.slice(0, 6).toUpperCase()}`;
   document.getElementById('modalDescription').textContent = product.description || '';
+  
+  const isArtificial = product.category === 'artificial';
+  const isDiamond = product.category === 'diamond';
+  const isGold = product.category === 'gold';
+  const isSilver = product.category === 'silver';
+  
+  const { originalPrice, discountedPrice, discountPct } = getProductPrices(product);
+  
+  // ===== PRODUCT DETAILS BOX =====
+  const detailsBox = document.getElementById('productDetailsBox');
+  const soldQty = product.sold_qty || Math.floor(Math.random() * 50) + 10;
+  
+  if (detailsBox) {
+    detailsBox.innerHTML = `
+      <div class="product-details-grid">
+        ${product.weight ? `
+          <div class="detail-box">
+            <div class="detail-box-label">Weight</div>
+            <div class="detail-box-value">${product.weight}g</div>
+          </div>
+        ` : ''}
+        ${product.karat ? `
+          <div class="detail-box">
+            <div class="detail-box-label">Quality</div>
+            <div class="detail-box-value">${product.karat}</div>
+          </div>
+        ` : ''}
+        ${product.color ? `
+          <div class="detail-box">
+            <div class="detail-box-label">Color</div>
+            <div class="detail-box-value">${product.color}</div>
+          </div>
+        ` : ''}
+        ${product.size ? `
+          <div class="detail-box">
+            <div class="detail-box-label">Size</div>
+            <div class="detail-box-value">${product.size}</div>
+          </div>
+        ` : ''}
+        <div class="detail-box">
+          <div class="detail-box-label">Sold</div>
+          <div class="detail-box-value">${soldQty}</div>
+        </div>
+      </div>
+      
+      <!-- POPUP PRICE DISPLAY -->
+      <div class="popup-price-display">
+        ${discountPct > 0 ? `
+          <div class="popup-original-price">
+            <span class="popup-original-text">Rs ${originalPrice.toLocaleString()}</span>
+            <span class="popup-cut-line"></span>
+          </div>
+        ` : ''}
+        <div class="popup-final-price">
+          <span class="popup-price-label">${discountPct > 0 ? '🎉 Discounted Price' : '💰 Price'}</span>
+          <span class="popup-final-value">Rs ${discountedPrice.toLocaleString()}</span>
+          ${discountPct > 0 ? `<span class="popup-discount-tag">Save ${discountPct}%</span>` : ''}
+        </div>
+      </div>
+    `;
+    detailsBox.style.display = 'block';
+  }
+  
+  // Hide auto price (already in details box)
+  const autoPrice = document.getElementById('autoPriceDisplay');
+  if (autoPrice) {
+    autoPrice.innerHTML = '';
+    autoPrice.style.display = 'none';
+  }
+  
+  // ===== SIZE =====
   const sizeSelect = document.getElementById('modalSize');
-  sizeSelect.innerHTML = '<option value="">Select Size</option>' + getSizeOptions(product.category, product.subcategory);
+  if (sizeSelect) {
+    const options = getSizeOptions(product.category, product.subcategory);
+    sizeSelect.innerHTML = '<option value="">Select Size</option>' + options;
+    if (product.size) {
+      const option = Array.from(sizeSelect.options).find(o => o.value === product.size);
+      if (option) sizeSelect.value = product.size;
+    }
+  }
+  
+  // ===== KARAT =====
   const karatSection = document.getElementById('karatSection');
-  karatSection.style.display = product.category === 'artificial' ? 'none' : 'block';
-  if (product.weight) document.getElementById('modalWeight').value = product.weight;
-  document.getElementById('priceBreakdown').classList.add('hidden');
+  if (karatSection) {
+    if (isArtificial || isDiamond) {
+      karatSection.style.display = 'none';
+    } else {
+      karatSection.style.display = 'block';
+      if (product.karat) {
+        const radio = document.querySelector(`input[name="karat"][value="${product.karat}"]`);
+        if (radio) radio.checked = true;
+      }
+    }
+  }
+  
+  // ===== COLOR (Artificial only) =====
+  const colorSection = document.getElementById('colorSection');
+  if (colorSection) {
+    colorSection.style.display = isArtificial ? 'block' : 'none';
+    if (product.color && isArtificial && document.getElementById('modalColor')) {
+      document.getElementById('modalColor').value = product.color;
+    }
+  }
+  
+  // ===== CUSTOM WEIGHT BUTTON (Gold/Silver only) =====
+  const customWeightBtn = document.getElementById('customWeightBtn');
+  const customWeightBox = document.getElementById('customWeightBox');
+  const priceBreakdown = document.getElementById('priceBreakdown');
+  
+  if (customWeightBtn) {
+    if (isGold || isSilver) {
+      customWeightBtn.style.display = 'block';
+      if (customWeightBox) customWeightBox.style.display = 'none';
+      customWeightBtn.innerHTML = '⚖️ Apni Marzi ka Wazan Banwain';
+    } else {
+      customWeightBtn.style.display = 'none';
+    }
+  }
+  
+  const weightSection = document.getElementById('weightSection');
+  if (weightSection) weightSection.style.display = 'none';
+  
+  if (priceBreakdown) priceBreakdown.classList.add('hidden');
+  
+  // ===== READYMADE BUTTONS =====
+  const readymadeButtons = document.getElementById('readymadeButtons');
+  if (readymadeButtons) readymadeButtons.style.display = 'grid';
+  
   document.getElementById('productModal').classList.add('active');
   document.body.style.overflow = 'hidden';
 }
@@ -371,76 +525,141 @@ document.addEventListener('click', (e) => {
 
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeProductModal(); });
 
+// Size options
 function getSizeOptions(category, subcategory) {
-  const sizes = {
-    'Rings': ['10','11','12','13','14','15','16','17','18','19','20'],
-    'Baby Rings': ['1','2','3','4','5','6','7','8','9'],
-    'Bangles': ['2.2','2.4','2.6','2.8','2.10','2.12'],
-    'Bracelets': ['6"','6.5"','7"','7.5"','8"'],
-    'Chains': ['14"','16"','18"','20"','22"','24"','26"','30"'],
-    'Anklets': ['9"','10"','11"'],
-    'Coins': ['1g','2g','2.5g','5g','10g','20g','50g','100g']
-  };
-  const options = sizes[subcategory] || sizes[category] || ['Standard'];
-  return options.map(s => `<option value="${s}">${s}</option>`).join('');
+  const sub = (subcategory || '').toLowerCase();
+  
+  if (sub.includes('ring') || sub.includes('baby ring')) {
+    if (sub.includes('baby')) {
+      return ['1','2','3','4','5','6','7','8','9'].map(s => `<option value="${s}">${s}</option>`).join('');
+    }
+    return ['10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25']
+      .map(s => `<option value="${s}">${s}</option>`).join('');
+  }
+  if (sub.includes('bangle') || sub.includes('kara') || sub.includes('choori')) {
+    return ['2.2','2.4','2.6','2.8','2.10','2.12'].map(s => `<option value="${s}">${s}</option>`).join('');
+  }
+  if (sub.includes('bracelet')) {
+    return ['6"','6.5"','7"','7.5"','8"','8.5"'].map(s => `<option value="${s}">${s}</option>`).join('');
+  }
+  if (sub.includes('chain')) {
+    return ['14"','16"','18"','20"','22"','24"','26"','30"'].map(s => `<option value="${s}">${s}</option>`).join('');
+  }
+  if (sub.includes('anklet') || sub.includes('payal')) {
+    return ['9"','10"','11"','12"'].map(s => `<option value="${s}">${s}</option>`).join('');
+  }
+  if (sub.includes('necklace') || sub.includes('haar') || sub.includes('choker')) {
+    return ['14"','16"','18"','20"','22"','24"'].map(s => `<option value="${s}">${s}</option>`).join('');
+  }
+  if (sub.includes('earring') || sub.includes('jhumka')) {
+    return `<option value="Stud">Stud</option><option value="Drop">Drop</option><option value="Jhumka">Jhumka</option><option value="Chandbali">Chandbali</option><option value="Hoop">Hoop</option>`;
+  }
+  if (sub.includes('pendant')) {
+    return ['16"','18"','20"','22"'].map(s => `<option value="${s}">${s}</option>`).join('');
+  }
+  if (sub.includes('coin')) {
+    return ['1g','2g','2.5g','5g','10g','20g','50g','100g'].map(s => `<option value="${s}">${s}</option>`).join('');
+  }
+  if (sub.includes('bridal')) {
+    return `<option value="Standard">Standard</option>`;
+  }
+  return ['Small','Medium','Large','Standard'].map(s => `<option value="${s}">${s}</option>`).join('');
 }
 
+// Toggle Custom Weight
+function toggleCustomWeight() {
+  const customWeightBox = document.getElementById('customWeightBox');
+  const customWeightBtn = document.getElementById('customWeightBtn');
+  const weightSection = document.getElementById('weightSection');
+  const calculateBtn = document.getElementById('calculateBtn');
+  const modalButtons = document.getElementById('modalButtons');
+  const priceBreakdown = document.getElementById('priceBreakdown');
+  const readymadeButtons = document.getElementById('readymadeButtons');
+  
+  if (customWeightBox.style.display === 'none' || !customWeightBox.style.display) {
+    customWeightBox.style.display = 'block';
+    weightSection.style.display = 'block';
+    if (calculateBtn) calculateBtn.style.display = 'block';
+    if (modalButtons) modalButtons.style.display = 'grid';
+    if (readymadeButtons) readymadeButtons.style.display = 'none';
+    customWeightBtn.innerHTML = '❌ Close Custom Weight';
+    if (priceBreakdown) priceBreakdown.classList.add('hidden');
+  } else {
+    customWeightBox.style.display = 'none';
+    weightSection.style.display = 'none';
+    if (calculateBtn) calculateBtn.style.display = 'none';
+    if (modalButtons) modalButtons.style.display = 'none';
+    if (readymadeButtons) readymadeButtons.style.display = 'grid';
+    customWeightBtn.innerHTML = '⚖️ Apni Marzi ka Wazan Banwain';
+    if (priceBreakdown) priceBreakdown.classList.add('hidden');
+  }
+}
+
+// Calculate Price (Custom weight)
 function calculatePrice() {
   if (!currentProduct) return;
+  
   const weight = parseFloat(document.getElementById('modalWeight').value);
   const unit = document.getElementById('modalUnit').value;
-  if (!weight || weight <= 0) { alert('Please enter a valid weight'); return; }
-  const weightInGrams = toGrams(weight, unit);
-  let karat = '24K';
-  const karatInput = document.querySelector('input[name="karat"]:checked');
-  if (karatInput && currentProduct.category !== 'artificial') karat = karatInput.value;
   
-  if (currentProduct.category === 'artificial') {
-    document.getElementById('pRate').textContent = 'Fixed Price';
-    document.getElementById('pWeight').textContent = '—';
-    document.getElementById('pGold').textContent = formatPKR(currentProduct.price);
-    document.getElementById('pMaking').textContent = '—';
-    document.getElementById('pPolish').textContent = '—';
-    document.getElementById('pGST').textContent = formatPKR(currentProduct.price * 0.03);
-    document.getElementById('pTotal').textContent = formatPKR(currentProduct.price * 1.03);
-    document.getElementById('priceBreakdown').classList.remove('hidden');
+  if (!weight || weight <= 0) {
+    alert('Please enter a valid weight');
     return;
   }
   
-  const ratePerGram = getRateForKarat(karat);
-  const goldValue = ratePerGram * weightInGrams;
-  const making = goldValue * 0.15;
-  const polish = goldValue * 0.10;
-  const subtotal = goldValue + making + polish;
+  const weightInGrams = toGrams(weight, unit);
+  
+  let karat = '24K';
+  const karatInput = document.querySelector('input[name="karat"]:checked');
+  if (karatInput) karat = karatInput.value;
+  
+  let ratePerGram;
+  if (currentProduct.category === 'silver') {
+    ratePerGram = (LIVE_RATES.silver.perGram || 570.10) / 1;
+  } else {
+    ratePerGram = getRateForKarat(karat);
+  }
+  
+  const metalValue = ratePerGram * weightInGrams;
+  const making = metalValue * 0.15;
+  const polish = metalValue * 0.10;
+  const subtotal = metalValue + making + polish;
   const gst = subtotal * 0.03;
   const total = subtotal + gst;
   
   document.getElementById('pRate').textContent = formatPKR(ratePerGram) + '/g';
   document.getElementById('pWeight').textContent = weightInGrams.toFixed(3) + ' g';
-  document.getElementById('pGold').textContent = formatPKR(goldValue);
+  document.getElementById('pGold').textContent = formatPKR(metalValue);
   document.getElementById('pMaking').textContent = formatPKR(making);
   document.getElementById('pPolish').textContent = formatPKR(polish);
   document.getElementById('pGST').textContent = formatPKR(gst);
   document.getElementById('pTotal').textContent = formatPKR(total);
+  
   document.getElementById('priceBreakdown').classList.remove('hidden');
 }
 
+// Add to Cart (Custom weight)
 function addToCart() {
   if (!currentProduct) return;
+  
   if (document.getElementById('priceBreakdown').classList.contains('hidden')) {
-    alert('Please calculate price first'); return;
+    alert('Please calculate price first');
+    return;
   }
+  
   const cartItem = {
     id: currentProduct.id,
     name: currentProduct.name,
-    karat: document.querySelector('input[name="karat"]:checked')?.value || 'N/A',
+    karat: document.querySelector('input[name="karat"]:checked')?.value || currentProduct.karat || 'N/A',
     weight: parseFloat(document.getElementById('modalWeight').value),
     unit: document.getElementById('modalUnit').value,
-    size: document.getElementById('modalSize').value,
+    size: document.getElementById('modalSize')?.value || 'Standard',
+    color: '',
     total: document.getElementById('pTotal').textContent,
     image: currentProduct.image_url,
     category: currentProduct.category
   };
+  
   cart.push(cartItem);
   localStorage.setItem('srj_cart', JSON.stringify(cart));
   updateCartCount();
@@ -448,14 +667,73 @@ function addToCart() {
   closeProductModal();
 }
 
+// WhatsApp Order (Custom weight)
 function whatsappOrder() {
   if (!currentProduct) return;
-  const weight = document.getElementById('modalWeight').value;
-  const unit = document.getElementById('modalUnit').value;
-  const size = document.getElementById('modalSize').value;
-  const karat = document.querySelector('input[name="karat"]:checked')?.value || 'N/A';
-  const total = document.getElementById('pTotal').textContent;
-  const message = `Assalam o Alaikum,%0A%0AMujhe yeh product order karni hai:%0A%0A📿 Product: ${currentProduct.name}%0A🔸 Karat: ${karat}%0A⚖️ Weight: ${weight} ${unit}%0A📏 Size: ${size || 'Standard'}%0A💰 Total: ${total}%0A%0APlease confirm karein.%0A%0ASHAH REHAN JEWELLERS`;
+  
+  const isCustomWeight = document.getElementById('customWeightBox')?.style.display === 'block';
+  
+  let total, weight;
+  if (isCustomWeight) {
+    total = document.getElementById('pTotal').textContent;
+    weight = document.getElementById('modalWeight').value + ' ' + document.getElementById('modalUnit').value;
+  } else {
+    const { discountedPrice } = getProductPrices(currentProduct);
+    total = 'Rs ' + discountedPrice.toLocaleString();
+    weight = currentProduct.weight + ' grams';
+  }
+  
+  const size = document.getElementById('modalSize')?.value || 'Standard';
+  const karat = document.querySelector('input[name="karat"]:checked')?.value || currentProduct.karat || 'N/A';
+  
+  let message = `Assalam o Alaikum,%0A%0AMujhe yeh product order karni hai:%0A%0A`;
+  message += `📿 Product: ${currentProduct.name}%0A`;
+  message += `🔸 Karat: ${karat}%0A`;
+  message += `⚖️ Weight: ${weight}%0A`;
+  if (size) message += `📏 Size: ${size}%0A`;
+  message += `💰 Total: ${total}%0A%0APlease confirm karein.%0A%0ASHAH REHAN JEWELLERS`;
+  
+  window.open(`https://wa.me/923266501314?text=${message}`, '_blank');
+}
+
+// Readymade Buy
+function buyReadymade() {
+  if (!currentProduct) return;
+  
+  const { discountedPrice } = getProductPrices(currentProduct);
+  
+  const cartItem = {
+    id: currentProduct.id,
+    name: currentProduct.name,
+    karat: currentProduct.karat || 'N/A',
+    weight: currentProduct.weight || 0,
+    unit: 'gram',
+    size: currentProduct.size || 'Standard',
+    color: currentProduct.color || '',
+    total: 'Rs ' + discountedPrice.toLocaleString(),
+    image: currentProduct.image_url,
+    category: currentProduct.category
+  };
+  
+  cart.push(cartItem);
+  localStorage.setItem('srj_cart', JSON.stringify(cart));
+  updateCartCount();
+  alert('✅ Added to cart!\n\n' + currentProduct.name + '\nPrice: Rs ' + discountedPrice.toLocaleString());
+  closeProductModal();
+}
+
+function whatsappReadymade() {
+  if (!currentProduct) return;
+  
+  const { discountedPrice } = getProductPrices(currentProduct);
+  
+  let message = `Assalam o Alaikum,%0A%0AMujhe yeh product order karni hai:%0A%0A`;
+  message += `📿 Product: ${currentProduct.name}%0A`;
+  if (currentProduct.karat) message += `🔸 Karat: ${currentProduct.karat}%0A`;
+  if (currentProduct.weight) message += `⚖️ Weight: ${currentProduct.weight}g%0A`;
+  if (currentProduct.size) message += `📏 Size: ${currentProduct.size}%0A`;
+  message += `💰 Price: Rs ${discountedPrice.toLocaleString()}%0A%0APlease confirm karein.%0A%0ASHAH REHAN JEWELLERS`;
+  
   window.open(`https://wa.me/923266501314?text=${message}`, '_blank');
 }
 

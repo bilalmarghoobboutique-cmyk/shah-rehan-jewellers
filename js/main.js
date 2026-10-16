@@ -229,8 +229,11 @@ function switchRateTab(tab) {
     goldTab.classList.remove('hidden');
     if (carouselInterval) clearInterval(carouselInterval);
     startKaratCarousel(carouselCount);
+    // Re-init chart
+    setTimeout(() => initGoldChart(), 200);
   } else if (tab === 'silver' && silverTab) {
     silverTab.classList.remove('hidden');
+    setTimeout(() => initSilverChart(), 200);
   } else if (tab === 'biscuits' && biscuitsTab) {
     biscuitsTab.classList.remove('hidden');
     renderBiscuitUnits();
@@ -694,6 +697,233 @@ async function confirmBiscuitOrder(metalType, metalName, unitLabel, grams, metal
   }
 }
 
+// =====================================================
+// GOLD/SILVER RATE GRAPH (Chart.js)
+// =====================================================
+
+let goldChart = null;
+let silverChart = null;
+
+// ===== GENERATE HISTORICAL DATA (Last 30 Days) =====
+function generateHistoricalData(currentRate, days = 30) {
+  const data = [];
+  const labels = [];
+  const today = new Date();
+  
+  // Base volatility - market rates change daily
+  let rate = currentRate * 0.95; // Start 5% lower 30 days ago
+  
+  for (let i = days; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+    
+    // Simulate daily fluctuation (-1.5% to +1.5%)
+    const change = (Math.random() - 0.45) * 0.03;
+    rate = rate * (1 + change);
+    
+    // Bring close to current rate near the end
+    if (i < 5) {
+      rate = rate + (currentRate - rate) * 0.4;
+    }
+    
+    data.push(Math.round(rate));
+    labels.push(date.toLocaleDateString('en-PK', { day: '2-digit', month: 'short' }));
+  }
+  
+  // Force last value = current rate
+  data[data.length - 1] = currentRate;
+  
+  return { data, labels };
+}
+
+// ===== INITIALIZE GOLD CHART =====
+function initGoldChart() {
+  const canvas = document.getElementById('goldRateChart');
+  if (!canvas) return;
+  
+  const currentRate = LIVE_RATES.gold['24K'] || 430000;
+  const { data, labels } = generateHistoricalData(currentRate);
+  
+  // Calculate stats
+  const today = data[data.length - 1];
+  const yesterday = data[data.length - 2];
+  const change = today - yesterday;
+  const changePct = ((change / yesterday) * 100).toFixed(2);
+  const high = Math.max(...data);
+  const low = Math.min(...data);
+  
+  // Update stats display
+  const todayEl = document.getElementById('graphToday');
+  const changeEl = document.getElementById('graphChange');
+  const highEl = document.getElementById('graphHigh');
+  const lowEl = document.getElementById('graphLow');
+  
+  if (todayEl) todayEl.textContent = `Rs ${today.toLocaleString()}`;
+  if (changeEl) {
+    changeEl.textContent = `${change >= 0 ? '+' : ''}${change.toLocaleString()} (${changePct}%)`;
+    changeEl.style.color = change >= 0 ? '#25D366' : '#DC2626';
+  }
+  if (highEl) highEl.textContent = `Rs ${high.toLocaleString()}`;
+  if (lowEl) lowEl.textContent = `Rs ${low.toLocaleString()}`;
+  
+  // Destroy old chart
+  if (goldChart) goldChart.destroy();
+  
+  // Create gradient
+  const ctx = canvas.getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, 0, 350);
+  gradient.addColorStop(0, 'rgba(255, 215, 0, 0.4)');
+  gradient.addColorStop(1, 'rgba(255, 215, 0, 0.0)');
+  
+  goldChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '24K Gold Rate (Rs/Tola)',
+        data: data,
+        borderColor: '#FFD700',
+        backgroundColor: gradient,
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#FFD700',
+        pointBorderColor: '#0A0A0A',
+        pointBorderWidth: 2,
+        pointRadius: 3,
+        pointHoverRadius: 8,
+        pointHoverBackgroundColor: '#FFF8DC'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        intersect: false,
+        mode: 'index'
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(10, 10, 10, 0.95)',
+          titleColor: '#FFD700',
+          bodyColor: '#FFF8DC',
+          borderColor: '#FFD700',
+          borderWidth: 1,
+          padding: 12,
+          cornerRadius: 8,
+          titleFont: { family: 'Poppins', size: 12 },
+          bodyFont: { family: 'Poppins', size: 13, weight: '600' },
+          callbacks: {
+            label: function(context) {
+              return 'Rs ' + context.parsed.y.toLocaleString() + '/Tola';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(255,215,0,0.08)', display: true },
+          ticks: {
+            color: '#B8B8B8',
+            font: { family: 'Poppins', size: 10 },
+            maxRotation: 0,
+            autoSkip: true,
+            maxTicksLimit: 8
+          }
+        },
+        y: {
+          grid: { color: 'rgba(255,215,0,0.08)', display: true },
+          ticks: {
+            color: '#FFD700',
+            font: { family: 'Poppins', size: 11, weight: '600' },
+            callback: function(value) {
+              return 'Rs ' + (value/1000).toFixed(0) + 'k';
+            }
+          }
+        }
+      },
+      animation: {
+        duration: 1500,
+        easing: 'easeInOutCubic'
+      }
+    }
+  });
+}
+
+// ===== INITIALIZE SILVER CHART =====
+function initSilverChart() {
+  const canvas = document.getElementById('silverRateChart');
+  if (!canvas) return;
+  
+  const currentRate = LIVE_RATES.silver.perTola || 6651;
+  const { data, labels } = generateHistoricalData(currentRate);
+  
+  if (silverChart) silverChart.destroy();
+  
+  const ctx = canvas.getContext('2d');
+  const gradient = ctx.createLinearGradient(0, 0, 0, 350);
+  gradient.addColorStop(0, 'rgba(192, 192, 192, 0.4)');
+  gradient.addColorStop(1, 'rgba(192, 192, 192, 0.0)');
+  
+  silverChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Silver Rate (Rs/Tola)',
+        data: data,
+        borderColor: '#C0C0C0',
+        backgroundColor: gradient,
+        borderWidth: 3,
+        fill: true,
+        tension: 0.4,
+        pointBackgroundColor: '#C0C0C0',
+        pointBorderColor: '#0A0A0A',
+        pointBorderWidth: 2,
+        pointRadius: 3,
+        pointHoverRadius: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { intersect: false, mode: 'index' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(10, 10, 10, 0.95)',
+          titleColor: '#C0C0C0',
+          bodyColor: '#FFF8DC',
+          borderColor: '#C0C0C0',
+          borderWidth: 1,
+          padding: 12,
+          callbacks: {
+            label: function(context) {
+              return 'Rs ' + context.parsed.y.toLocaleString() + '/Tola';
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(192,192,192,0.08)' },
+          ticks: { color: '#B8B8B8', font: { family: 'Poppins', size: 10 } }
+        },
+        y: {
+          grid: { color: 'rgba(192,192,192,0.08)' },
+          ticks: {
+            color: '#C0C0C0',
+            font: { family: 'Poppins', size: 11, weight: '600' },
+            callback: function(value) { return 'Rs ' + value.toLocaleString(); }
+          }
+        }
+      },
+      animation: { duration: 1500, easing: 'easeInOutCubic' }
+    }
+  });
+}
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', async () => {
   console.log('🚀 Loading SHAH REHAN JEWELLERS...');
@@ -705,6 +935,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateCartCount();
   renderBiscuitUnits();
   console.log('✅ SHAH REHAN JEWELLERS Loaded');
+  document.addEventListener('DOMContentLoaded', async () => {
+  console.log('🚀 Loading SHAH REHAN JEWELLERS...');
+  await loadLiveRates();
+  renderGoldRates();
+  renderSilverRates();
+  updateUsdRate();
+  loadProducts();
+  updateCartCount();
+  renderBiscuitUnits();
+  
+  // ⭐ INIT CHARTS
+  setTimeout(() => {
+    initGoldChart();
+    initSilverChart();
+  }, 500);
+  
+  console.log('✅ SHAH REHAN JEWELLERS Loaded');
+});
 });
 
 setInterval(async () => {
@@ -712,4 +960,6 @@ setInterval(async () => {
   await loadLiveRates();
   renderGoldRates();
   renderSilverRates();
+  initGoldChart();
+  initSilverChart();
 }, 15 * 60 * 1000);

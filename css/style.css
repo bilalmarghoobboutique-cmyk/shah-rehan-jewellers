@@ -4101,4 +4101,193 @@ html { scroll-behavior: smooth; }
     width: 80px;
     height: 80px;
   }
+}/* ===================== RATES WITH GRAPH (35% / 65% Split) ===================== */
+.rates-with-graph {
+  display: grid;
+  grid-template-columns: 35% 65%;
+  gap: 20px;
+  margin-top: 30px;
+  align-items: stretch;
+}
+
+/* LEFT SIDE: 35% Carousel */
+.rates-carousel-side {
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.rates-carousel-side .karat-carousel {
+  height: 100%;
+  min-height: 500px;
+}
+
+.rates-carousel-side .karat-box {
+  padding: 25px 15px;
+}
+
+.rates-carousel-side .karat-title {
+  font-size: 1.3rem;
+  letter-spacing: 2px;
+}
+
+.rates-carousel-side .karat-icon,
+.rates-carousel-side .karat-logo {
+  width: 50px;
+  height: 50px;
+}
+
+.rates-carousel-side .rate-tola {
+  font-size: 1.8rem;
+}
+
+.rates-carousel-side .rate-label {
+  font-size: 0.75rem;
+}
+
+.rates-carousel-side .karat-details {
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.rates-carousel-side .detail-item {
+  padding: 10px 8px;
+}
+
+.rates-carousel-side .detail-label {
+  font-size: 0.65rem;
+}
+
+.rates-carousel-side .detail-value {
+  font-size: 0.85rem;
+}
+
+/* RIGHT SIDE: 65% Graph */
+.rates-graph-side {
+  background: linear-gradient(135deg, #1A1A2E 0%, #0F0F1E 100%);
+  border: 1px solid rgba(255,215,0,0.25);
+  border-radius: 16px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.rates-graph-side::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #FFD700, #FFF8DC, #FFD700);
+}
+
+.graph-header {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.graph-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: #FFD700;
+  margin-bottom: 5px;
+  text-shadow: 0 0 15px rgba(255,215,0,0.4);
+}
+
+.graph-subtitle {
+  color: #B8B8B8;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+
+.graph-wrapper {
+  position: relative;
+  height: 320px;
+  width: 100%;
+  padding: 10px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px;
+  margin-bottom: 15px;
+}
+
+#goldRateChart,
+#silverRateChart {
+  max-height: 100%;
+}
+
+/* Graph Stats */
+.graph-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,215,0,0.15);
+}
+
+.stat-item {
+  text-align: center;
+  padding: 8px 5px;
+  background: rgba(255,215,0,0.05);
+  border: 1px solid rgba(255,215,0,0.15);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  background: rgba(255,215,0,0.1);
+  border-color: #FFD700;
+  transform: translateY(-2px);
+}
+
+.stat-label {
+  display: block;
+  color: #B8B8B8;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  display: block;
+  color: #FFD700;
+  font-family: 'Playfair Display', serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 1024px) {
+  .rates-with-graph {
+    grid-template-columns: 40% 60%;
+  }
+  .rates-carousel-side .rate-tola {
+    font-size: 1.5rem;
+  }
+  .graph-wrapper {
+    height: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .rates-with-graph {
+    grid-template-columns: 1fr;
+  }
+  
+  .rates-carousel-side .karat-carousel {
+    min-height: 420px;
+  }
+  
+  .graph-wrapper {
+    height: 250px;
+  }
+  
+  .graph-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .graph-title {
+    font-size: 1.1rem;
+  }
 }

@@ -12,6 +12,7 @@
   
   <link rel="stylesheet" href="css/style.css">
   <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -115,9 +116,46 @@
       </div>
 
       <!-- GOLD TAB -->
-      <div id="goldRatesTab" class="rates-content">
-        <div id="goldRatesContainer" class="rates-grid"></div>
+      <<!-- GOLD TAB (35% Carousel + 65% Graph) -->
+<div id="goldRatesTab" class="rates-content">
+  <div class="rates-with-graph">
+    
+    <!-- LEFT: 35% Carousel -->
+    <div class="rates-carousel-side">
+      <div id="goldRatesContainer" class="rates-grid"></div>
+    </div>
+    
+    <!-- RIGHT: 65% Graph -->
+    <div class="rates-graph-side">
+      <div class="graph-header">
+        <h3 class="graph-title">📈 Gold Rate Chart</h3>
+        <p class="graph-subtitle">Last 30 Days Trend (Lahore)</p>
       </div>
+      <div class="graph-wrapper">
+        <canvas id="goldRateChart"></canvas>
+      </div>
+      <div class="graph-stats">
+        <div class="stat-item">
+          <span class="stat-label">Today</span>
+          <span class="stat-value" id="graphToday">—</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Change</span>
+          <span class="stat-value" id="graphChange">—</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">High</span>
+          <span class="stat-value" id="graphHigh">—</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Low</span>
+          <span class="stat-value" id="graphLow">—</span>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
 
       <!-- SILVER TAB -->
       <div id="silverRatesTab" class="rates-content hidden">

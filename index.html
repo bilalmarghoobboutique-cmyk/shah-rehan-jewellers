@@ -305,37 +305,21 @@
   </section>
 
   <!-- BLOG SECTION -->
-  <section class="blog-section">
-    <div class="container mx-auto px-4">
-      <h2 class="section-title">Latest from Our Blog</h2>
-      <p class="section-subtitle-urdu" dir="rtl">ہمارے بلاگ سے تازہ ترین</p>
-      
-      <div class="blog-grid">
-        <a href="blog.html" class="blog-card">
-          <div class="blog-icon">📰</div>
-          <h3>Gold Rate Today</h3>
-          <p>Daily Lahore gold rate updates and market analysis</p>
-          <span class="blog-read">Read More →</span>
-        </a>
-        <a href="blog.html" class="blog-card">
-          <div class="blog-icon">💍</div>
-          <h3>Bridal Jewellery Trends 2026</h3>
-          <p>Latest bridal sets and design inspirations</p>
-          <span class="blog-read">Read More →</span>
-        </a>
-        <a href="blog.html" class="blog-card">
-          <div class="blog-icon">📊</div>
-          <h3>Investment in Gold</h3>
-          <p>Why gold biscuits are a smart investment</p>
-          <span class="blog-read">Read More →</span>
-        </a>
-      </div>
-      
-      <div style="text-align: center; margin-top: 30px;">
-        <a href="blog.html" class="btn-gold">📚 View All Blog Posts</a>
-      </div>
+  <<!-- BLOG SECTION (Dynamic from Supabase) -->
+<section class="blog-section">
+  <div class="container mx-auto px-4">
+    <h2 class="section-title">Latest from Our Blog</h2>
+    <p class="section-subtitle-urdu" dir="rtl">ہمارے بلاگ سے تازہ ترین</p>
+    
+    <div id="homeBlogGrid" class="blog-grid">
+      <div class="loading-blogs">Loading blogs...</div>
     </div>
-  </section>
+    
+    <div style="text-align: center; margin-top: 30px;">
+      <a href="blog.html" class="btn-gold">📚 View All Blog Posts</a>
+    </div>
+  </div>
+</section>
 
   <!-- PRODUCT MODAL -->
   <div id="productModal" class="modal-overlay">
@@ -487,6 +471,52 @@
   </script>
   <script src="js/supabase.js"></script>
   <script src="js/main.js"></script>
+  <script>
+  // Load latest 3 blogs for homepage
+  async function loadHomeBlogs() {
+    const grid = document.getElementById('homeBlogGrid');
+    if (!grid) return;
+    
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/blogs?select=*&is_published=eq.true&order=created_at.desc&limit=3`,
+        {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`
+          }
+        }
+      );
+      
+      const blogs = await res.json();
+      
+      if (!blogs || blogs.length === 0) {
+        grid.innerHTML = '<div class="loading-blogs">No blogs yet</div>';
+        return;
+      }
+      
+      grid.innerHTML = blogs.map(b => `
+        <a href="blog-post.html?slug=${b.slug}" class="blog-card-with-image">
+          <div class="blog-card-image-wrapper">
+            <img src="${b.featured_image || 'images/placeholder.svg'}" alt="${b.title}" onerror="this.src='images/placeholder.svg'">
+            <span class="blog-card-category">${b.category || 'Blog'}</span>
+          </div>
+          <div class="blog-card-content">
+            <h3>${b.title}</h3>
+            <p>${b.excerpt || ''}</p>
+            <span class="blog-read-more">Read More →</span>
+          </div>
+        </a>
+      `).join('');
+      
+    } catch (error) {
+      console.error('Error loading blogs:', error);
+      grid.innerHTML = '<div class="loading-blogs">Error loading blogs</div>';
+    }
+  }
+  
+  document.addEventListener('DOMContentLoaded', loadHomeBlogs);
+</script>
 
 </body>
 </html>

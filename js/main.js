@@ -76,13 +76,12 @@ async function loadLiveRates() {
 
     console.log('✅ Live rates loaded:', rates.length);
 
-    // Re-render biscuits with fresh rates
     renderBiscuitUnits();
 
   } catch (error) { console.error('⚠️ Rate fetch failed:', error); }
 }
 
-// ===== CAROUSEL =====
+// ===== CAROUSEL (3 SECONDS) =====
 let carouselInterval = null;
 let currentSlide = 0;
 let carouselCount = 0;
@@ -94,7 +93,7 @@ function startKaratCarousel(total) {
   carouselInterval = setInterval(() => {
     currentSlide = (currentSlide + 1) % total;
     showSlide(currentSlide);
-  }, 10000);
+  }, 3000);
 }
 
 function showSlide(index) {
@@ -111,7 +110,7 @@ function goToSlide(index) {
   carouselInterval = setInterval(() => {
     currentSlide = (currentSlide + 1) % carouselCount;
     showSlide(currentSlide);
-  }, 10000);
+  }, 3000);
 }
 
 // ===== RENDER GOLD RATES =====
@@ -251,7 +250,7 @@ function updateCartCount() {
 }
 
 // =====================================================
-// PRODUCT SYSTEM
+// PRODUCT SYSTEM (Homepage - with discount display)
 // =====================================================
 
 let currentProduct = null;
@@ -269,16 +268,67 @@ async function loadProducts() {
       grid.innerHTML = '<div class="loading-spinner">No products found</div>';
       return;
     }
-    grid.innerHTML = products.map(p => `
-      <div class="product-card" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
-        <img src="${p.image_url || 'images/placeholder.svg'}" alt="${p.name}" loading="lazy" onerror="this.src='images/placeholder.svg'">
-        <div class="product-info">
-          <span class="category-tag">${p.category}</span>
-          <h3>${p.name}</h3>
-          <p class="price">${formatPKR(p.price)}</p>
+    
+    grid.innerHTML = products.map(p => {
+      const isGold = p.category === 'gold';
+      const isSilver = p.category === 'silver';
+      const isDiamond = p.category === 'diamond';
+      const isArtificial = p.category === 'artificial';
+      
+      let originalPrice, discountedPrice, discountPct;
+      
+      if (isGold || isSilver) {
+        const weight = p.weight || 0;
+        let calculatedPrice = p.price || 0;
+        if (weight) {
+          const ratePerGram = isSilver 
+            ? (LIVE_RATES.silver.perGram || 570.10) 
+            : getRateForKarat(p.karat || '24K');
+          const metalValue = ratePerGram * weight;
+          const making = metalValue * 0.15;
+          const polish = metalValue * 0.10;
+          calculatedPrice = Math.round((metalValue + making + polish) * 1.03);
+        }
+        originalPrice = p.price || calculatedPrice;
+        discountedPrice = calculatedPrice;
+        discountPct = originalPrice > discountedPrice 
+          ? Math.round(((originalPrice - discountedPrice) / originalPrice) * 100) 
+          : 0;
+      } else {
+        originalPrice = p.price || 0;
+        discountPct = p.discount_percent || 5;
+        discountedPrice = Math.round(originalPrice * (1 - discountPct/100));
+      }
+      
+      return `
+        <div class="product-card" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
+          <div class="product-image-wrapper">
+            <img src="${p.image_url || 'images/placeholder.svg'}" alt="${p.name}" loading="lazy" onerror="this.src='images/placeholder.svg'">
+            ${discountPct > 0 ? `
+              <div class="discount-ball">
+                <span class="discount-percent">${discountPct}%</span>
+                <span class="discount-text">OFF</span>
+              </div>
+            ` : ''}
+          </div>
+          <div class="product-info">
+            <span class="category-tag">${p.category}</span>
+            <h3>${p.name}</h3>
+            <div class="price-display-block">
+              ${discountPct > 0 ? `
+                <div class="original-price-line">
+                  <span class="original-price-text">Rs ${originalPrice.toLocaleString()}</span>
+                  <span class="cut-line"></span>
+                </div>
+              ` : ''}
+              <div class="final-price-highlight">
+                <span class="final-price-value">Rs ${discountedPrice.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   } catch (error) { grid.innerHTML = '<div class="loading-spinner">Error loading products</div>'; }
 }
 
@@ -430,7 +480,6 @@ const BISCUIT_UNITS = {
 };
 
 function renderBiscuitUnits() {
-  // GOLD
   const goldContainer = document.getElementById('goldBiscuitUnits');
   if (goldContainer) {
     const goldRatePerGram = (LIVE_RATES.gold['24K'] || 0) / WEIGHT.tola;
@@ -445,7 +494,6 @@ function renderBiscuitUnits() {
     }).join('');
   }
 
-  // PATHOOR
   const pathoorContainer = document.getElementById('pathoorBiscuitUnits');
   if (pathoorContainer) {
     const pathoorRate = LIVE_RATES.gold['Pathoor'] || (LIVE_RATES.gold['24K'] - 5500);
@@ -461,7 +509,6 @@ function renderBiscuitUnits() {
     }).join('');
   }
 
-  // SILVER
   const silverContainer = document.getElementById('silverBiscuitUnits');
   if (silverContainer) {
     const silverPerGram = LIVE_RATES.silver.perGram || 570.10;
@@ -501,26 +548,11 @@ function openBiscuitPopup(metalType, unitLabel, grams, metalValue, metalName) {
           <div class="biscuit-unit-info">${unitLabel} • ${grams.toFixed(3)} grams</div>
         </div>
         <div class="biscuit-breakdown">
-          <div class="breakdown-row">
-            <span>Metal Value</span>
-            <span>Rs ${metalValue.toLocaleString()}</span>
-          </div>
-          <div class="breakdown-row">
-            <span>Service Charges (1%)</span>
-            <span>Rs ${serviceCharges.toLocaleString()}</span>
-          </div>
-          <div class="breakdown-row subtotal-row">
-            <span>Subtotal</span>
-            <span>Rs ${subtotal.toLocaleString()}</span>
-          </div>
-          <div class="breakdown-row">
-            <span>GST (3%)</span>
-            <span>Rs ${gst.toLocaleString()}</span>
-          </div>
-          <div class="breakdown-row total-row">
-            <span>TOTAL</span>
-            <span>Rs ${total.toLocaleString()}</span>
-          </div>
+          <div class="breakdown-row"><span>Metal Value</span><span>Rs ${metalValue.toLocaleString()}</span></div>
+          <div class="breakdown-row"><span>Service Charges (1%)</span><span>Rs ${serviceCharges.toLocaleString()}</span></div>
+          <div class="breakdown-row subtotal-row"><span>Subtotal</span><span>Rs ${subtotal.toLocaleString()}</span></div>
+          <div class="breakdown-row"><span>GST (3%)</span><span>Rs ${gst.toLocaleString()}</span></div>
+          <div class="breakdown-row total-row"><span>TOTAL</span><span>Rs ${total.toLocaleString()}</span></div>
         </div>
         <div class="payment-notice">
           <div class="notice-icon">💯</div>
@@ -646,11 +678,9 @@ async function confirmBiscuitOrder(metalType, metalName, unitLabel, grams, metal
 
     localStorage.setItem('srj_last_biscuit_order', JSON.stringify(orderData));
 
-    // Owner WhatsApp
     const ownerMsg = `🔔 *NEW BISCUIT ORDER*%0A%0AOrder #: ${orderNumber}%0ACustomer: ${name}%0AWhatsApp: ${phone}%0AEmail: ${email || 'N/A'}%0A%0A🪙 Item: ${metalName} - ${unitLabel}%0A⚖️ Weight: ${grams.toFixed(3)} grams%0A💰 Total: Rs ${total.toLocaleString()}%0A📝 TID: ${tid}%0A%0AFull payment received. Please verify and confirm.`;
     window.open(`https://wa.me/923266501314?text=${ownerMsg}`, '_blank');
 
-    // Customer WhatsApp
     const customerMsg = `Assalam o Alaikum ${name},%0A%0AAap ka biscuit order receive ho gaya!%0A%0A📋 Order #: ${orderNumber}%0A🪙 Item: ${metalName} - ${unitLabel}%0A⚖️ Weight: ${grams.toFixed(3)} grams%0A💰 Total: Rs ${total.toLocaleString()}%0A%0AAap ki payment verify hone ke baad order confirm ho jayega.%0A%0AShukriya!%0ASHAH REHAN JEWELLERS`;
     setTimeout(() => { window.open(`https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${customerMsg}`, '_blank'); }, 1000);
 

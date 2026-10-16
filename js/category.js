@@ -37,6 +37,23 @@ function updateCartCount() {
   if (el) el.textContent = cart.length;
 }
 
+// ===== CALCULATE PRODUCT PRICE (For Gold/Silver) =====
+function calculateGoldSilverPrice(product) {
+  const isSilver = product.category === 'silver';
+  const weight = product.weight || 0;
+  if (!weight) return product.price || 0;
+  
+  const ratePerGram = isSilver 
+    ? (SILVER_RATE_PER_TOLA / WEIGHT.tola) 
+    : getRateForKarat(product.karat || '24K');
+  const metalValue = ratePerGram * weight;
+  const making = metalValue * 0.15;
+  const polish = metalValue * 0.10;
+  const subtotal = metalValue + making + polish;
+  const gst = subtotal * 0.03;
+  return Math.round(subtotal + gst);
+}
+
 // ===== FETCH LIVE RATES =====
 async function fetchLiveRates() {
   try {
@@ -92,7 +109,7 @@ async function loadCategoryProducts(category) {
   }
 }
 
-// ===== RENDER PRODUCTS (With Discount + Thin Cut Line) =====
+// ===== RENDER PRODUCTS (All Categories with Discount) =====
 function renderProducts(products) {
   const grid = document.getElementById('categoryProductsGrid');
   
@@ -102,39 +119,38 @@ function renderProducts(products) {
   }
   
   grid.innerHTML = products.map(p => {
-    const isArtificial = p.category === 'artificial';
-    const isDiamond = p.category === 'diamond';
     const isGold = p.category === 'gold';
     const isSilver = p.category === 'silver';
+    const isDiamond = p.category === 'diamond';
+    const isArtificial = p.category === 'artificial';
     
-    const originalPrice = p.price || 0;
-    const discountPct = p.discount_percent || 5;
-    const discountedPrice = (isDiamond || isArtificial) ? Math.round(originalPrice * (1 - discountPct/100)) : originalPrice;
+    // Calculate prices
+    let originalPrice, discountedPrice, finalPrice;
+    
+    if (isGold || isSilver) {
+      finalPrice = calculateGoldSilverPrice(p);
+      originalPrice = p.price || finalPrice;
+      // Gold/Silver discount: show saving from MRP if any
+      discountedPrice = finalPrice;
+    } else {
+      originalPrice = p.price || 0;
+      const discountPct = p.discount_percent || 5;
+      discountedPrice = Math.round(originalPrice * (1 - discountPct/100));
+    }
+    
+    const discountPct = isDiamond || isArtificial 
+      ? (p.discount_percent || 5)
+      : (originalPrice > discountedPrice ? Math.round(((originalPrice - discountedPrice) / originalPrice) * 100) : 0);
+    
     const soldQty = p.sold_qty || Math.floor(Math.random() * 50) + 10;
     const weight = p.weight || 0;
     const goldQuality = p.karat || (isSilver ? 'Silver' : (isArtificial ? 'Artificial' : '24K'));
-    
-    let priceHtml = '';
-    if ((isDiamond || isArtificial) && discountPct > 0) {
-      priceHtml = `
-        <div class="price-row-wrapper">
-          <div class="original-price-box">
-            <span class="original-price">Rs ${originalPrice.toLocaleString()}</span>
-          </div>
-          <div class="discounted-price-box">
-            <span class="discounted-price">Rs ${discountedPrice.toLocaleString()}</span>
-          </div>
-        </div>
-      `;
-    } else {
-      priceHtml = `<p class="price">${formatPKR(originalPrice)}</p>`;
-    }
     
     return `
       <div class="product-card" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
         <div class="product-image-wrapper">
           <img src="${p.image_url || 'images/placeholder.svg'}" alt="${p.name}" loading="lazy" onerror="this.src='images/placeholder.svg'">
-          ${(isDiamond || isArtificial) && discountPct > 0 ? `
+          ${discountPct > 0 ? `
             <div class="discount-ball">
               <span class="discount-percent">${discountPct}%</span>
               <span class="discount-text">OFF</span>
@@ -144,7 +160,20 @@ function renderProducts(products) {
         <div class="product-info">
           <span class="category-tag">${goldQuality}</span>
           <h3>${p.name}</h3>
-          ${priceHtml}
+          
+          <!-- PRICE DISPLAY WITH DISCOUNT -->
+          <div class="price-display-block">
+            ${discountPct > 0 ? `
+              <div class="original-price-line">
+                <span class="original-price-text">Rs ${originalPrice.toLocaleString()}</span>
+                <span class="cut-line"></span>
+              </div>
+            ` : ''}
+            <div class="final-price-highlight">
+              <span class="final-price-value">Rs ${(discountedPrice || originalPrice).toLocaleString()}</span>
+            </div>
+          </div>
+          
           ${weight > 0 ? `<p class="product-weight-info">⚖️ ${weight}g</p>` : ''}
           <p class="sold-qty">🛒 ${soldQty} sold</p>
           
@@ -164,31 +193,26 @@ function renderProducts(products) {
 
 // ===== QUICK ADD TO CART =====
 function quickAddToCart(product) {
-  const isArtificial = product.category === 'artificial';
   const isDiamond = product.category === 'diamond';
-  const originalPrice = product.price || 0;
-  const discountPct = product.discount_percent || 0;
-  const discountedPrice = (isDiamond || isArtificial) && discountPct > 0 
-    ? Math.round(originalPrice * (1 - discountPct/100)) 
-    : originalPrice;
+  const isArtificial = product.category === 'artificial';
+  const isGold = product.category === 'gold';
+  const isSilver = product.category === 'silver';
   
-  let finalPrice = discountedPrice;
-  if ((product.category === 'gold' || product.category === 'silver') && product.weight) {
-    const ratePerGram = product.category === 'silver' 
-      ? (SILVER_RATE_PER_TOLA / WEIGHT.tola) 
-      : getRateForKarat(product.karat || '24K');
-    const metalValue = ratePerGram * product.weight;
-    const making = metalValue * 0.15;
-    const polish = metalValue * 0.10;
-    const subtotal = metalValue + making + polish;
-    const gst = subtotal * 0.03;
-    finalPrice = Math.round(subtotal + gst);
+  let finalPrice;
+  if (isGold || isSilver) {
+    finalPrice = calculateGoldSilverPrice(product);
+  } else {
+    const originalPrice = product.price || 0;
+    const discountPct = product.discount_percent || 0;
+    finalPrice = discountPct > 0 
+      ? Math.round(originalPrice * (1 - discountPct/100)) 
+      : originalPrice;
   }
   
   const cartItem = {
     id: product.id,
     name: product.name,
-    karat: product.karat || (product.category === 'silver' ? 'Silver' : 'N/A'),
+    karat: product.karat || (isSilver ? 'Silver' : 'N/A'),
     weight: product.weight || 0,
     unit: 'gram',
     size: product.size || 'Standard',
@@ -206,23 +230,18 @@ function quickAddToCart(product) {
 
 // ===== QUICK WHATSAPP =====
 function quickWhatsApp(product) {
-  const originalPrice = product.price || 0;
-  const discountPct = product.discount_percent || 0;
-  const discountedPrice = discountPct > 0 
-    ? Math.round(originalPrice * (1 - discountPct/100)) 
-    : originalPrice;
+  const isGold = product.category === 'gold';
+  const isSilver = product.category === 'silver';
   
-  let finalPrice = discountedPrice;
-  if ((product.category === 'gold' || product.category === 'silver') && product.weight) {
-    const ratePerGram = product.category === 'silver' 
-      ? (SILVER_RATE_PER_TOLA / WEIGHT.tola) 
-      : getRateForKarat(product.karat || '24K');
-    const metalValue = ratePerGram * product.weight;
-    const making = metalValue * 0.15;
-    const polish = metalValue * 0.10;
-    const subtotal = metalValue + making + polish;
-    const gst = subtotal * 0.03;
-    finalPrice = Math.round(subtotal + gst);
+  let finalPrice;
+  if (isGold || isSilver) {
+    finalPrice = calculateGoldSilverPrice(product);
+  } else {
+    const originalPrice = product.price || 0;
+    const discountPct = product.discount_percent || 0;
+    finalPrice = discountPct > 0 
+      ? Math.round(originalPrice * (1 - discountPct/100)) 
+      : originalPrice;
   }
   
   let message = `Assalam o Alaikum,%0A%0AMujhe yeh product order karni hai:%0A%0A`;
@@ -251,10 +270,6 @@ function filterBySubcategory(sub, btn) {
   renderProducts(allProducts.filter(p => p.subcategory === sub));
 }
 
-function filterByWeight(weight) {
-  renderProducts(allProducts.filter(p => p.size === weight));
-}
-
 function sortProducts(order) {
   let sorted = [...allProducts];
   if (order === 'low') sorted.sort((a, b) => a.price - b.price);
@@ -277,11 +292,24 @@ function openProductModal(product) {
   const isGold = product.category === 'gold';
   const isSilver = product.category === 'silver';
   
+  // ===== PRICE CALCULATION =====
+  let originalPrice, discountedPrice, discountPct;
+  
+  if (isGold || isSilver) {
+    originalPrice = product.price || calculateGoldSilverPrice(product);
+    discountedPrice = calculateGoldSilverPrice(product);
+    // If product's original price is higher than calculated, show discount
+    discountPct = originalPrice > discountedPrice 
+      ? Math.round(((originalPrice - discountedPrice) / originalPrice) * 100) 
+      : 0;
+  } else {
+    originalPrice = product.price || 0;
+    discountPct = product.discount_percent || 5;
+    discountedPrice = Math.round(originalPrice * (1 - discountPct/100));
+  }
+  
   // ===== PRODUCT DETAILS BOX =====
   const detailsBox = document.getElementById('productDetailsBox');
-  const originalPrice = product.price || 0;
-  const discountPct = product.discount_percent || 0;
-  const discountedPrice = discountPct > 0 ? Math.round(originalPrice * (1 - discountPct/100)) : originalPrice;
   const soldQty = product.sold_qty || Math.floor(Math.random() * 50) + 10;
   
   if (detailsBox) {
@@ -315,21 +343,21 @@ function openProductModal(product) {
           <div class="detail-box-label">Sold</div>
           <div class="detail-box-value">${soldQty}</div>
         </div>
+      </div>
+      
+      <!-- POPUP PRICE DISPLAY -->
+      <div class="popup-price-display">
         ${discountPct > 0 ? `
-          <div class="detail-box discount-box">
-            <div class="detail-box-label">Price</div>
-            <div class="detail-box-value">
-              <span style="text-decoration: line-through; color: #999; font-size: 0.8rem;">Rs ${originalPrice.toLocaleString()}</span>
-              <br>
-              <span style="color: #25D366; font-weight: 700;">Rs ${discountedPrice.toLocaleString()}</span>
-            </div>
+          <div class="popup-original-price">
+            <span class="popup-original-text">Rs ${originalPrice.toLocaleString()}</span>
+            <span class="popup-cut-line"></span>
           </div>
-        ` : `
-          <div class="detail-box price-box">
-            <div class="detail-box-label">Price</div>
-            <div class="detail-box-value">Rs ${originalPrice.toLocaleString()}</div>
-          </div>
-        `}
+        ` : ''}
+        <div class="popup-final-price">
+          <span class="popup-price-label">${discountPct > 0 ? 'Discounted Price' : 'Price'}</span>
+          <span class="popup-final-value">Rs ${(discountedPrice || originalPrice).toLocaleString()}</span>
+          ${discountPct > 0 ? `<span class="popup-discount-tag">${discountPct}% OFF</span>` : ''}
+        </div>
       </div>
     `;
     detailsBox.style.display = 'block';
@@ -338,21 +366,8 @@ function openProductModal(product) {
   // ===== AUTO-CALCULATED PRICE FOR GOLD/SILVER =====
   const autoPrice = document.getElementById('autoPriceDisplay');
   if (autoPrice && (isGold || isSilver) && product.weight) {
-    const ratePerGram = isSilver ? (SILVER_RATE_PER_TOLA / WEIGHT.tola) : getRateForKarat(product.karat || '24K');
-    const metalValue = ratePerGram * product.weight;
-    const making = metalValue * 0.15;
-    const polish = metalValue * 0.10;
-    const subtotal = metalValue + making + polish;
-    const gst = subtotal * 0.03;
-    const total = subtotal + gst;
-    
-    autoPrice.innerHTML = `
-      <div class="auto-price-card">
-        <div class="auto-price-title">💰 Current Price (${product.weight}g ${product.karat || ''})</div>
-        <div class="auto-price-value">Rs ${Math.round(total).toLocaleString()}</div>
-      </div>
-    `;
-    autoPrice.style.display = 'block';
+    autoPrice.innerHTML = '';
+    autoPrice.style.display = 'none';
   } else if (autoPrice) {
     autoPrice.style.display = 'none';
   }
@@ -391,7 +406,7 @@ function openProductModal(product) {
     }
   }
   
-  // ===== CUSTOM WEIGHT BUTTON (Gold/Silver only) =====
+  // ===== CUSTOM WEIGHT BUTTON =====
   const customWeightBtn = document.getElementById('customWeightBtn');
   const customWeightBox = document.getElementById('customWeightBox');
   const priceBreakdown = document.getElementById('priceBreakdown');
@@ -406,16 +421,15 @@ function openProductModal(product) {
     }
   }
   
-  // ===== WEIGHT SECTION HIDE BY DEFAULT =====
   const weightSection = document.getElementById('weightSection');
   if (weightSection) weightSection.style.display = 'none';
   
   if (priceBreakdown) priceBreakdown.classList.add('hidden');
   
-  // ===== DEFAULT READYMADE BUTTONS =====
+  // ===== READYMADE BUTTONS =====
   const readymadeButtons = document.getElementById('readymadeButtons');
   if (readymadeButtons) {
-    readymadeButtons.style.display = (isGold || isSilver) ? 'grid' : 'none';
+    readymadeButtons.style.display = 'grid';
   }
   
   document.getElementById('productModal').classList.add('active');
@@ -442,7 +456,6 @@ function toggleCustomWeight() {
   const calculateBtn = document.getElementById('calculateBtn');
   const modalButtons = document.getElementById('modalButtons');
   const priceBreakdown = document.getElementById('priceBreakdown');
-  const autoPriceDisplay = document.getElementById('autoPriceDisplay');
   const readymadeButtons = document.getElementById('readymadeButtons');
   
   if (customWeightBox.style.display === 'none' || !customWeightBox.style.display) {
@@ -450,7 +463,6 @@ function toggleCustomWeight() {
     weightSection.style.display = 'block';
     if (calculateBtn) calculateBtn.style.display = 'block';
     if (modalButtons) modalButtons.style.display = 'grid';
-    if (autoPriceDisplay) autoPriceDisplay.style.display = 'none';
     if (readymadeButtons) readymadeButtons.style.display = 'none';
     customWeightBtn.innerHTML = '❌ Close Custom Weight';
     if (priceBreakdown) priceBreakdown.classList.add('hidden');
@@ -459,7 +471,6 @@ function toggleCustomWeight() {
     weightSection.style.display = 'none';
     if (calculateBtn) calculateBtn.style.display = 'none';
     if (modalButtons) modalButtons.style.display = 'none';
-    if (autoPriceDisplay) autoPriceDisplay.style.display = 'block';
     if (readymadeButtons) readymadeButtons.style.display = 'grid';
     customWeightBtn.innerHTML = '⚖️ Apni Marzi ka Wazan Banwain';
     if (priceBreakdown) priceBreakdown.classList.add('hidden');
@@ -484,7 +495,6 @@ document.addEventListener('keydown', (e) => {
 // ===== SIZE OPTIONS =====
 function getSizeOptions(category, subcategory) {
   const sub = (subcategory || '').toLowerCase();
-  const cat = (category || '').toLowerCase();
   
   if (sub.includes('ring') || sub.includes('baby ring')) {
     if (sub.includes('baby')) {
@@ -493,79 +503,39 @@ function getSizeOptions(category, subcategory) {
     return ['10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25']
       .map(s => `<option value="${s}">${s}</option>`).join('');
   }
-  
   if (sub.includes('bangle') || sub.includes('kara') || sub.includes('choori')) {
-    return ['2.2','2.4','2.6','2.8','2.10','2.12']
-      .map(s => `<option value="${s}">${s}</option>`).join('');
+    return ['2.2','2.4','2.6','2.8','2.10','2.12'].map(s => `<option value="${s}">${s}</option>`).join('');
   }
-  
   if (sub.includes('bracelet')) {
-    return ['6"','6.5"','7"','7.5"','8"','8.5"']
-      .map(s => `<option value="${s}">${s}</option>`).join('');
+    return ['6"','6.5"','7"','7.5"','8"','8.5"'].map(s => `<option value="${s}">${s}</option>`).join('');
   }
-  
   if (sub.includes('chain')) {
-    return ['14"','16"','18"','20"','22"','24"','26"','30"']
-      .map(s => `<option value="${s}">${s}</option>`).join('');
+    return ['14"','16"','18"','20"','22"','24"','26"','30"'].map(s => `<option value="${s}">${s}</option>`).join('');
   }
-  
   if (sub.includes('anklet') || sub.includes('payal')) {
-    return ['9"','10"','11"','12"']
-      .map(s => `<option value="${s}">${s}</option>`).join('');
+    return ['9"','10"','11"','12"'].map(s => `<option value="${s}">${s}</option>`).join('');
   }
-  
   if (sub.includes('necklace') || sub.includes('haar') || sub.includes('choker')) {
-    return ['14"','16"','18"','20"','22"','24"']
-      .map(s => `<option value="${s}">${s}</option>`).join('');
+    return ['14"','16"','18"','20"','22"','24"'].map(s => `<option value="${s}">${s}</option>`).join('');
   }
-  
   if (sub.includes('earring') || sub.includes('jhumka')) {
-    return `
-      <option value="Stud">Stud</option>
-      <option value="Drop">Drop</option>
-      <option value="Jhumka">Jhumka</option>
-      <option value="Chandbali">Chandbali</option>
-      <option value="Hoop">Hoop</option>
-    `;
+    return `<option value="Stud">Stud</option><option value="Drop">Drop</option><option value="Jhumka">Jhumka</option><option value="Chandbali">Chandbali</option><option value="Hoop">Hoop</option>`;
   }
-  
   if (sub.includes('pendant')) {
     return ['16"','18"','20"','22"'].map(s => `<option value="${s}">${s}</option>`).join('');
   }
-  
   if (sub.includes('coin')) {
-    return ['1g','2g','2.5g','5g','10g','20g','50g','100g']
-      .map(s => `<option value="${s}">${s}</option>`).join('');
+    return ['1g','2g','2.5g','5g','10g','20g','50g','100g'].map(s => `<option value="${s}">${s}</option>`).join('');
   }
-  
   if (sub.includes('bridal')) {
     return `<option value="Standard">Standard</option>`;
   }
-  
   return ['Small','Medium','Large','Standard'].map(s => `<option value="${s}">${s}</option>`).join('');
 }
 
-// ===== CALCULATE PRICE =====
+// ===== CALCULATE PRICE (Custom Weight) =====
 function calculatePrice() {
   if (!currentProduct) return;
-  
-  const isArtificial = currentProduct.category === 'artificial';
-  const isDiamond = currentProduct.category === 'diamond';
-  
-  if (isArtificial || isDiamond) {
-    const price = currentProduct.price || 0;
-    const discountPct = currentProduct.discount_percent || 0;
-    const discounted = discountPct > 0 ? Math.round(price * (1 - discountPct/100)) : price;
-    document.getElementById('pRate').textContent = 'Fixed Price';
-    document.getElementById('pWeight').textContent = '—';
-    document.getElementById('pGold').textContent = formatPKR(price);
-    if (discountPct > 0 && document.getElementById('pGST')) {
-      document.getElementById('pGST').textContent = `- ${formatPKR(price - discounted)}`;
-    }
-    document.getElementById('pTotal').textContent = formatPKR(discounted);
-    document.getElementById('priceBreakdown').classList.remove('hidden');
-    return;
-  }
   
   const weight = parseFloat(document.getElementById('modalWeight').value);
   const unit = document.getElementById('modalUnit').value;
@@ -610,22 +580,10 @@ function calculatePrice() {
 function addToCart() {
   if (!currentProduct) return;
   
-  const isArtificial = currentProduct.category === 'artificial';
-  const isDiamond = currentProduct.category === 'diamond';
-  
-  if (isArtificial || isDiamond) {
-    quickAddToCart(currentProduct);
-    closeProductModal();
-    return;
-  }
-  
   if (document.getElementById('priceBreakdown').classList.contains('hidden')) {
     alert('Please calculate price first');
     return;
   }
-  
-  const sizeValue = document.getElementById('modalSize')?.value || 'Standard';
-  const colorValue = isArtificial ? (document.getElementById('modalColor')?.value || '') : '';
   
   const cartItem = {
     id: currentProduct.id,
@@ -633,8 +591,8 @@ function addToCart() {
     karat: document.querySelector('input[name="karat"]:checked')?.value || currentProduct.karat || 'N/A',
     weight: parseFloat(document.getElementById('modalWeight').value),
     unit: document.getElementById('modalUnit').value,
-    size: sizeValue,
-    color: colorValue,
+    size: document.getElementById('modalSize')?.value || 'Standard',
+    color: '',
     total: document.getElementById('pTotal').textContent,
     image: currentProduct.image_url,
     category: currentProduct.category
@@ -651,14 +609,6 @@ function addToCart() {
 function whatsappOrder() {
   if (!currentProduct) return;
   
-  const isArtificial = currentProduct.category === 'artificial';
-  const isDiamond = currentProduct.category === 'diamond';
-  
-  if (isArtificial || isDiamond) {
-    quickWhatsApp(currentProduct);
-    return;
-  }
-  
   const isCustomWeight = document.getElementById('customWeightBox')?.style.display === 'block';
   
   let total, weight;
@@ -666,7 +616,7 @@ function whatsappOrder() {
     total = document.getElementById('pTotal').textContent;
     weight = document.getElementById('modalWeight').value + ' ' + document.getElementById('modalUnit').value;
   } else {
-    total = document.getElementById('autoPriceDisplay')?.textContent.match(/Rs [\d,]+/)?.[0] || 'N/A';
+    total = 'Rs ' + calculateGoldSilverPrice(currentProduct).toLocaleString();
     weight = currentProduct.weight + ' grams';
   }
   

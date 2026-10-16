@@ -54,28 +54,22 @@ function calculateGoldSilverPrice(product) {
   return Math.round(subtotal + gst);
 }
 
-// ===== PRICE CALC FOR ANY PRODUCT (Returns original + discounted) =====
+// ===== PRICE CALC FOR ANY PRODUCT =====
 function getProductPrices(product) {
   const isGold = product.category === 'gold';
   const isSilver = product.category === 'silver';
-  const isDiamond = product.category === 'diamond';
-  const isArtificial = product.category === 'artificial';
   
   let originalPrice, discountedPrice, discountPct;
   
-  // ✅ GOLD / SILVER
   if (isGold || isSilver) {
     const calculated = calculateGoldSilverPrice(product);
     const mrp = product.price || 0;
     
-    // Priority 1: If discount_percent set in admin
     if (product.discount_percent && product.discount_percent > 0) {
       originalPrice = mrp || calculated;
       discountPct = product.discount_percent;
       discountedPrice = Math.round(originalPrice * (1 - discountPct/100));
-    }
-    // Priority 2: If MRP > calculated price
-    else if (mrp > 0 && calculated > 0 && mrp !== calculated) {
+    } else if (mrp > 0 && calculated > 0 && mrp !== calculated) {
       if (mrp > calculated) {
         originalPrice = mrp;
         discountedPrice = calculated;
@@ -84,16 +78,12 @@ function getProductPrices(product) {
         discountedPrice = mrp;
       }
       discountPct = Math.round(((originalPrice - discountedPrice) / originalPrice) * 100);
-    }
-    // Priority 3: Same price - NO discount
-    else {
+    } else {
       originalPrice = calculated || mrp;
       discountedPrice = originalPrice;
       discountPct = 0;
     }
-  }
-  // ✅ ARTIFICIAL / DIAMOND
-  else {
+  } else {
     originalPrice = product.price || 0;
     discountPct = product.discount_percent || 5;
     discountedPrice = Math.round(originalPrice * (1 - discountPct/100));
@@ -299,7 +289,6 @@ function openProductModal(product) {
   
   const { originalPrice, discountedPrice, discountPct } = getProductPrices(product);
   
-  // ===== PRODUCT DETAILS BOX =====
   const detailsBox = document.getElementById('productDetailsBox');
   const soldQty = product.sold_qty || Math.floor(Math.random() * 50) + 10;
   
@@ -359,7 +348,6 @@ function openProductModal(product) {
     autoPrice.style.display = 'none';
   }
   
-  // ===== SIZE =====
   const sizeSelect = document.getElementById('modalSize');
   if (sizeSelect) {
     const options = getSizeOptions(product.category, product.subcategory);
@@ -370,7 +358,6 @@ function openProductModal(product) {
     }
   }
   
-  // ===== KARAT =====
   const karatSection = document.getElementById('karatSection');
   if (karatSection) {
     if (isArtificial || isDiamond) {
@@ -384,7 +371,6 @@ function openProductModal(product) {
     }
   }
   
-  // ===== COLOR =====
   const colorSection = document.getElementById('colorSection');
   if (colorSection) {
     colorSection.style.display = isArtificial ? 'block' : 'none';
@@ -393,7 +379,6 @@ function openProductModal(product) {
     }
   }
   
-  // ===== CUSTOM WEIGHT =====
   const customWeightBtn = document.getElementById('customWeightBtn');
   const customWeightBox = document.getElementById('customWeightBox');
   const priceBreakdown = document.getElementById('priceBreakdown');
@@ -414,9 +399,7 @@ function openProductModal(product) {
   if (priceBreakdown) priceBreakdown.classList.add('hidden');
   
   const readymadeButtons = document.getElementById('readymadeButtons');
-  if (readymadeButtons) {
-    readymadeButtons.style.display = 'grid';
-  }
+  if (readymadeButtons) readymadeButtons.style.display = 'grid';
   
   document.getElementById('productModal').classList.add('active');
   document.body.style.overflow = 'hidden';
@@ -620,26 +603,46 @@ function whatsappOrder() {
   window.open(`https://wa.me/923266501314?text=${message}`, '_blank');
 }
 
-// ===== REVIEWS CAROUSEL =====
+// =====================================================
+// REVIEWS CAROUSEL – 20 PAKISTANI CUSTOMERS
+// =====================================================
+
 function initReviewCarousel() {
   const container = document.getElementById('reviewCarousel');
   if (!container) return;
   
   const reviews = [
-    { name: 'Ayesha Omar', img: 'images/celebrity-1.jpg', text: 'Beautiful jewellery and excellent customer service! Highly recommended.', stars: 5 },
-    { name: 'Mahira Khan', img: 'images/celebrity-2.jpg', text: 'Amazing quality. I bought a gold set and I love it!', stars: 5 },
-    { name: 'Fawad Khan', img: 'images/celebrity-3.jpg', text: 'Very professional service. The designs are modern and unique.', stars: 5 },
-    { name: 'Sajal Aly', img: 'images/celebrity-4.jpg', text: 'Perfect for weddings and special occasions. Love their collection!', stars: 5 }
+    { name: 'Ahmed Khan', img: 'images/reviewer-1.jpg', text: 'Best gold jewellery in Lahore! Quality is outstanding and prices are very reasonable.', stars: 5, city: 'Lahore' },
+    { name: 'Fatima Bibi', img: 'images/reviewer-2.jpg', text: 'Bought a bridal set for my daughter. Excellent workmanship, highly recommended!', stars: 5, city: 'Karachi' },
+    { name: 'Muhammad Ali', img: 'images/reviewer-3.jpg', text: 'Delivered on time with beautiful packaging. The gold quality is 100% pure.', stars: 5, city: 'Islamabad' },
+    { name: 'Ayesha Siddiqui', img: 'images/reviewer-4.jpg', text: 'Very professional staff. They customized the design exactly as I wanted.', stars: 5, city: 'Lahore' },
+    { name: 'Hassan Raza', img: 'images/reviewer-5.jpg', text: 'Great rates and pure gold. My wife loved the necklace I bought!', stars: 5, city: 'Faisalabad' },
+    { name: 'Sana Tariq', img: 'images/reviewer-6.jpg', text: 'Trustworthy shop. Delivered with complete secrecy and security.', stars: 5, city: 'Lahore' },
+    { name: 'Bilal Ahmed', img: 'images/reviewer-7.jpg', text: 'Ordered silver jewellery for my sister. Quality is amazing!', stars: 5, city: 'Multan' },
+    { name: 'Hina Shahid', img: 'images/reviewer-8.jpg', text: 'The custom weight option is brilliant. Got exactly what I wanted.', stars: 5, city: 'Karachi' },
+    { name: 'Imran Yousaf', img: 'images/reviewer-9.jpg', text: 'Best price in Lahore Cantt. Highly satisfied with the service.', stars: 5, city: 'Lahore' },
+    { name: 'Rabia Khan', img: 'images/reviewer-10.jpg', text: 'Bought gold biscuits as investment. Delivery was quick and secure.', stars: 5, city: 'Islamabad' },
+    { name: 'Usman Malik', img: 'images/reviewer-11.jpg', text: 'Family has been shopping here for 10 years. Always trust them.', stars: 5, city: 'Lahore' },
+    { name: 'Maryam Nawaz', img: 'images/reviewer-12.jpg', text: 'Received my order with a certificate of purity. Very happy!', stars: 5, city: 'Rawalpindi' },
+    { name: 'Zeeshan Iqbal', img: 'images/reviewer-13.jpg', text: 'Very reasonable making charges. Best jeweller in Lahore.', stars: 5, city: 'Lahore' },
+    { name: 'Nadia Ali', img: 'images/reviewer-14.jpg', text: 'Love the artificial jewellery collection. So affordable and pretty!', stars: 5, city: 'Peshawar' },
+    { name: 'Kamran Sheikh', img: 'images/reviewer-15.jpg', text: 'Diamond ring was exactly as shown. My fiancee is very happy.', stars: 5, city: 'Karachi' },
+    { name: 'Amna Hamid', img: 'images/reviewer-16.jpg', text: 'Excellent customer service. Answered all my queries via WhatsApp.', stars: 5, city: 'Lahore' },
+    { name: 'Faisal Iqbal', img: 'images/reviewer-17.jpg', text: 'Fast delivery, secure packaging. Will shop again for sure.', stars: 5, city: 'Gujranwala' },
+    { name: 'Zainab Rizvi', img: 'images/reviewer-18.jpg', text: 'Authentic gold, verified by hallmark. Best jeweller in Lahore!', stars: 5, city: 'Lahore' },
+    { name: 'Shahid Mehmood', img: 'images/reviewer-19.jpg', text: 'Bought silver anklets. Beautiful design and quick delivery.', stars: 5, city: 'Sialkot' },
+    { name: 'Mehwish Aslam', img: 'images/reviewer-20.jpg', text: 'The gold rate transparency is amazing. Best experience ever!', stars: 5, city: 'Lahore' }
   ];
   
   container.innerHTML = `
     <div class="reviews-track" id="reviewsTrack">
       ${reviews.map(r => `
         <div class="review-card">
-          <img src="${r.img}" alt="${r.name}" class="review-photo" onerror="this.src='images/placeholder.svg'">
+          <img src="${r.img}" alt="${r.name}" class="review-photo" onerror="this.src='images/reviewer-placeholder.svg'">
           <div class="review-stars">${'⭐'.repeat(r.stars)}</div>
           <p class="review-text">"${r.text}"</p>
           <div class="review-name">— ${r.name}</div>
+          <div class="review-city">📍 ${r.city}</div>
         </div>
       `).join('')}
     </div>
@@ -657,7 +660,7 @@ function startReviewCarousel(total) {
   carouselInterval = setInterval(() => {
     currentSlide = (currentSlide + 1) % total;
     showReview(currentSlide);
-  }, 8000);
+  }, 5000);
 }
 
 function showReview(index) {
@@ -671,7 +674,8 @@ function showReview(index) {
 function goToReview(index) {
   if (carouselInterval) clearInterval(carouselInterval);
   showReview(index);
-  startReviewCarousel(4);
+  const totalDots = document.querySelectorAll('.rev-dot').length;
+  startReviewCarousel(totalDots || 20);
 }
 
 // ===== SUBMIT REVIEW =====

@@ -29,7 +29,7 @@
         <span class="divider">|</span>
         <span class="rate-item pathoor-item">
           <img src="images/pathoor-logo.jpg" alt="Pathoor" class="rate-icon-img" onerror="this.style.display='none'">
-          <span class="rate-label">Pathoor</span>
+          <span class="rate-label">24 kPathoor</span>
           <span class="rate-value" id="topPathoor">Loading...</span>
           <span class="rate-unit">/tola</span>
         </span>
@@ -60,24 +60,41 @@
   </header>
 
   <!-- ===================== HERO SECTION (50% Content + 50% Video) ===================== -->
-  <section class="hero-split">
-    
-    <!-- LEFT: Content (50%) -->
-    <div class="hero-content-half">
-      <div class="hero-content-inner">
-        <h1 class="hero-title">Shah Rehan Jewellers</h1>
-        <p class="hero-subtitle">Exclusive Gold & Diamond Collection 2026</p>
-        <p class="hero-urdu" dir="rtl">آپ کا آرڈر رازداری کے ساتھ آپ تک پہنچایا جائے گا</p>
-        <div class="hero-buttons">
-          <a href="collections.html" class="btn-gold">Shop Now</a>
-          <a href="https://wa.me/923266501314" class="btn-outline">WhatsApp Us</a>
-        </div>
-        <div class="hero-taglines">
-          <p dir="rtl">آخر میں آپ کا اعتماد، ہماری ضمانت</p>
-          <p dir="rtl">ہر قدم مکمل شفافیت کے ساتھ</p>
-        </div>
+ <!-- HERO SECTION (30% Content + 70% Video) -->
+<section class="hero-split">
+  
+  <!-- LEFT: Content (30%) -->
+  <div class="hero-content-half">
+    <div class="hero-content-inner">
+      <h1 class="hero-title">Shah Rehan Jewellers</h1>
+      <p class="hero-subtitle">Exclusive Gold & Diamond Collection 2026</p>
+      <div class="hero-buttons">
+        <a href="collections.html" class="btn-gold">Shop Now</a>
+        <a href="https://wa.me/923266501314" class="btn-outline">WhatsApp Us</a>
       </div>
     </div>
+  </div>
+  
+  <!-- RIGHT: Video (70%) - Autoplay -->
+  <a href="collections.html" class="hero-video-half">
+    <video 
+      id="heroVideo"
+      autoplay 
+      muted 
+      loop 
+      playsinline 
+      webkit-playsinline
+      preload="auto"
+      disablepictureinpicture
+      controlslist="nodownload"
+      class="hero-video-element">
+      <source src="videos/shah-rehan-model.mp4" type="video/mp4">
+    </video>
+    <div class="video-overlay"></div>
+    <div class="watermark">SHAH REHAN JEWELLERS</div>
+  </a>
+  
+</section>
     
     <!-- RIGHT: Video (50%) - Autoplay, No Play Button -->
     <a href="collections.html" class="hero-video-half">
@@ -135,10 +152,31 @@
         <canvas id="goldRateChart"></canvas>
       </div>
       <div class="graph-stats">
-        <div class="stat-item">
-          <span class="stat-label">Today</span>
-          <span class="stat-value" id="graphToday">—</span>
-        </div>
+  <div class="stat-item">
+    <span class="stat-label">Today Close</span>
+    <span class="stat-value" id="graphToday">—</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Today High</span>
+    <span class="stat-value" id="todayHigh">—</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Today Low</span>
+    <span class="stat-value" id="todayLow">—</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Change</span>
+    <span class="stat-value" id="graphChange">—</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">30D High</span>
+    <span class="stat-value" id="graphHigh">—</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">30D Low</span>
+    <span class="stat-value" id="graphLow">—</span>
+  </div>
+</div>
         <div class="stat-item">
           <span class="stat-label">Change</span>
           <span class="stat-value" id="graphChange">—</span>

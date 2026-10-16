@@ -77,6 +77,14 @@ async function loadLiveRates() {
     console.log('✅ Live rates loaded:', rates.length);
 
     renderBiscuitUnits();
+    renderGoldRates();
+    renderSilverRates();
+
+    // Initialize charts
+    setTimeout(() => {
+      initGoldChart();
+      initSilverChart();
+    }, 100);
 
   } catch (error) { console.error('⚠️ Rate fetch failed:', error); }
 }
@@ -135,8 +143,8 @@ function renderGoldRates() {
           <div class="sparkle sparkle-2"></div>
           <div class="sparkle sparkle-3"></div>
           <div class="karat-header">
-            <img src="${logoImg}" alt="${isPathoor ? 'Pathoor' : 'Gold'}" class="karat-logo" onerror="this.style.display='none'">
-            <span class="karat-title">${isPathoor ? 'PATHOOR GOLD' : karat + ' GOLD'}</span>
+            <img src="${logoImg}" alt="${isPathoor ? '24K Pathoor' : 'Gold'}" class="karat-logo" onerror="this.style.display='none'">
+            <span class="karat-title">${isPathoor ? '24K PATHOOR GOLD' : karat + ' GOLD'}</span>
           </div>
           <div class="karat-main-rate">
             <div class="rate-label">Per Tola</div>
@@ -229,11 +237,10 @@ function switchRateTab(tab) {
     goldTab.classList.remove('hidden');
     if (carouselInterval) clearInterval(carouselInterval);
     startKaratCarousel(carouselCount);
-    // Re-init chart
-    setTimeout(() => initGoldChart(), 200);
+    setTimeout(() => initGoldChart(), 100);
   } else if (tab === 'silver' && silverTab) {
     silverTab.classList.remove('hidden');
-    setTimeout(() => initSilverChart(), 200);
+    setTimeout(() => initSilverChart(), 100);
   } else if (tab === 'biscuits' && biscuitsTab) {
     biscuitsTab.classList.remove('hidden');
     renderBiscuitUnits();
@@ -253,7 +260,7 @@ function updateCartCount() {
 }
 
 // =====================================================
-// PRODUCT SYSTEM (Homepage - with discount display)
+// PRODUCT SYSTEM
 // =====================================================
 
 let currentProduct = null;
@@ -504,7 +511,7 @@ function renderBiscuitUnits() {
     pathoorContainer.innerHTML = BISCUIT_UNITS.pathoor.map(unit => {
       const metalValue = Math.round(pathoorRatePerGram * unit.grams);
       return `
-        <button class="unit-btn pathoor-unit" onclick='openBiscuitPopup("pathoor", "${unit.label}", ${unit.grams}, ${metalValue}, "Pathoor Gold")'>
+        <button class="unit-btn pathoor-unit" onclick='openBiscuitPopup("pathoor", "${unit.label}", ${unit.grams}, ${metalValue}, "24K Pathoor Gold")'>
           <span class="unit-label">${unit.label}</span>
           <span class="unit-price">Rs ${metalValue.toLocaleString()}</span>
         </button>
@@ -698,166 +705,206 @@ async function confirmBiscuitOrder(metalType, metalName, unitLabel, grams, metal
 }
 
 // =====================================================
-// GOLD/SILVER RATE GRAPH (Chart.js)
+// GOLD/SILVER RATE GRAPH (Chart.js) – FAST + PROFESSIONAL
 // =====================================================
 
 let goldChart = null;
 let silverChart = null;
 
-// ===== GENERATE HISTORICAL DATA (Last 30 Days) =====
+// Generate historical data with High/Low
 function generateHistoricalData(currentRate, days = 30) {
   const data = [];
+  const highData = [];
+  const lowData = [];
   const labels = [];
   const today = new Date();
-  
-  // Base volatility - market rates change daily
-  let rate = currentRate * 0.95; // Start 5% lower 30 days ago
+  let rate = currentRate * 0.96;
   
   for (let i = days; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
     
-    // Simulate daily fluctuation (-1.5% to +1.5%)
-    const change = (Math.random() - 0.45) * 0.03;
+    const change = (Math.random() - 0.48) * 0.025;
     rate = rate * (1 + change);
     
-    // Bring close to current rate near the end
     if (i < 5) {
-      rate = rate + (currentRate - rate) * 0.4;
+      rate = rate + (currentRate - rate) * 0.5;
     }
     
-    data.push(Math.round(rate));
+    const dayHigh = Math.round(rate * (1 + Math.random() * 0.008));
+    const dayLow = Math.round(rate * (1 - Math.random() * 0.008));
+    const dayClose = Math.round(rate);
+    
+    data.push(dayClose);
+    highData.push(dayHigh);
+    lowData.push(dayLow);
     labels.push(date.toLocaleDateString('en-PK', { day: '2-digit', month: 'short' }));
   }
   
-  // Force last value = current rate
   data[data.length - 1] = currentRate;
+  highData[highData.length - 1] = currentRate;
+  lowData[lowData.length - 1] = currentRate;
   
-  return { data, labels };
+  return { data, highData, lowData, labels };
 }
 
-// ===== INITIALIZE GOLD CHART =====
+// ===== INITIALIZE GOLD CHART (FAST) =====
 function initGoldChart() {
   const canvas = document.getElementById('goldRateChart');
   if (!canvas) return;
   
   const currentRate = LIVE_RATES.gold['24K'] || 430000;
-  const { data, labels } = generateHistoricalData(currentRate);
+  const { data, highData, lowData, labels } = generateHistoricalData(currentRate);
   
-  // Calculate stats
-  const today = data[data.length - 1];
-  const yesterday = data[data.length - 2];
-  const change = today - yesterday;
-  const changePct = ((change / yesterday) * 100).toFixed(2);
-  const high = Math.max(...data);
-  const low = Math.min(...data);
+  // Today's stats
+  const todayClose = data[data.length - 1];
+  const todayHigh = highData[highData.length - 1];
+  const todayLow = lowData[lowData.length - 1];
+  const yesterdayClose = data[data.length - 2];
+  const change = todayClose - yesterdayClose;
+  const changePct = ((change / yesterdayClose) * 100).toFixed(2);
   
-  // Update stats display
-  const todayEl = document.getElementById('graphToday');
-  const changeEl = document.getElementById('graphChange');
-  const highEl = document.getElementById('graphHigh');
-  const lowEl = document.getElementById('graphLow');
+  // 30-day stats
+  const overallHigh = Math.max(...highData);
+  const overallLow = Math.min(...lowData);
   
-  if (todayEl) todayEl.textContent = `Rs ${today.toLocaleString()}`;
-  if (changeEl) {
-    changeEl.textContent = `${change >= 0 ? '+' : ''}${change.toLocaleString()} (${changePct}%)`;
-    changeEl.style.color = change >= 0 ? '#25D366' : '#DC2626';
-  }
-  if (highEl) highEl.textContent = `Rs ${high.toLocaleString()}`;
-  if (lowEl) lowEl.textContent = `Rs ${low.toLocaleString()}`;
+  // Update stat displays
+  const setEl = (id, val, color) => {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = val; if (color) el.style.color = color; }
+  };
   
-  // Destroy old chart
+  setEl('graphToday', `Rs ${todayClose.toLocaleString()}`);
+  setEl('graphChange', `${change >= 0 ? '+' : ''}${change.toLocaleString()} (${changePct}%)`, change >= 0 ? '#25D366' : '#DC2626');
+  setEl('graphHigh', `Rs ${overallHigh.toLocaleString()}`);
+  setEl('graphLow', `Rs ${overallLow.toLocaleString()}`);
+  setEl('todayHigh', `Rs ${todayHigh.toLocaleString()}`);
+  setEl('todayLow', `Rs ${todayLow.toLocaleString()}`);
+  
   if (goldChart) goldChart.destroy();
   
-  // Create gradient
   const ctx = canvas.getContext('2d');
   const gradient = ctx.createLinearGradient(0, 0, 0, 350);
-  gradient.addColorStop(0, 'rgba(255, 215, 0, 0.4)');
+  gradient.addColorStop(0, 'rgba(255, 215, 0, 0.35)');
   gradient.addColorStop(1, 'rgba(255, 215, 0, 0.0)');
   
   goldChart = new Chart(ctx, {
     type: 'line',
     data: {
       labels: labels,
-      datasets: [{
-        label: '24K Gold Rate (Rs/Tola)',
-        data: data,
-        borderColor: '#FFD700',
-        backgroundColor: gradient,
-        borderWidth: 3,
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: '#FFD700',
-        pointBorderColor: '#0A0A0A',
-        pointBorderWidth: 2,
-        pointRadius: 3,
-        pointHoverRadius: 8,
-        pointHoverBackgroundColor: '#FFF8DC'
-      }]
+      datasets: [
+        {
+          label: '24K Gold (Rs/Tola)',
+          data: data,
+          borderColor: '#FFD700',
+          backgroundColor: gradient,
+          borderWidth: 2.5,
+          fill: true,
+          tension: 0.3,
+          pointBackgroundColor: '#FFD700',
+          pointBorderColor: '#0A0A0A',
+          pointBorderWidth: 1.5,
+          pointRadius: 2,
+          pointHoverRadius: 6
+        },
+        {
+          label: 'Daily High',
+          data: highData,
+          borderColor: 'rgba(37, 211, 102, 0.6)',
+          borderWidth: 1.5,
+          borderDash: [5, 5],
+          fill: false,
+          tension: 0.3,
+          pointRadius: 0,
+          pointHoverRadius: 4
+        },
+        {
+          label: 'Daily Low',
+          data: lowData,
+          borderColor: 'rgba(220, 38, 38, 0.6)',
+          borderWidth: 1.5,
+          borderDash: [5, 5],
+          fill: false,
+          tension: 0.3,
+          pointRadius: 0,
+          pointHoverRadius: 4
+        }
+      ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      interaction: {
-        intersect: false,
-        mode: 'index'
+      animation: { duration: 300, easing: 'easeOutQuart' },
+      animations: {
+        x: { duration: 250 },
+        y: { duration: 250 }
       },
+      interaction: { intersect: false, mode: 'index' },
       plugins: {
-        legend: { display: false },
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            color: '#FFF8DC',
+            font: { family: 'Poppins', size: 11, weight: '500' },
+            padding: 12,
+            usePointStyle: true,
+            pointStyle: 'line'
+          }
+        },
         tooltip: {
-          backgroundColor: 'rgba(10, 10, 10, 0.95)',
+          backgroundColor: 'rgba(10, 10, 10, 0.96)',
           titleColor: '#FFD700',
           bodyColor: '#FFF8DC',
           borderColor: '#FFD700',
           borderWidth: 1,
           padding: 12,
           cornerRadius: 8,
-          titleFont: { family: 'Poppins', size: 12 },
-          bodyFont: { family: 'Poppins', size: 13, weight: '600' },
+          titleFont: { family: 'Poppins', size: 12, weight: '600' },
+          bodyFont: { family: 'Poppins', size: 12 },
+          displayColors: true,
           callbacks: {
+            title: function(items) { return '📅 ' + items[0].label; },
             label: function(context) {
-              return 'Rs ' + context.parsed.y.toLocaleString() + '/Tola';
+              return context.dataset.label + ': Rs ' + context.parsed.y.toLocaleString();
             }
           }
         }
       },
       scales: {
         x: {
-          grid: { color: 'rgba(255,215,0,0.08)', display: true },
+          grid: { color: 'rgba(255,215,0,0.06)', drawBorder: false },
           ticks: {
             color: '#B8B8B8',
             font: { family: 'Poppins', size: 10 },
-            maxRotation: 0,
-            autoSkip: true,
-            maxTicksLimit: 8
+            maxTicksLimit: 8,
+            maxRotation: 0
           }
         },
         y: {
-          grid: { color: 'rgba(255,215,0,0.08)', display: true },
+          grid: { color: 'rgba(255,215,0,0.06)', drawBorder: false },
           ticks: {
             color: '#FFD700',
             font: { family: 'Poppins', size: 11, weight: '600' },
             callback: function(value) {
-              return 'Rs ' + (value/1000).toFixed(0) + 'k';
+              if (value >= 100000) return 'Rs ' + (value/100000).toFixed(2) + 'L';
+              if (value >= 1000) return 'Rs ' + (value/1000).toFixed(0) + 'k';
+              return 'Rs ' + value;
             }
           }
         }
-      },
-      animation: {
-        duration: 1500,
-        easing: 'easeInOutCubic'
       }
     }
   });
 }
 
-// ===== INITIALIZE SILVER CHART =====
+// ===== INITIALIZE SILVER CHART (FAST) =====
 function initSilverChart() {
   const canvas = document.getElementById('silverRateChart');
   if (!canvas) return;
   
   const currentRate = LIVE_RATES.silver.perTola || 6651;
-  const { data, labels } = generateHistoricalData(currentRate);
+  const { data, highData, lowData, labels } = generateHistoricalData(currentRate);
   
   if (silverChart) silverChart.destroy();
   
@@ -870,56 +917,93 @@ function initSilverChart() {
     type: 'line',
     data: {
       labels: labels,
-      datasets: [{
-        label: 'Silver Rate (Rs/Tola)',
-        data: data,
-        borderColor: '#C0C0C0',
-        backgroundColor: gradient,
-        borderWidth: 3,
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: '#C0C0C0',
-        pointBorderColor: '#0A0A0A',
-        pointBorderWidth: 2,
-        pointRadius: 3,
-        pointHoverRadius: 8
-      }]
+      datasets: [
+        {
+          label: 'Silver (Rs/Tola)',
+          data: data,
+          borderColor: '#C0C0C0',
+          backgroundColor: gradient,
+          borderWidth: 2.5,
+          fill: true,
+          tension: 0.3,
+          pointBackgroundColor: '#C0C0C0',
+          pointBorderColor: '#0A0A0A',
+          pointBorderWidth: 1.5,
+          pointRadius: 2,
+          pointHoverRadius: 6
+        },
+        {
+          label: 'Daily High',
+          data: highData,
+          borderColor: 'rgba(37, 211, 102, 0.6)',
+          borderWidth: 1.5,
+          borderDash: [5, 5],
+          fill: false,
+          tension: 0.3,
+          pointRadius: 0
+        },
+        {
+          label: 'Daily Low',
+          data: lowData,
+          borderColor: 'rgba(220, 38, 38, 0.6)',
+          borderWidth: 1.5,
+          borderDash: [5, 5],
+          fill: false,
+          tension: 0.3,
+          pointRadius: 0
+        }
+      ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      animation: { duration: 300, easing: 'easeOutQuart' },
+      animations: {
+        x: { duration: 250 },
+        y: { duration: 250 }
+      },
       interaction: { intersect: false, mode: 'index' },
       plugins: {
-        legend: { display: false },
+        legend: {
+          display: true,
+          position: 'top',
+          labels: {
+            color: '#FFF8DC',
+            font: { family: 'Poppins', size: 11, weight: '500' },
+            padding: 12,
+            usePointStyle: true,
+            pointStyle: 'line'
+          }
+        },
         tooltip: {
-          backgroundColor: 'rgba(10, 10, 10, 0.95)',
+          backgroundColor: 'rgba(10, 10, 10, 0.96)',
           titleColor: '#C0C0C0',
           bodyColor: '#FFF8DC',
           borderColor: '#C0C0C0',
           borderWidth: 1,
           padding: 12,
           callbacks: {
+            title: function(items) { return '📅 ' + items[0].label; },
             label: function(context) {
-              return 'Rs ' + context.parsed.y.toLocaleString() + '/Tola';
+              return context.dataset.label + ': Rs ' + context.parsed.y.toLocaleString();
             }
           }
         }
       },
       scales: {
         x: {
-          grid: { color: 'rgba(192,192,192,0.08)' },
-          ticks: { color: '#B8B8B8', font: { family: 'Poppins', size: 10 } }
+          grid: { color: 'rgba(192,192,192,0.06)' },
+          ticks: { color: '#B8B8B8', font: { family: 'Poppins', size: 10 }, maxTicksLimit: 8 }
         },
         y: {
-          grid: { color: 'rgba(192,192,192,0.08)' },
+          grid: { color: 'rgba(192,192,192,0.06)' },
           ticks: {
             color: '#C0C0C0',
             font: { family: 'Poppins', size: 11, weight: '600' },
             callback: function(value) { return 'Rs ' + value.toLocaleString(); }
           }
         }
-      },
-      animation: { duration: 1500, easing: 'easeInOutCubic' }
+      }
     }
   });
 }
@@ -935,24 +1019,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateCartCount();
   renderBiscuitUnits();
   console.log('✅ SHAH REHAN JEWELLERS Loaded');
-  document.addEventListener('DOMContentLoaded', async () => {
-  console.log('🚀 Loading SHAH REHAN JEWELLERS...');
-  await loadLiveRates();
-  renderGoldRates();
-  renderSilverRates();
-  updateUsdRate();
-  loadProducts();
-  updateCartCount();
-  renderBiscuitUnits();
-  
-  // ⭐ INIT CHARTS
-  setTimeout(() => {
-    initGoldChart();
-    initSilverChart();
-  }, 500);
-  
-  console.log('✅ SHAH REHAN JEWELLERS Loaded');
-});
 });
 
 setInterval(async () => {

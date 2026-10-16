@@ -3712,4 +3712,250 @@ html { scroll-behavior: smooth; }
   .readymade-buttons, .modal-buttons { grid-template-columns: 1fr; }
   .popup-final-value { font-size: 1.6rem; }
   .final-price-value { font-size: 1.1rem; }
+}/* ===================== STICKY TOP BAR + HEADER ===================== */
+.top-bar {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 101 !important;
+}
+
+.site-header {
+  position: sticky !important;
+  top: 40px !important; /* Adjust based on top-bar height */
+  z-index: 100 !important;
+}
+
+/* Mobile adjustment */
+@media (max-width: 768px) {
+  .site-header {
+    top: 50px !important;
+  }
+}
+
+/* ===================== HERO SPLIT (50% Content + 50% Video) ===================== */
+.hero-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 65vh;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #0F0F1E 0%, #1A1A2E 100%);
+}
+
+.hero-content-half {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 50px;
+  background: 
+    radial-gradient(circle at 30% 40%, rgba(255,215,0,0.15), transparent 60%),
+    radial-gradient(circle at 70% 70%, rgba(201,162,39,0.1), transparent 60%),
+    linear-gradient(135deg, #1A1A2E 0%, #0F0F1E 100%);
+  position: relative;
+}
+
+.hero-content-half::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #FFD700, #FFF8DC, #FFD700);
+}
+
+.hero-content-inner {
+  max-width: 500px;
+  text-align: left;
+}
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 3.2rem;
+  font-weight: 900;
+  color: #FFD700;
+  text-shadow: 0 4px 30px rgba(255,215,0,0.5);
+  margin-bottom: 15px;
+  line-height: 1.1;
+}
+
+.hero-subtitle {
+  font-size: 1.15rem;
+  color: #FFF8DC;
+  letter-spacing: 3px;
+  margin-bottom: 20px;
+}
+
+.hero-urdu {
+  font-family: 'Noto Nastaliq Urdu', serif;
+  font-size: 1.2rem;
+  color: #FFD700;
+  margin-bottom: 25px;
+  text-shadow: 0 2px 10px rgba(255,215,0,0.4);
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin-bottom: 25px;
+}
+
+.hero-taglines {
+  padding-top: 20px;
+  border-top: 1px solid rgba(255,215,0,0.2);
+}
+
+.hero-taglines p {
+  font-family: 'Noto Nastaliq Urdu', serif;
+  font-size: 1rem;
+  color: #FFD700;
+  margin-bottom: 8px;
+}
+
+/* Video Half */
+.hero-video-half {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.4s ease;
+}
+
+.hero-video-half:hover {
+  transform: scale(1.02);
+}
+
+.hero-video-half .video-placeholder-bg {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 40% 50%, rgba(255,215,0,0.5), transparent 60%),
+    radial-gradient(circle at 70% 60%, rgba(201,162,39,0.4), transparent 60%),
+    linear-gradient(135deg, #2A2A3E, #0F0F1E);
+  animation: shimmer 8s ease-in-out infinite alternate;
+}
+
+.hero-video-half .video-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,0,0,0.6));
+}
+
+.hero-video-half .watermark {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  color: #FFD700;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  letter-spacing: 2px;
+  opacity: 0.9;
+  text-shadow: 0 0 15px rgba(255,215,0,0.8);
+}
+
+.video-play-icon {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255,215,0,0.95);
+  color: #0A0A0A;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 40px rgba(255,215,0,0.8);
+  animation: play-pulse 2s infinite;
+  z-index: 10;
+}
+
+@keyframes play-pulse {
+  0%, 100% { 
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 40px rgba(255,215,0,0.8);
+  }
+  50% { 
+    transform: translate(-50%, -50%) scale(1.1);
+    box-shadow: 0 0 60px rgba(255,215,0,1);
+  }
+}
+
+/* ===================== CALCULATOR TAB BUTTON ===================== */
+.calculator-tab {
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%) !important;
+  color: #FFFFFF !important;
+  border-color: #25D366 !important;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.calculator-tab:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(37,211,102,0.4) !important;
+}
+
+.tab-calc-icon {
+  font-size: 1.1rem;
+}
+
+/* ===================== INLINE DISCOUNT TAG (on card) ===================== */
+.inline-discount-tag {
+  display: inline-block;
+  background: linear-gradient(135deg, #DC2626, #991B1B);
+  color: #FFFFFF;
+  padding: 2px 8px;
+  border-radius: 50px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  margin-left: 8px;
+  vertical-align: middle;
+  animation: tag-pulse 1.5s infinite;
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 900px) {
+  .hero-split {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+  
+  .hero-content-half {
+    padding: 40px 25px;
+    order: 1;
+  }
+  
+  .hero-video-half {
+    min-height: 40vh;
+    order: 2;
+  }
+  
+  .hero-title {
+    font-size: 2.2rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 0.95rem;
+    letter-spacing: 2px;
+  }
+  
+  .hero-content-inner {
+    text-align: center;
+  }
+  
+  .hero-buttons {
+    justify-content: center;
+  }
+  
+  .video-play-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+  }
 }

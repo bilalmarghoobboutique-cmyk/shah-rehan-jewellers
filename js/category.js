@@ -63,23 +63,37 @@ function getProductPrices(product) {
   
   let originalPrice, discountedPrice, discountPct;
   
+  // ✅ GOLD / SILVER
   if (isGold || isSilver) {
     const calculated = calculateGoldSilverPrice(product);
-    const mrp = product.price || calculated;
+    const mrp = product.price || 0;
     
-    // If product price > calculated price, show discount
-    if (mrp > calculated && calculated > 0) {
-      originalPrice = mrp;
-      discountedPrice = calculated;
+    // Priority 1: If discount_percent set in admin
+    if (product.discount_percent && product.discount_percent > 0) {
+      originalPrice = mrp || calculated;
+      discountPct = product.discount_percent;
+      discountedPrice = Math.round(originalPrice * (1 - discountPct/100));
+    }
+    // Priority 2: If MRP > calculated price
+    else if (mrp > 0 && calculated > 0 && mrp !== calculated) {
+      if (mrp > calculated) {
+        originalPrice = mrp;
+        discountedPrice = calculated;
+      } else {
+        originalPrice = calculated;
+        discountedPrice = mrp;
+      }
       discountPct = Math.round(((originalPrice - discountedPrice) / originalPrice) * 100);
-    } else {
-      // No discount - show single price
-      originalPrice = calculated;
-      discountedPrice = calculated;
+    }
+    // Priority 3: Same price - NO discount
+    else {
+      originalPrice = calculated || mrp;
+      discountedPrice = originalPrice;
       discountPct = 0;
     }
-  } else {
-    // Artificial / Diamond
+  }
+  // ✅ ARTIFICIAL / DIAMOND
+  else {
     originalPrice = product.price || 0;
     discountPct = product.discount_percent || 5;
     discountedPrice = Math.round(originalPrice * (1 - discountPct/100));
@@ -143,7 +157,7 @@ async function loadCategoryProducts(category) {
   }
 }
 
-// ===== RENDER PRODUCTS (All Categories with Discount) =====
+// ===== RENDER PRODUCTS =====
 function renderProducts(products) {
   const grid = document.getElementById('categoryProductsGrid');
   
@@ -156,7 +170,6 @@ function renderProducts(products) {
     const isSilver = p.category === 'silver';
     const isArtificial = p.category === 'artificial';
     
-    // Get prices using universal function
     const { originalPrice, discountedPrice, discountPct } = getProductPrices(p);
     
     const soldQty = p.sold_qty || Math.floor(Math.random() * 50) + 10;
@@ -178,7 +191,6 @@ function renderProducts(products) {
           <span class="category-tag">${goldQuality}</span>
           <h3>${p.name}</h3>
           
-          <!-- PRICE DISPLAY WITH DISCOUNT -->
           <div class="price-display-block">
             ${discountPct > 0 ? `
               <div class="original-price-line">
@@ -285,7 +297,6 @@ function openProductModal(product) {
   const isGold = product.category === 'gold';
   const isSilver = product.category === 'silver';
   
-  // ===== PRICE CALCULATION =====
   const { originalPrice, discountedPrice, discountPct } = getProductPrices(product);
   
   // ===== PRODUCT DETAILS BOX =====
@@ -325,7 +336,6 @@ function openProductModal(product) {
         </div>
       </div>
       
-      <!-- POPUP PRICE DISPLAY (With Discount) -->
       <div class="popup-price-display">
         ${discountPct > 0 ? `
           <div class="popup-original-price">
@@ -343,7 +353,6 @@ function openProductModal(product) {
     detailsBox.style.display = 'block';
   }
   
-  // ===== AUTO-CALCULATED PRICE (Hide - already shown in details box) =====
   const autoPrice = document.getElementById('autoPriceDisplay');
   if (autoPrice) {
     autoPrice.innerHTML = '';
@@ -375,7 +384,7 @@ function openProductModal(product) {
     }
   }
   
-  // ===== COLOR (Artificial only) =====
+  // ===== COLOR =====
   const colorSection = document.getElementById('colorSection');
   if (colorSection) {
     colorSection.style.display = isArtificial ? 'block' : 'none';
@@ -384,7 +393,7 @@ function openProductModal(product) {
     }
   }
   
-  // ===== CUSTOM WEIGHT BUTTON (Gold/Silver only) =====
+  // ===== CUSTOM WEIGHT =====
   const customWeightBtn = document.getElementById('customWeightBtn');
   const customWeightBox = document.getElementById('customWeightBox');
   const priceBreakdown = document.getElementById('priceBreakdown');
@@ -404,7 +413,6 @@ function openProductModal(product) {
   
   if (priceBreakdown) priceBreakdown.classList.add('hidden');
   
-  // ===== READYMADE BUTTONS =====
   const readymadeButtons = document.getElementById('readymadeButtons');
   if (readymadeButtons) {
     readymadeButtons.style.display = 'grid';
@@ -414,7 +422,7 @@ function openProductModal(product) {
   document.body.style.overflow = 'hidden';
 }
 
-// ===== READYMADE BUY FROM MODAL =====
+// ===== READYMADE BUY =====
 function buyReadymade() {
   if (!currentProduct) return;
   quickAddToCart(currentProduct);

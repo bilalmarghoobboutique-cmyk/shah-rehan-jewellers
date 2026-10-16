@@ -3958,4 +3958,147 @@ html { scroll-behavior: smooth; }
     height: 60px;
     font-size: 1.5rem;
   }
+}/* ===================== HERO VIDEO (Autoplay, No Play Button) ===================== */
+.hero-video-half {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.hero-video-element {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.85) contrast(1.1);
+  z-index: 1;
+}
+
+.hero-video-half .video-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,0,0,0.2), rgba(0,0,0,0.5));
+  z-index: 2;
+  transition: all 0.4s ease;
+}
+
+.hero-video-half:hover .video-overlay {
+  background: linear-gradient(135deg, rgba(0,0,0,0.1), rgba(0,0,0,0.3));
+}
+
+.hero-video-half .watermark {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  color: #FFD700;
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  letter-spacing: 2px;
+  opacity: 0.95;
+  text-shadow: 0 0 15px rgba(255,215,0,0.8);
+  z-index: 5;
+}
+
+/* Remove old play icon (no longer needed) */
+.video-play-icon {
+  display: none !important;
+}
+
+/* ===================== CATEGORY LOGO IMAGES ===================== */
+.category-logo-img {
+  width: 110px;
+  height: 110px;
+  margin: 0 auto 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #1A1A2E, #0F0F1E);
+  border: 3px solid rgba(255,215,0,0.4);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+  transition: all 0.4s ease;
+  position: relative;
+}
+
+.category-logo-img::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FFD700, #C9A227, #FFD700);
+  z-index: -1;
+  opacity: 0.6;
+  filter: blur(4px);
+  transition: opacity 0.4s ease;
+}
+
+.category-logo-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  transition: transform 0.4s ease;
+}
+
+.category-card:hover .category-logo-img {
+  border-color: #FFD700;
+  box-shadow: 0 12px 40px rgba(255,215,0,0.5);
+  transform: translateY(-5px);
+}
+
+.category-card:hover .category-logo-img::before {
+  opacity: 1;
+}
+
+.category-card:hover .category-logo-img img {
+  transform: scale(1.15);
+}
+
+.category-card {
+  background: linear-gradient(135deg, #1C1C1C, #2A2A2A);
+  border: 1px solid rgba(255,215,0,0.2);
+  border-radius: 20px;
+  padding: 30px 20px;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.category-card:hover {
+  transform: translateY(-8px);
+  border-color: #FFD700;
+  box-shadow: 0 20px 50px rgba(255,215,0,0.3);
+}
+
+.category-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #FFD700;
+  margin-top: 8px;
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 900px) {
+  .category-logo-img {
+    width: 90px;
+    height: 90px;
+  }
+  .category-name {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .category-logo-img {
+    width: 80px;
+    height: 80px;
+  }
 }

@@ -4491,4 +4491,86 @@ html { scroll-behavior: smooth; }
   .review-card {
     padding: 25px 20px;
   }
+}/* ===================== ROTATING SRJ LOGO ===================== */
+
+/* Top Bar Logo */
+.top-bar-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 8px rgba(255,215,0,0.6));
+}
+
+/* Header Logo */
+.header-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 12px rgba(255,215,0,0.5));
+}
+
+/* Hero Big Logo */
+.hero-rotating-logo {
+  width: 140px;
+  height: 140px;
+  margin: 0 auto 20px;
+  display: block;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 25px rgba(255,215,0,0.7));
+}
+
+/* ===================== ROTATING ANIMATION ===================== */
+.rotating-logo {
+  animation: rotate-logo 12s linear infinite;
+  transition: all 0.4s ease;
+}
+
+.rotating-logo:hover {
+  animation-duration: 3s;
+  filter: drop-shadow(0 0 20px rgba(255,215,0,1));
+}
+
+.hero-rotating-logo {
+  animation: rotate-logo 15s linear infinite;
+  transition: all 0.4s ease;
+}
+
+.hero-rotating-logo:hover {
+  animation-duration: 3s;
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 40px rgba(255,215,0,1));
+}
+
+@keyframes rotate-logo {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Pause on hover (optional - comment out if you want continuous spin even on hover) */
+.top-bar-logo:hover,
+.header-logo:hover {
+  animation-play-state: running;
+}
+
+/* ===================== RESPONSIVE ===================== */
+@media (max-width: 768px) {
+  .top-bar-logo {
+    width: 24px;
+    height: 24px;
+  }
+  .header-logo {
+    width: 36px;
+    height: 36px;
+  }
+  .hero-rotating-logo {
+    width: 100px;
+    height: 100px;
+  }
+  .brand-name {
+    font-size: 1rem;
+  }
 }

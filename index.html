@@ -12,7 +12,7 @@
   
   <link rel="stylesheet" href="css/style.css">
   <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
@@ -29,19 +29,25 @@
         <span class="divider">|</span>
         <span class="rate-item pathoor-item">
           <img src="images/pathoor-logo.jpg" alt="Pathoor" class="rate-icon-img" onerror="this.style.display='none'">
-          <span class="rate-label">24 kPathoor</span>
+          <span class="rate-label">24K Pathoor</span>
           <span class="rate-value" id="topPathoor">Loading...</span>
           <span class="rate-unit">/tola</span>
         </span>
       </div>
-      <span class="top-bar-contact">📞 0092 326 6501314</span>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <img src="images/srj-logo.svg" alt="SRJ Logo" class="top-bar-logo rotating-logo" onerror="this.style.display='none'">
+        <span class="top-bar-contact">📞 0092 326 6501314</span>
+      </div>
     </div>
   </div>
 
   <!-- HEADER -->
   <header class="site-header">
     <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-      <h1 class="brand-name">SHAH REHAN JEWELLERS</h1>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <img src="images/srj-logo.svg" alt="SRJ Logo" class="header-logo rotating-logo" onerror="this.style.display='none'">
+        <h1 class="brand-name">SHAH REHAN JEWELLERS</h1>
+      </div>
       <nav class="hidden md:flex gap-8 font-medium">
         <a href="index.html" class="nav-link active">Home</a>
         <a href="collections.html" class="nav-link">Collections</a>
@@ -59,46 +65,35 @@
     </div>
   </header>
 
-  <!-- ===================== HERO SECTION (50% Content + 50% Video) ===================== -->
- <!-- HERO SECTION (30% Content + 70% Video) -->
-<section class="hero-split">
-  
-  <!-- LEFT: Content (30%) -->
-  <div class="hero-content-half">
-    <div class="hero-content-inner">
-      <h1 class="hero-title">Shah Rehan Jewellers</h1>
-      <p class="hero-subtitle">Exclusive Gold & Diamond Collection 2026</p>
-      <div class="hero-buttons">
-        <a href="collections.html" class="btn-gold">Shop Now</a>
-        <a href="https://wa.me/923266501314" class="btn-outline">WhatsApp Us</a>
+  <!-- ===================== HERO SECTION (30% Content + 70% Video) ===================== -->
+  <section class="hero-split">
+    
+    <!-- LEFT: Content (30%) -->
+    <div class="hero-content-half">
+      <div class="hero-content-inner">
+        <img src="images/srj-logo.svg" alt="SRJ Logo" class="hero-rotating-logo" onerror="this.style.display='none'">
+        <h1 class="hero-title">Shah Rehan Jewellers</h1>
+        <p class="hero-subtitle">Exclusive Gold & Diamond Collection 2026</p>
+        <div class="hero-buttons">
+          <a href="collections.html" class="btn-gold">Shop Now</a>
+          <a href="https://wa.me/923266501314" class="btn-outline">WhatsApp Us</a>
+        </div>
       </div>
     </div>
-  </div>
-  
-  <!-- RIGHT: Video (70%) - Autoplay -->
-  <a href="collections.html" class="hero-video-half">
-    <video 
-      id="heroVideo"
-      autoplay 
-      muted 
-      loop 
-      playsinline 
-      webkit-playsinline
-      preload="auto"
-      disablepictureinpicture
-      controlslist="nodownload"
-      class="hero-video-element">
-      <source src="videos/shah-rehan-model.mp4" type="video/mp4">
-    </video>
-    <div class="video-overlay"></div>
-    <div class="watermark">SHAH REHAN JEWELLERS</div>
-  </a>
-  
-</section>
     
-    <!-- RIGHT: Video (50%) - Autoplay, No Play Button -->
+    <!-- RIGHT: Video (70%) - Autoplay -->
     <a href="collections.html" class="hero-video-half">
-      <video autoplay muted loop playsinline preload="auto" class="hero-video-element">
+      <video 
+        id="heroVideo"
+        autoplay 
+        muted 
+        loop 
+        playsinline 
+        webkit-playsinline
+        preload="auto"
+        disablepictureinpicture
+        controlslist="nodownload"
+        class="hero-video-element">
         <source src="videos/shah-rehan-model.mp4" type="video/mp4">
       </video>
       <div class="video-overlay"></div>
@@ -132,72 +127,71 @@
         </a>
       </div>
 
-      <!-- GOLD TAB -->
-      <<!-- GOLD TAB (35% Carousel + 65% Graph) -->
-<div id="goldRatesTab" class="rates-content">
-  <div class="rates-with-graph">
-    
-    <!-- LEFT: 35% Carousel -->
-    <div class="rates-carousel-side">
-      <div id="goldRatesContainer" class="rates-grid"></div>
-    </div>
-    
-    <!-- RIGHT: 65% Graph -->
-    <div class="rates-graph-side">
-      <div class="graph-header">
-        <h3 class="graph-title">📈 Gold Rate Chart</h3>
-        <p class="graph-subtitle">Last 30 Days Trend (Lahore)</p>
-      </div>
-      <div class="graph-wrapper">
-        <canvas id="goldRateChart"></canvas>
-      </div>
-      <div class="graph-stats">
-  <div class="stat-item">
-    <span class="stat-label">Today Close</span>
-    <span class="stat-value" id="graphToday">—</span>
-  </div>
-  <div class="stat-item">
-    <span class="stat-label">Today High</span>
-    <span class="stat-value" id="todayHigh">—</span>
-  </div>
-  <div class="stat-item">
-    <span class="stat-label">Today Low</span>
-    <span class="stat-value" id="todayLow">—</span>
-  </div>
-  <div class="stat-item">
-    <span class="stat-label">Change</span>
-    <span class="stat-value" id="graphChange">—</span>
-  </div>
-  <div class="stat-item">
-    <span class="stat-label">30D High</span>
-    <span class="stat-value" id="graphHigh">—</span>
-  </div>
-  <div class="stat-item">
-    <span class="stat-label">30D Low</span>
-    <span class="stat-value" id="graphLow">—</span>
-  </div>
-</div>
-        <div class="stat-item">
-          <span class="stat-label">Change</span>
-          <span class="stat-value" id="graphChange">—</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-label">High</span>
-          <span class="stat-value" id="graphHigh">—</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-label">Low</span>
-          <span class="stat-value" id="graphLow">—</span>
+      <!-- GOLD TAB (35% Carousel + 65% Graph) -->
+      <div id="goldRatesTab" class="rates-content">
+        <div class="rates-with-graph">
+          
+          <!-- LEFT: 35% Carousel -->
+          <div class="rates-carousel-side">
+            <div id="goldRatesContainer" class="rates-grid"></div>
+          </div>
+          
+          <!-- RIGHT: 65% Graph -->
+          <div class="rates-graph-side">
+            <div class="graph-header">
+              <h3 class="graph-title">📈 Gold Rate Chart</h3>
+              <p class="graph-subtitle">Last 30 Days Trend (Lahore)</p>
+            </div>
+            <div class="graph-wrapper">
+              <canvas id="goldRateChart"></canvas>
+            </div>
+            <div class="graph-stats">
+              <div class="stat-item">
+                <span class="stat-label">Today Close</span>
+                <span class="stat-value" id="graphToday">—</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Today High</span>
+                <span class="stat-value" id="todayHigh">—</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Today Low</span>
+                <span class="stat-value" id="todayLow">—</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Change</span>
+                <span class="stat-value" id="graphChange">—</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">30D High</span>
+                <span class="stat-value" id="graphHigh">—</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">30D Low</span>
+                <span class="stat-value" id="graphLow">—</span>
+              </div>
+            </div>
+          </div>
+          
         </div>
       </div>
-    </div>
-    
-  </div>
-</div>
 
-      <!-- SILVER TAB -->
+      <!-- SILVER TAB (35% Carousel + 65% Graph) -->
       <div id="silverRatesTab" class="rates-content hidden">
-        <div id="silverRatesContainer" class="rates-grid-silver"></div>
+        <div class="rates-with-graph">
+          <div class="rates-carousel-side">
+            <div id="silverRatesContainer" class="rates-grid-silver"></div>
+          </div>
+          <div class="rates-graph-side">
+            <div class="graph-header">
+              <h3 class="graph-title">📈 Silver Rate Chart</h3>
+              <p class="graph-subtitle">Last 30 Days Trend (Lahore)</p>
+            </div>
+            <div class="graph-wrapper">
+              <canvas id="silverRateChart"></canvas>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- BISCUITS TAB -->
@@ -222,7 +216,7 @@
             <div class="biscuit-logo-wrap pathoor-logo-wrap">
               <img src="images/pathoor-logo.jpg" alt="Pathoor Gold" onerror="this.src='images/placeholder.svg'">
             </div>
-            <h3>Pathoor Gold</h3>
+            <h3>24K Pathoor Gold</h3>
             <p class="biscuit-subtitle">Local Market Rate • Live</p>
 
             <div class="biscuit-units" id="pathoorBiscuitUnits">
@@ -467,6 +461,26 @@
         switchRateTab(tab);
       }, 500);
     }
+
+    // Force video autoplay
+    document.addEventListener('DOMContentLoaded', function() {
+      const video = document.getElementById('heroVideo');
+      if (video) {
+        video.muted = true;
+        video.play().catch(function(err) {
+          console.log('Autoplay attempt failed:', err);
+          const playVideo = () => {
+            video.play().then(() => {
+              document.removeEventListener('click', playVideo);
+              document.removeEventListener('touchstart', playVideo);
+            });
+          };
+          document.addEventListener('click', playVideo);
+          document.addEventListener('touchstart', playVideo);
+          setTimeout(() => video.play().catch(e => console.log('Retry failed:', e)), 1000);
+        });
+      }
+    });
   </script>
   <script src="js/supabase.js"></script>
   <script src="js/main.js"></script>

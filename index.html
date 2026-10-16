@@ -51,10 +51,10 @@
       <nav class="hidden md:flex gap-8 font-medium">
         <a href="index.html" class="nav-link active">Home</a>
         <a href="collections.html" class="nav-link">Collections</a>
+        <a href="vlogs.html" class="nav-link">Vlogs</a>
+        <a href="blog.html" class="nav-link">Blog</a>
         <a href="about.html" class="nav-link">About</a>
         <a href="contact.html" class="nav-link">Contact</a>
-        <a href="blog.html" class="nav-link">Blog</a>
-      <a href="vlogs.html" class="nav-link">Vlogs</a>
       </nav>
       <div style="display: flex; gap: 12px; align-items: center;">
         <a href="cart.html" style="position: relative; color: #FFD700; font-size: 1.5rem; text-decoration: none;">
@@ -132,12 +132,10 @@
       <div id="goldRatesTab" class="rates-content">
         <div class="rates-with-graph">
           
-          <!-- LEFT: 35% Carousel -->
           <div class="rates-carousel-side">
             <div id="goldRatesContainer" class="rates-grid"></div>
           </div>
           
-          <!-- RIGHT: 65% Graph -->
           <div class="rates-graph-side">
             <div class="graph-header">
               <h3 class="graph-title">📈 Gold Rate Chart</h3>
@@ -177,7 +175,7 @@
         </div>
       </div>
 
-      <!-- SILVER TAB (35% Carousel + 65% Graph) -->
+      <!-- SILVER TAB -->
       <div id="silverRatesTab" class="rates-content hidden">
         <div class="rates-with-graph">
           <div class="rates-carousel-side">
@@ -199,7 +197,6 @@
       <div id="biscuitsTab" class="rates-content hidden">
         <div class="biscuits-grid">
 
-          <!-- GOLD BISCUIT -->
           <div class="biscuit-card">
             <div class="biscuit-logo-wrap">
               <img src="images/gold-buiscuit-logo.jpg" alt="Gold Biscuit" onerror="this.src='images/placeholder.svg'">
@@ -212,7 +209,6 @@
             </div>
           </div>
 
-          <!-- PATHOOR BISCUIT -->
           <div class="biscuit-card pathoor-biscuit-card">
             <div class="biscuit-logo-wrap pathoor-logo-wrap">
               <img src="images/pathoor-logo.jpg" alt="Pathoor Gold" onerror="this.src='images/placeholder.svg'">
@@ -225,7 +221,6 @@
             </div>
           </div>
 
-          <!-- SILVER BISCUIT -->
           <div class="biscuit-card silver-biscuit-card">
             <div class="biscuit-logo-wrap silver-logo-wrap">
               <img src="images/silver-1.jpg" alt="Silver Biscuit" onerror="this.src='images/placeholder.svg'">
@@ -304,22 +299,37 @@
     </div>
   </section>
 
-  <!-- BLOG SECTION -->
-  <<!-- BLOG SECTION (Dynamic from Supabase) -->
-<section class="blog-section">
-  <div class="container mx-auto px-4">
-    <h2 class="section-title">Latest from Our Blog</h2>
-    <p class="section-subtitle-urdu" dir="rtl">ہمارے بلاگ سے تازہ ترین</p>
-    
-    <div id="homeBlogGrid" class="blog-grid">
-      <div class="loading-blogs">Loading blogs...</div>
+  <!-- ===================== VLOGS SECTION ===================== -->
+  <section class="vlogs-home-section">
+    <div class="container mx-auto px-4">
+      <h2 class="section-title">Watch Our Vlogs</h2>
+      <p class="section-subtitle-urdu" dir="rtl">ہماری ویڈیوز دیکھیں</p>
+      
+      <div id="homeVlogsGrid" class="vlogs-home-grid">
+        <div class="loading-vlogs">Loading vlogs...</div>
+      </div>
+      
+      <div style="text-align: center; margin-top: 30px;">
+        <a href="vlogs.html" class="btn-gold">🎬 View All Vlogs</a>
+      </div>
     </div>
-    
-    <div style="text-align: center; margin-top: 30px;">
-      <a href="blog.html" class="btn-gold">📚 View All Blog Posts</a>
+  </section>
+
+  <!-- ===================== BLOG SECTION ===================== -->
+  <section class="blog-section">
+    <div class="container mx-auto px-4">
+      <h2 class="section-title">Latest from Our Blog</h2>
+      <p class="section-subtitle-urdu" dir="rtl">ہمارے بلاگ سے تازہ ترین</p>
+      
+      <div id="homeBlogGrid" class="blog-grid">
+        <div class="loading-blogs">Loading blogs...</div>
+      </div>
+      
+      <div style="text-align: center; margin-top: 30px;">
+        <a href="blog.html" class="btn-gold">📚 View All Blog Posts</a>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
   <!-- PRODUCT MODAL -->
   <div id="productModal" class="modal-overlay">
@@ -409,9 +419,8 @@
           <h4>Quick Links</h4>
           <a href="about.html">About Us</a>
           <a href="contact.html">Contact</a>
+          <a href="vlogs.html">Vlogs</a>
           <a href="blog.html">Blog</a>
-         
-         <a href="vlogs.html">Vlogs</a>
           <a href="disclaimer.html">Disclaimer</a>
         </div>
         <div>
@@ -469,54 +478,136 @@
       }
     });
   </script>
+
   <script src="js/supabase.js"></script>
   <script src="js/main.js"></script>
+
+  <!-- ===================== LOAD HOMEPAGE VLOGS ===================== -->
   <script>
-  // Load latest 3 blogs for homepage
-  async function loadHomeBlogs() {
-    const grid = document.getElementById('homeBlogGrid');
-    if (!grid) return;
-    
-    try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/blogs?select=*&is_published=eq.true&order=created_at.desc&limit=3`,
-        {
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`
+    async function loadHomeVlogs() {
+      const grid = document.getElementById('homeVlogsGrid');
+      if (!grid) return;
+      
+      try {
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/vlogs?select=*&is_active=eq.true&order=display_order.asc,created_at.desc&limit=3`,
+          {
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`
+            }
           }
+        );
+        
+        const vlogs = await res.json();
+        
+        if (!vlogs || vlogs.length === 0) {
+          grid.innerHTML = `
+            <div class="empty-vlogs-home" style="grid-column:1/-1;">
+              <div style="font-size:3rem;margin-bottom:12px;">📹</div>
+              <p style="color:#B8B8B8;">No vlogs yet. Check back soon!</p>
+            </div>
+          `;
+          return;
         }
-      );
-      
-      const blogs = await res.json();
-      
-      if (!blogs || blogs.length === 0) {
-        grid.innerHTML = '<div class="loading-blogs">No blogs yet</div>';
-        return;
+        
+        grid.innerHTML = vlogs.map(v => {
+          const date = new Date(v.created_at);
+          const formattedDate = date.toLocaleDateString('en-PK', { 
+            day: '2-digit', month: 'short', year: 'numeric' 
+          });
+          
+          const categoryMap = {
+            'showcase': 'Showcase',
+            'bridal': 'Bridal',
+            'diamond': 'Diamond',
+            'gold': 'Gold',
+            'silver': 'Silver',
+            'artificial': 'Artificial',
+            'shop-tour': 'Shop Tour',
+            'behind-scenes': 'Behind Scenes',
+            'other': 'Video'
+          };
+          const categoryLabel = categoryMap[v.category] || 'Video';
+          
+          return `
+            <div class="vlog-home-card">
+              <div class="vlog-home-video-wrapper">
+                <iframe 
+                  src="https://www.youtube.com/embed/${v.youtube_id}?rel=0&modestbranding=1" 
+                  title="${v.title}"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowfullscreen>
+                </iframe>
+              </div>
+              <div class="vlog-home-info">
+                <span class="vlog-home-category">${categoryLabel}</span>
+                <h3>${v.title}</h3>
+                <p>${v.description || ''}</p>
+                <div class="vlog-home-date">
+                  <span>📅</span>
+                  <span>${formattedDate}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+        
+      } catch (error) {
+        console.error('Error loading vlogs:', error);
+        grid.innerHTML = '<div class="loading-vlogs">Error loading vlogs</div>';
       }
-      
-      grid.innerHTML = blogs.map(b => `
-        <a href="blog-post.html?slug=${b.slug}" class="blog-card-with-image">
-          <div class="blog-card-image-wrapper">
-            <img src="${b.featured_image || 'images/placeholder.svg'}" alt="${b.title}" onerror="this.src='images/placeholder.svg'">
-            <span class="blog-card-category">${b.category || 'Blog'}</span>
-          </div>
-          <div class="blog-card-content">
-            <h3>${b.title}</h3>
-            <p>${b.excerpt || ''}</p>
-            <span class="blog-read-more">Read More →</span>
-          </div>
-        </a>
-      `).join('');
-      
-    } catch (error) {
-      console.error('Error loading blogs:', error);
-      grid.innerHTML = '<div class="loading-blogs">Error loading blogs</div>';
     }
-  }
-  
-  document.addEventListener('DOMContentLoaded', loadHomeBlogs);
-</script>
+    
+    document.addEventListener('DOMContentLoaded', loadHomeVlogs);
+  </script>
+
+  <!-- ===================== LOAD HOMEPAGE BLOGS ===================== -->
+  <script>
+    async function loadHomeBlogs() {
+      const grid = document.getElementById('homeBlogGrid');
+      if (!grid) return;
+      
+      try {
+        const res = await fetch(
+          `${SUPABASE_URL}/rest/v1/blogs?select=*&is_published=eq.true&order=created_at.desc&limit=3`,
+          {
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`
+            }
+          }
+        );
+        
+        const blogs = await res.json();
+        
+        if (!blogs || blogs.length === 0) {
+          grid.innerHTML = '<div class="loading-blogs">No blogs yet</div>';
+          return;
+        }
+        
+        grid.innerHTML = blogs.map(b => `
+          <a href="blog-post.html?slug=${b.slug}" class="blog-card-with-image">
+            <div class="blog-card-image-wrapper">
+              <img src="${b.featured_image || 'images/placeholder.svg'}" alt="${b.title}" onerror="this.src='images/placeholder.svg'">
+              <span class="blog-card-category">${b.category || 'Blog'}</span>
+            </div>
+            <div class="blog-card-content">
+              <h3>${b.title}</h3>
+              <p>${b.excerpt || ''}</p>
+              <span class="blog-read-more">Read More →</span>
+            </div>
+          </a>
+        `).join('');
+        
+      } catch (error) {
+        console.error('Error loading blogs:', error);
+        grid.innerHTML = '<div class="loading-blogs">Error loading blogs</div>';
+      }
+    }
+    
+    document.addEventListener('DOMContentLoaded', loadHomeBlogs);
+  </script>
 
 </body>
 </html>

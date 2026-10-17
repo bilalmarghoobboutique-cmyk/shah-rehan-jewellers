@@ -13,25 +13,72 @@
     body { background: #0A0A0A; color: #FFF8DC; font-family: 'Poppins', sans-serif; }
     
     .vlog-hero {
-      height: 40vh;
+      height: 45vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: 
-        radial-gradient(circle at 50% 50%, rgba(255,215,0,0.3), transparent 60%),
-        linear-gradient(135deg, #1A1A2E, #0F0F1E);
       position: relative;
       overflow: hidden;
+      background: linear-gradient(135deg, 
+        #1A0A2E 0%, #2D0F3D 12%, #3D1A2E 25%, #4A1530 37%,
+        #2E1A3D 50%, #1F1A3D 62%, #0F1A3D 75%, #1A0F2E 87%, #0A0A1A 100%);
+      background-size: 400% 400%;
+      animation: heroGradient 20s ease infinite;
     }
     
     .vlog-hero::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(255,215,0,0.25), transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(201,162,39,0.2), transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(107,15,26,0.2), transparent 60%);
+      pointer-events: none;
+    }
+    
+    .vlog-hero::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
       height: 3px;
-      background: linear-gradient(90deg, #FFD700, #FFF8DC, #FFD700);
+      background: linear-gradient(90deg, #FFD700, #FF6B9D, #C0C0C0, #25D366, #FFD700);
+      background-size: 200% 100%;
+      animation: topBar 6s linear infinite;
+    }
+    
+    @keyframes heroGradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    @keyframes topBar {
+      0% { background-position: 0% 0%; }
+      100% { background-position: 200% 0%; }
+    }
+    
+    .vlog-hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+    
+    .vlog-hero-logo {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #FFD700;
+      box-shadow: 0 0 30px rgba(255,215,0,0.7);
+      margin: 0 auto 20px;
+      display: block;
+      animation: logoFloat 3s ease-in-out infinite;
+    }
+    
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(3deg); }
     }
     
     .vlog-hero h1 {
@@ -40,12 +87,12 @@
       color: #FFD700;
       text-shadow: 0 0 30px rgba(255,215,0,0.5);
       text-align: center;
+      margin-bottom: 10px;
     }
     
     .vlog-hero p {
       color: #FFF8DC;
       letter-spacing: 3px;
-      margin-top: 10px;
       text-align: center;
       font-size: 0.95rem;
     }
@@ -54,6 +101,15 @@
       max-width: 1200px;
       margin: 0 auto;
       padding: 60px 20px;
+      position: relative;
+      background: linear-gradient(180deg, #0A0A0A 0%, #1A0F2E 25%, #0F1A2E 50%, #1A0A1E 75%, #0A0A0A 100%);
+      background-size: 100% 400%;
+      animation: bgShift 25s ease infinite;
+    }
+    
+    @keyframes bgShift {
+      0%, 100% { background-position: 0% 0%; }
+      50% { background-position: 0% 100%; }
     }
     
     .vlog-section-title {
@@ -92,9 +148,7 @@
     .vlog-card::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
+      top: 0; left: 0; right: 0;
       height: 3px;
       background: linear-gradient(90deg, #FFD700, #FFF8DC, #FFD700);
       opacity: 0;
@@ -102,9 +156,7 @@
       z-index: 2;
     }
     
-    .vlog-card:hover::before {
-      opacity: 1;
-    }
+    .vlog-card:hover::before { opacity: 1; }
     
     .vlog-card:hover {
       transform: translateY(-8px);
@@ -120,19 +172,14 @@
       background: #000;
     }
     
-    .vlog-video-wrapper iframe,
-    .vlog-video-wrapper video {
+    .vlog-video-wrapper iframe {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       border: none;
     }
     
-    .vlog-info {
-      padding: 20px;
-    }
+    .vlog-info { padding: 20px; }
     
     .vlog-info h3 {
       font-family: 'Playfair Display', serif;
@@ -158,6 +205,7 @@
     
     @media (max-width: 768px) {
       .vlog-hero h1 { font-size: 2rem; }
+      .vlog-hero-logo { width: 70px; height: 70px; }
       .vlog-grid { grid-template-columns: 1fr; }
     }
   </style>
@@ -189,8 +237,9 @@
 
   <!-- VLOG HERO -->
   <section class="vlog-hero">
-    <div>
-      <h1>📹 Our Vlogs</h1>
+    <div class="vlog-hero-content">
+      <img src="images/vlog-logo.jpg" alt="Vlogs" class="vlog-hero-logo" onerror="this.src='images/placeholder.svg'">
+      <h1>Our Vlogs</h1>
       <p>EXCLUSIVE JEWELLERY SHOWCASE</p>
     </div>
   </section>
@@ -222,14 +271,13 @@
         </div>
       </div>
 
-      <!-- VLOG 2 - Placeholder for future -->
+      <!-- VLOG 2 - Placeholder -->
       <div class="vlog-card">
         <div class="vlog-video-wrapper">
           <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1A1A2E, #0F0F1E);">
             <div style="text-align: center;">
-              <div style="font-size: 4rem; margin-bottom: 10px;">🎬</div>
+              <img src="images/vlog-logo.jpg" alt="Coming Soon" style="width: 60px; height: 60px; border-radius: 50%; margin-bottom: 12px; border: 2px solid #FFD700;" onerror="this.style.display='none'">
               <p style="color: #FFD700; font-family: 'Playfair Display', serif; font-size: 1.2rem;">Coming Soon</p>
-              <p style="color: #B8B8B8; font-size: 0.85rem; margin-top: 8px;">New vlog uploading soon</p>
             </div>
           </div>
         </div>
@@ -243,14 +291,13 @@
         </div>
       </div>
 
-      <!-- VLOG 3 - Placeholder for future -->
+      <!-- VLOG 3 - Placeholder -->
       <div class="vlog-card">
         <div class="vlog-video-wrapper">
           <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1A1A2E, #0F0F1E);">
             <div style="text-align: center;">
-              <div style="font-size: 4rem; margin-bottom: 10px;">🎬</div>
+              <img src="images/vlog-logo.jpg" alt="Coming Soon" style="width: 60px; height: 60px; border-radius: 50%; margin-bottom: 12px; border: 2px solid #FFD700;" onerror="this.style.display='none'">
               <p style="color: #FFD700; font-family: 'Playfair Display', serif; font-size: 1.2rem;">Coming Soon</p>
-              <p style="color: #B8B8B8; font-size: 0.85rem; margin-top: 8px;">New vlog uploading soon</p>
             </div>
           </div>
         </div>
@@ -270,7 +317,7 @@
     <div style="text-align: center; margin-top: 60px; padding: 40px 20px; background: linear-gradient(135deg, rgba(255,215,0,0.08), rgba(255,215,0,0.02)); border: 2px solid rgba(255,215,0,0.3); border-radius: 20px;">
       <h3 style="font-family: 'Playfair Display', serif; color: #FFD700; font-size: 1.5rem; margin-bottom: 15px;">Subscribe to Our Channel</h3>
       <p style="color: #FFF8DC; margin-bottom: 25px;">Get notified when we upload new vlogs and jewellery showcases</p>
-      <a href="https://youtube.com/@shahrehanjewellers" target="_blank" class="btn-gold" style="display: inline-block; padding: 14px 40px;">🔔 Subscribe on YouTube</a>
+      <a href="https://youtube.com/@shahrehanjewellers" target="_blank" class="btn-gold" style="display: inline-block; padding: 14px 40px;">Subscribe on YouTube</a>
     </div>
 
   </div>
@@ -315,7 +362,6 @@
   </a>
 
   <script>
-    // Update cart count
     function updateCartCount() {
       const cart = JSON.parse(localStorage.getItem('srj_cart') || '[]');
       const el = document.getElementById('cartCount');

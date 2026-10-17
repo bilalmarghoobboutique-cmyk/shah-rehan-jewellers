@@ -3,6 +3,7 @@
 // ===== CLOUDINARY CONFIG =====
 const CLOUDINARY_CLOUD_NAME = 'mo7txjdn';
 const CLOUDINARY_UPLOAD_PRESET = 'shah-rehan-jewellers';
+
 const WEIGHT = {
   tola: 11.664,
   masha: 0.972,
@@ -30,6 +31,7 @@ const LIVE_RATES = {
 };
 
 let currentRatesPerGram = {};
+let selectedBiscuitPayment = 'easypaisa';
 
 // ===== HELPERS =====
 function getRateForKarat(karat) {
@@ -46,12 +48,9 @@ async function uploadToCloudinary(file) {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-
   const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-    method: 'POST',
-    body: formData
+    method: 'POST', body: formData
   });
-
   if (!res.ok) throw new Error('Cloudinary upload failed');
   const data = await res.json();
   return data.secure_url;
@@ -60,15 +59,9 @@ async function uploadToCloudinary(file) {
 // ===== FETCH LIVE RATES =====
 async function loadLiveRates() {
   try {
-    const res = await fetch(
-      `${SUPABASE_URL}/rest/v1/gold_rates?select=*&order=karat.asc`,
-      {
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`
-        }
-      }
-    );
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/gold_rates?select=*&order=karat.asc`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
     const rates = await res.json();
     if (!rates || rates.length === 0) { console.log('⚠️ No rates in DB'); return; }
 
@@ -94,16 +87,11 @@ async function loadLiveRates() {
     if (topPathoorEl) topPathoorEl.textContent = `Rs ${pathoorRate.toLocaleString()}`;
 
     console.log('✅ Live rates loaded:', rates.length);
-
     renderBiscuitUnits();
     renderGoldRates();
     renderSilverRates();
 
-    setTimeout(() => {
-      initGoldChart();
-      initSilverChart();
-    }, 100);
-
+    setTimeout(() => { initGoldChart(); initSilverChart(); }, 100);
   } catch (error) { console.error('⚠️ Rate fetch failed:', error); }
 }
 
@@ -169,18 +157,9 @@ function renderGoldRates() {
             <div class="rate-tola">Rs ${Math.round(pkrPerTola).toLocaleString()}</div>
           </div>
           <div class="karat-details">
-            <div class="detail-item">
-              <div class="detail-label">Per Gram</div>
-              <div class="detail-value">Rs ${pkrPerGram.toLocaleString()}</div>
-            </div>
-            <div class="detail-item">
-              <div class="detail-label">Per Masha</div>
-              <div class="detail-value">Rs ${pkrPerMasha.toLocaleString()}</div>
-            </div>
-            <div class="detail-item">
-              <div class="detail-label">Per Ratti</div>
-              <div class="detail-value">Rs ${pkrPerRatti}</div>
-            </div>
+            <div class="detail-item"><div class="detail-label">Per Gram</div><div class="detail-value">Rs ${pkrPerGram.toLocaleString()}</div></div>
+            <div class="detail-item"><div class="detail-label">Per Masha</div><div class="detail-value">Rs ${pkrPerMasha.toLocaleString()}</div></div>
+            <div class="detail-item"><div class="detail-label">Per Ratti</div><div class="detail-value">Rs ${pkrPerRatti}</div></div>
           </div>
         </div>
       </div>
@@ -219,18 +198,9 @@ function renderSilverRates() {
             <div class="rate-tola">Rs ${silver.perTola.toLocaleString()}</div>
           </div>
           <div class="karat-details">
-            <div class="detail-item">
-              <div class="detail-label">Per Gram</div>
-              <div class="detail-value">Rs ${silver.perGram.toFixed(2)}</div>
-            </div>
-            <div class="detail-item">
-              <div class="detail-label">Per 10 Gram</div>
-              <div class="detail-value">Rs ${silver.per10Gram.toLocaleString()}</div>
-            </div>
-            <div class="detail-item">
-              <div class="detail-label">USD/Gram</div>
-              <div class="detail-value">$${usdPerGram}</div>
-            </div>
+            <div class="detail-item"><div class="detail-label">Per Gram</div><div class="detail-value">Rs ${silver.perGram.toFixed(2)}</div></div>
+            <div class="detail-item"><div class="detail-label">Per 10 Gram</div><div class="detail-value">Rs ${silver.per10Gram.toLocaleString()}</div></div>
+            <div class="detail-item"><div class="detail-label">USD/Gram</div><div class="detail-value">$${usdPerGram}</div></div>
           </div>
         </div>
       </div>
@@ -289,9 +259,7 @@ function calculateGoldSilverPrice(product) {
   const weight = product.weight || 0;
   if (!weight) return product.price || 0;
 
-  const ratePerGram = isSilver
-    ? (LIVE_RATES.silver.perGram || 570.10)
-    : getRateForKarat(product.karat || '24K');
+  const ratePerGram = isSilver ? (LIVE_RATES.silver.perGram || 570.10) : getRateForKarat(product.karat || '24K');
   const metalValue = ratePerGram * weight;
   const making = metalValue * 0.15;
   const polish = metalValue * 0.10;
@@ -303,25 +271,18 @@ function calculateGoldSilverPrice(product) {
 function getProductPrices(product) {
   const isGold = product.category === 'gold';
   const isSilver = product.category === 'silver';
-
   let originalPrice, discountedPrice, discountPct;
 
   if (isGold || isSilver) {
     const calculated = calculateGoldSilverPrice(product);
     const mrp = product.price || 0;
-
     if (product.discount_percent && product.discount_percent > 0) {
       originalPrice = mrp || calculated;
       discountPct = product.discount_percent;
       discountedPrice = Math.round(originalPrice * (1 - discountPct/100));
     } else if (mrp > 0 && calculated > 0 && mrp !== calculated) {
-      if (mrp > calculated) {
-        originalPrice = mrp;
-        discountedPrice = calculated;
-      } else {
-        originalPrice = calculated;
-        discountedPrice = mrp;
-      }
+      if (mrp > calculated) { originalPrice = mrp; discountedPrice = calculated; }
+      else { originalPrice = calculated; discountedPrice = mrp; }
       discountPct = Math.round(((originalPrice - discountedPrice) / originalPrice) * 100);
     } else {
       originalPrice = calculated || mrp;
@@ -333,7 +294,6 @@ function getProductPrices(product) {
     discountPct = product.discount_percent || 5;
     discountedPrice = Math.round(originalPrice * (1 - discountPct/100));
   }
-
   return { originalPrice, discountedPrice, discountPct };
 }
 
@@ -352,28 +312,17 @@ async function loadProducts() {
 
     grid.innerHTML = products.map(p => {
       const { originalPrice, discountedPrice, discountPct } = getProductPrices(p);
-
       return `
         <div class="product-card" onclick='openProductModal(${JSON.stringify(p).replace(/'/g, "&#39;")})'>
           <div class="product-image-wrapper">
             <img src="${p.image_url || 'images/placeholder.svg'}" alt="${p.name}" loading="lazy" onerror="this.src='images/placeholder.svg'">
-            ${discountPct > 0 ? `
-              <div class="discount-ball">
-                <span class="discount-percent">${discountPct}%</span>
-                <span class="discount-text">OFF</span>
-              </div>
-            ` : ''}
+            ${discountPct > 0 ? `<div class="discount-ball"><span class="discount-percent">${discountPct}%</span><span class="discount-text">OFF</span></div>` : ''}
           </div>
           <div class="product-info">
             <span class="category-tag">${p.category}</span>
             <h3>${p.name}</h3>
             <div class="price-display-block">
-              ${discountPct > 0 ? `
-                <div class="original-price-line">
-                  <span class="original-price-text">Rs ${originalPrice.toLocaleString()}</span>
-                  <span class="cut-line"></span>
-                </div>
-              ` : ''}
+              ${discountPct > 0 ? `<div class="original-price-line"><span class="original-price-text">Rs ${originalPrice.toLocaleString()}</span><span class="cut-line"></span></div>` : ''}
               <div class="final-price-highlight">
                 <span class="final-price-value">Rs ${discountedPrice.toLocaleString()}</span>
                 ${discountPct > 0 ? `<span class="inline-discount-tag">${discountPct}% OFF</span>` : ''}
@@ -390,7 +339,6 @@ async function loadProducts() {
 
 function openProductModal(product) {
   currentProduct = product;
-
   document.getElementById('modalImage').src = product.image_url || 'images/placeholder.svg';
   document.getElementById('modalProductName').textContent = product.name;
   document.getElementById('modalProductCode').textContent = `Code: SRJ-${product.id.slice(0, 6).toUpperCase()}`;
@@ -400,9 +348,7 @@ function openProductModal(product) {
   const isDiamond = product.category === 'diamond';
   const isGold = product.category === 'gold';
   const isSilver = product.category === 'silver';
-
   const { originalPrice, discountedPrice, discountPct } = getProductPrices(product);
-
   const detailsBox = document.getElementById('productDetailsBox');
   const soldQty = product.sold_qty || Math.floor(Math.random() * 50) + 10;
 
@@ -415,7 +361,6 @@ function openProductModal(product) {
         ${product.size ? `<div class="detail-box"><div class="detail-box-label">Size</div><div class="detail-box-value">${product.size}</div></div>` : ''}
         <div class="detail-box"><div class="detail-box-label">Sold</div><div class="detail-box-value">${soldQty}</div></div>
       </div>
-
       <div class="popup-price-display">
         ${discountPct > 0 ? `<div class="popup-original-price"><span class="popup-original-text">Rs ${originalPrice.toLocaleString()}</span><span class="popup-cut-line"></span></div>` : ''}
         <div class="popup-final-price">
@@ -443,9 +388,8 @@ function openProductModal(product) {
 
   const karatSection = document.getElementById('karatSection');
   if (karatSection) {
-    if (isArtificial || isDiamond) {
-      karatSection.style.display = 'none';
-    } else {
+    if (isArtificial || isDiamond) karatSection.style.display = 'none';
+    else {
       karatSection.style.display = 'block';
       if (product.karat) {
         const radio = document.querySelector(`input[name="karat"][value="${product.karat}"]`);
@@ -478,7 +422,6 @@ function openProductModal(product) {
 
   const weightSection = document.getElementById('weightSection');
   if (weightSection) weightSection.style.display = 'none';
-
   if (priceBreakdown) priceBreakdown.classList.add('hidden');
 
   const readymadeButtons = document.getElementById('readymadeButtons');
@@ -503,41 +446,19 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeProdu
 
 function getSizeOptions(category, subcategory) {
   const sub = (subcategory || '').toLowerCase();
-
   if (sub.includes('ring') || sub.includes('baby ring')) {
-    if (sub.includes('baby')) {
-      return ['1','2','3','4','5','6','7','8','9'].map(s => `<option value="${s}">${s}</option>`).join('');
-    }
-    return ['10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25']
-      .map(s => `<option value="${s}">${s}</option>`).join('');
+    if (sub.includes('baby')) return ['1','2','3','4','5','6','7','8','9'].map(s => `<option value="${s}">${s}</option>`).join('');
+    return ['10','11','12','13','14','15','16','17','18','19','20','21','22','23','24','25'].map(s => `<option value="${s}">${s}</option>`).join('');
   }
-  if (sub.includes('bangle') || sub.includes('kara') || sub.includes('choori')) {
-    return ['2.2','2.4','2.6','2.8','2.10','2.12'].map(s => `<option value="${s}">${s}</option>`).join('');
-  }
-  if (sub.includes('bracelet')) {
-    return ['6"','6.5"','7"','7.5"','8"','8.5"'].map(s => `<option value="${s}">${s}</option>`).join('');
-  }
-  if (sub.includes('chain')) {
-    return ['14"','16"','18"','20"','22"','24"','26"','30"'].map(s => `<option value="${s}">${s}</option>`).join('');
-  }
-  if (sub.includes('anklet') || sub.includes('payal')) {
-    return ['9"','10"','11"','12"'].map(s => `<option value="${s}">${s}</option>`).join('');
-  }
-  if (sub.includes('necklace') || sub.includes('haar') || sub.includes('choker')) {
-    return ['14"','16"','18"','20"','22"','24"'].map(s => `<option value="${s}">${s}</option>`).join('');
-  }
-  if (sub.includes('earring') || sub.includes('jhumka')) {
-    return `<option value="Stud">Stud</option><option value="Drop">Drop</option><option value="Jhumka">Jhumka</option><option value="Chandbali">Chandbali</option><option value="Hoop">Hoop</option>`;
-  }
-  if (sub.includes('pendant')) {
-    return ['16"','18"','20"','22"'].map(s => `<option value="${s}">${s}</option>`).join('');
-  }
-  if (sub.includes('coin')) {
-    return ['1g','2g','2.5g','5g','10g','20g','50g','100g'].map(s => `<option value="${s}">${s}</option>`).join('');
-  }
-  if (sub.includes('bridal')) {
-    return `<option value="Standard">Standard</option>`;
-  }
+  if (sub.includes('bangle') || sub.includes('kara') || sub.includes('choori')) return ['2.2','2.4','2.6','2.8','2.10','2.12'].map(s => `<option value="${s}">${s}</option>`).join('');
+  if (sub.includes('bracelet')) return ['6"','6.5"','7"','7.5"','8"','8.5"'].map(s => `<option value="${s}">${s}</option>`).join('');
+  if (sub.includes('chain')) return ['14"','16"','18"','20"','22"','24"','26"','30"'].map(s => `<option value="${s}">${s}</option>`).join('');
+  if (sub.includes('anklet') || sub.includes('payal')) return ['9"','10"','11"','12"'].map(s => `<option value="${s}">${s}</option>`).join('');
+  if (sub.includes('necklace') || sub.includes('haar') || sub.includes('choker')) return ['14"','16"','18"','20"','22"','24"'].map(s => `<option value="${s}">${s}</option>`).join('');
+  if (sub.includes('earring') || sub.includes('jhumka')) return `<option value="Stud">Stud</option><option value="Drop">Drop</option><option value="Jhumka">Jhumka</option><option value="Chandbali">Chandbali</option><option value="Hoop">Hoop</option>`;
+  if (sub.includes('pendant')) return ['16"','18"','20"','22"'].map(s => `<option value="${s}">${s}</option>`).join('');
+  if (sub.includes('coin')) return ['1g','2g','2.5g','5g','10g','20g','50g','100g'].map(s => `<option value="${s}">${s}</option>`).join('');
+  if (sub.includes('bridal')) return `<option value="Standard">Standard</option>`;
   return ['Small','Medium','Large','Standard'].map(s => `<option value="${s}">${s}</option>`).join('');
 }
 
@@ -571,15 +492,9 @@ function toggleCustomWeight() {
 
 function calculatePrice() {
   if (!currentProduct) return;
-
   const weight = parseFloat(document.getElementById('modalWeight').value);
   const unit = document.getElementById('modalUnit').value;
-
-  if (!weight || weight <= 0) {
-    alert('Please enter a valid weight');
-    return;
-  }
-
+  if (!weight || weight <= 0) { alert('Please enter a valid weight'); return; }
   const weightInGrams = toGrams(weight, unit);
 
   let karat = '24K';
@@ -587,11 +502,8 @@ function calculatePrice() {
   if (karatInput) karat = karatInput.value;
 
   let ratePerGram;
-  if (currentProduct.category === 'silver') {
-    ratePerGram = (LIVE_RATES.silver.perGram || 570.10) / 1;
-  } else {
-    ratePerGram = getRateForKarat(karat);
-  }
+  if (currentProduct.category === 'silver') ratePerGram = (LIVE_RATES.silver.perGram || 570.10) / 1;
+  else ratePerGram = getRateForKarat(karat);
 
   const metalValue = ratePerGram * weightInGrams;
   const making = metalValue * 0.15;
@@ -607,7 +519,6 @@ function calculatePrice() {
   document.getElementById('pPolish').textContent = formatPKR(polish);
   document.getElementById('pGST').textContent = formatPKR(gst);
   document.getElementById('pTotal').textContent = formatPKR(total);
-
   document.getElementById('priceBreakdown').classList.remove('hidden');
 }
 
@@ -616,7 +527,6 @@ function addToCart() {
   if (document.getElementById('priceBreakdown').classList.contains('hidden')) {
     alert('Please calculate price first'); return;
   }
-
   const cartItem = {
     id: currentProduct.id,
     name: currentProduct.name,
@@ -629,7 +539,6 @@ function addToCart() {
     image: currentProduct.image_url,
     category: currentProduct.category
   };
-
   cart.push(cartItem);
   localStorage.setItem('srj_cart', JSON.stringify(cart));
   updateCartCount();
@@ -639,9 +548,7 @@ function addToCart() {
 
 function whatsappOrder() {
   if (!currentProduct) return;
-
   const isCustomWeight = document.getElementById('customWeightBox')?.style.display === 'block';
-
   let total, weight;
   if (isCustomWeight) {
     total = document.getElementById('pTotal').textContent;
@@ -651,24 +558,20 @@ function whatsappOrder() {
     total = 'Rs ' + discountedPrice.toLocaleString();
     weight = currentProduct.weight + ' grams';
   }
-
   const size = document.getElementById('modalSize')?.value || 'Standard';
   const karat = document.querySelector('input[name="karat"]:checked')?.value || currentProduct.karat || 'N/A';
-
   let message = `Assalam o Alaikum,%0A%0AMujhe yeh product order karni hai:%0A%0A`;
   message += `📿 Product: ${currentProduct.name}%0A`;
   message += `🔸 Karat: ${karat}%0A`;
   message += `⚖️ Weight: ${weight}%0A`;
   if (size) message += `📏 Size: ${size}%0A`;
   message += `💰 Total: ${total}%0A%0APlease confirm karein.%0A%0ASHAH REHAN JEWELLERS`;
-
   window.open(`https://wa.me/923266501314?text=${message}`, '_blank');
 }
 
 function buyReadymade() {
   if (!currentProduct) return;
   const { discountedPrice } = getProductPrices(currentProduct);
-
   const cartItem = {
     id: currentProduct.id,
     name: currentProduct.name,
@@ -681,7 +584,6 @@ function buyReadymade() {
     image: currentProduct.image_url,
     category: currentProduct.category
   };
-
   cart.push(cartItem);
   localStorage.setItem('srj_cart', JSON.stringify(cart));
   updateCartCount();
@@ -692,14 +594,12 @@ function buyReadymade() {
 function whatsappReadymade() {
   if (!currentProduct) return;
   const { discountedPrice } = getProductPrices(currentProduct);
-
   let message = `Assalam o Alaikum,%0A%0AMujhe yeh product order karni hai:%0A%0A`;
   message += `📿 Product: ${currentProduct.name}%0A`;
   if (currentProduct.karat) message += `🔸 Karat: ${currentProduct.karat}%0A`;
   if (currentProduct.weight) message += `⚖️ Weight: ${currentProduct.weight}g%0A`;
   if (currentProduct.size) message += `📏 Size: ${currentProduct.size}%0A`;
   message += `💰 Price: Rs ${discountedPrice.toLocaleString()}%0A%0APlease confirm karein.%0A%0ASHAH REHAN JEWELLERS`;
-
   window.open(`https://wa.me/923266501314?text=${message}`, '_blank');
 }
 
@@ -709,27 +609,16 @@ function whatsappReadymade() {
 
 const BISCUIT_UNITS = {
   gold: [
-    { label: '1 Gram', grams: 1 },
-    { label: '5 Gram', grams: 5 },
-    { label: '10 Gram', grams: 10 },
-    { label: '1 Tola', grams: 11.664 },
-    { label: '5 Tola', grams: 58.32 },
-    { label: '10 Tola', grams: 116.64 }
+    { label: '1 Gram', grams: 1 }, { label: '5 Gram', grams: 5 }, { label: '10 Gram', grams: 10 },
+    { label: '1 Tola', grams: 11.664 }, { label: '5 Tola', grams: 58.32 }, { label: '10 Tola', grams: 116.64 }
   ],
   pathoor: [
-    { label: '1 Gram', grams: 1 },
-    { label: '5 Gram', grams: 5 },
-    { label: '10 Gram', grams: 10 },
-    { label: '1 Tola', grams: 11.664 },
-    { label: '5 Tola', grams: 58.32 },
-    { label: '10 Tola', grams: 116.64 }
+    { label: '1 Gram', grams: 1 }, { label: '5 Gram', grams: 5 }, { label: '10 Gram', grams: 10 },
+    { label: '1 Tola', grams: 11.664 }, { label: '5 Tola', grams: 58.32 }, { label: '10 Tola', grams: 116.64 }
   ],
   silver: [
-    { label: '1 Tola', grams: 11.664 },
-    { label: '5 Tola', grams: 58.32 },
-    { label: '10 Tola', grams: 116.64 },
-    { label: '50 Tola', grams: 583.20 },
-    { label: '100 Tola', grams: 1166.40 }
+    { label: '1 Tola', grams: 11.664 }, { label: '5 Tola', grams: 58.32 }, { label: '10 Tola', grams: 116.64 },
+    { label: '50 Tola', grams: 583.20 }, { label: '100 Tola', grams: 1166.40 }
   ]
 };
 
@@ -742,7 +631,6 @@ function renderBiscuitUnits() {
       return `<button class="unit-btn gold-unit" onclick='openBiscuitPopup("gold", "${unit.label}", ${unit.grams}, ${metalValue}, "24K Gold")'><span class="unit-label">${unit.label}</span><span class="unit-price">Rs ${metalValue.toLocaleString()}</span></button>`;
     }).join('');
   }
-
   const pathoorContainer = document.getElementById('pathoorBiscuitUnits');
   if (pathoorContainer) {
     const pathoorRate = LIVE_RATES.gold['Pathoor'] || (LIVE_RATES.gold['24K'] - 5500);
@@ -752,7 +640,6 @@ function renderBiscuitUnits() {
       return `<button class="unit-btn pathoor-unit" onclick='openBiscuitPopup("pathoor", "${unit.label}", ${unit.grams}, ${metalValue}, "24K Pathoor Gold")'><span class="unit-label">${unit.label}</span><span class="unit-price">Rs ${metalValue.toLocaleString()}</span></button>`;
     }).join('');
   }
-
   const silverContainer = document.getElementById('silverBiscuitUnits');
   if (silverContainer) {
     const silverPerGram = LIVE_RATES.silver.perGram || 570.10;
@@ -803,23 +690,18 @@ function openBiscuitPopup(metalType, unitLabel, grams, metalValue, metalName) {
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
-          <label class="payment-method-card" style="cursor: pointer; text-align: center; padding: 15px 10px; background: #0A0A0A; border: 2px solid rgba(255,215,0,0.3); border-radius: 12px;" onclick="event.preventDefault(); selectBiscuitPayment('easypaisa')">
-            <input type="radio" name="biscuitPayment" value="easypaisa" checked style="display: none;">
+          <div id="payCard-easypaisa" style="cursor: pointer; text-align: center; padding: 15px 10px; background: rgba(255,215,0,0.1); border: 2px solid #FFD700; border-radius: 12px;" onclick="selectBiscuitPayment('easypaisa')">
             <img src="images/easypaisa.jpg" alt="Easypaisa" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin: 0 auto 8px; display: block; border: 2px solid #25D366;" onerror="this.src='images/placeholder.svg'">
             <div style="color: #FFD700; font-weight: 700; font-size: 0.8rem;">Easypaisa</div>
-          </label>
-
-          <label class="payment-method-card" style="cursor: pointer; text-align: center; padding: 15px 10px; background: #0A0A0A; border: 2px solid rgba(255,215,0,0.3); border-radius: 12px;" onclick="event.preventDefault(); selectBiscuitPayment('jazzcash')">
-            <input type="radio" name="biscuitPayment" value="jazzcash" style="display: none;">
+          </div>
+          <div id="payCard-jazzcash" style="cursor: pointer; text-align: center; padding: 15px 10px; background: #0A0A0A; border: 2px solid rgba(255,215,0,0.3); border-radius: 12px;" onclick="selectBiscuitPayment('jazzcash')">
             <img src="images/jazzcash.jpg" alt="JazzCash" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin: 0 auto 8px; display: block; border: 2px solid #DC2626;" onerror="this.src='images/placeholder.svg'">
             <div style="color: #FFD700; font-weight: 700; font-size: 0.8rem;">JazzCash</div>
-          </label>
-
-          <label class="payment-method-card" style="cursor: pointer; text-align: center; padding: 15px 10px; background: #0A0A0A; border: 2px solid rgba(255,215,0,0.3); border-radius: 12px;" onclick="event.preventDefault(); selectBiscuitPayment('bank')">
-            <input type="radio" name="biscuitPayment" value="bank" style="display: none;">
+          </div>
+          <div id="payCard-bank" style="cursor: pointer; text-align: center; padding: 15px 10px; background: #0A0A0A; border: 2px solid rgba(255,215,0,0.3); border-radius: 12px;" onclick="selectBiscuitPayment('bank')">
             <img src="images/bank.jpg" alt="Bank Transfer" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin: 0 auto 8px; display: block; border: 2px solid #3B82F6;" onerror="this.src='images/placeholder.svg'">
             <div style="color: #FFD700; font-weight: 700; font-size: 0.8rem;">Bank Transfer</div>
-          </label>
+          </div>
         </div>
 
         <div id="biscuitPaymentDetails" style="background: linear-gradient(135deg, #0F5132, #128C7E); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
@@ -861,13 +743,27 @@ function openBiscuitPopup(metalType, unitLabel, grams, metalValue, metalName) {
     </div>
   `;
 
-  selectBiscuitPayment('easypaisa');
+  selectedBiscuitPayment = 'easypaisa';
   popup.classList.add('active');
   document.body.style.overflow = 'hidden';
 }
 
 function selectBiscuitPayment(method) {
-  document.querySelectorAll('input[name="biscuitPayment"]').forEach(r => r.checked = (r.value === method));
+  selectedBiscuitPayment = method;
+
+  const cards = {
+    easypaisa: document.getElementById('payCard-easypaisa'),
+    jazzcash: document.getElementById('payCard-jazzcash'),
+    bank: document.getElementById('payCard-bank')
+  };
+
+  Object.keys(cards).forEach(k => {
+    if (cards[k]) {
+      const isActive = (k === method);
+      cards[k].style.borderColor = isActive ? '#FFD700' : 'rgba(255,215,0,0.3)';
+      cards[k].style.background = isActive ? 'rgba(255,215,0,0.1)' : '#0A0A0A';
+    }
+  });
 
   const details = document.getElementById('biscuitPaymentDetails');
   if (!details) return;
@@ -877,7 +773,6 @@ function selectBiscuitPayment(method) {
     jazzcash: { title: '🔴 Pay via JazzCash', bg: 'linear-gradient(135deg, #7F1D1D, #DC2626)', number: '03266501314', label: 'Account Number' },
     bank: { title: '🏦 Bank Transfer', bg: 'linear-gradient(135deg, #1E3A8A, #3B82F6)', number: 'PK36MEZN0001234567890123', label: 'IBAN' }
   };
-
   const m = methods[method];
   if (!m) return;
 
@@ -916,7 +811,7 @@ async function confirmBiscuitOrder(metalType, metalName, unitLabel, grams, metal
   const address = document.getElementById('biscuitAddress').value.trim();
   const tid = document.getElementById('biscuitTID').value.trim();
   const screenshot = document.getElementById('biscuitScreenshot').files[0];
-  const paymentMethod = document.querySelector('input[name="biscuitPayment"]:checked')?.value || 'easypaisa';
+  const paymentMethod = selectedBiscuitPayment;
 
   if (!name || !phone || !address || !tid || !screenshot) {
     alert('❌ Please fill all required fields');
@@ -1003,77 +898,57 @@ let goldChart = null;
 let silverChart = null;
 
 function generateHistoricalData(currentRate, days = 30) {
-  const data = [];
-  const highData = [];
-  const lowData = [];
-  const labels = [];
+  const data = [], highData = [], lowData = [], labels = [];
   const today = new Date();
   let rate = currentRate * 0.96;
-
   for (let i = days; i >= 0; i--) {
     const date = new Date(today);
     date.setDate(date.getDate() - i);
-
     const change = (Math.random() - 0.48) * 0.025;
     rate = rate * (1 + change);
-
-    if (i < 5) {
-      rate = rate + (currentRate - rate) * 0.5;
-    }
-
+    if (i < 5) rate = rate + (currentRate - rate) * 0.5;
     const dayHigh = Math.round(rate * (1 + Math.random() * 0.008));
     const dayLow = Math.round(rate * (1 - Math.random() * 0.008));
     const dayClose = Math.round(rate);
-
     data.push(dayClose);
     highData.push(dayHigh);
     lowData.push(dayLow);
     labels.push(date.toLocaleDateString('en-PK', { day: '2-digit', month: 'short' }));
   }
-
   data[data.length - 1] = currentRate;
   highData[highData.length - 1] = currentRate;
   lowData[lowData.length - 1] = currentRate;
-
   return { data, highData, lowData, labels };
 }
 
 function initGoldChart() {
   const canvas = document.getElementById('goldRateChart');
   if (!canvas) return;
-
   const currentRate = LIVE_RATES.gold['24K'] || 430000;
   const { data, highData, lowData, labels } = generateHistoricalData(currentRate);
-
   const todayClose = data[data.length - 1];
   const todayHigh = highData[highData.length - 1];
   const todayLow = lowData[lowData.length - 1];
   const yesterdayClose = data[data.length - 2];
   const change = todayClose - yesterdayClose;
   const changePct = ((change / yesterdayClose) * 100).toFixed(2);
-
   const overallHigh = Math.max(...highData);
   const overallLow = Math.min(...lowData);
-
   const setEl = (id, val, color) => {
     const el = document.getElementById(id);
     if (el) { el.textContent = val; if (color) el.style.color = color; }
   };
-
   setEl('graphToday', `Rs ${todayClose.toLocaleString()}`);
   setEl('graphChange', `${change >= 0 ? '+' : ''}${change.toLocaleString()} (${changePct}%)`, change >= 0 ? '#25D366' : '#DC2626');
   setEl('graphHigh', `Rs ${overallHigh.toLocaleString()}`);
   setEl('graphLow', `Rs ${overallLow.toLocaleString()}`);
   setEl('todayHigh', `Rs ${todayHigh.toLocaleString()}`);
   setEl('todayLow', `Rs ${todayLow.toLocaleString()}`);
-
   if (goldChart) goldChart.destroy();
-
   const ctx = canvas.getContext('2d');
   const gradient = ctx.createLinearGradient(0, 0, 0, 350);
   gradient.addColorStop(0, 'rgba(255, 215, 0, 0.35)');
   gradient.addColorStop(1, 'rgba(255, 215, 0, 0.0)');
-
   goldChart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -1085,8 +960,7 @@ function initGoldChart() {
       ]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       animation: { duration: 300, easing: 'easeOutQuart' },
       animations: { x: { duration: 250 }, y: { duration: 250 } },
       interaction: { intersect: false, mode: 'index' },
@@ -1109,17 +983,13 @@ function initGoldChart() {
 function initSilverChart() {
   const canvas = document.getElementById('silverRateChart');
   if (!canvas) return;
-
   const currentRate = LIVE_RATES.silver.perTola || 6651;
   const { data, highData, lowData, labels } = generateHistoricalData(currentRate);
-
   if (silverChart) silverChart.destroy();
-
   const ctx = canvas.getContext('2d');
   const gradient = ctx.createLinearGradient(0, 0, 0, 350);
   gradient.addColorStop(0, 'rgba(192, 192, 192, 0.4)');
   gradient.addColorStop(1, 'rgba(192, 192, 192, 0.0)');
-
   silverChart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -1131,8 +1001,7 @@ function initSilverChart() {
       ]
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
       animation: { duration: 300, easing: 'easeOutQuart' },
       animations: { x: { duration: 250 }, y: { duration: 250 } },
       interaction: { intersect: false, mode: 'index' },

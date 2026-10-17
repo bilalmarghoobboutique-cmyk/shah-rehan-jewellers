@@ -10,32 +10,18 @@
 </head>
 <body>
   <div class="sw-header">
-    <div class="sw-logo">📊 Reports</div>
+    <div class="sw-logo"><img src="images/reports.png" onerror="this.style.display='none'" style="width:24px; margin-right:8px;">Reports</div>
     <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-family: 'Poppins', sans-serif;">← Back</button>
   </div>
-  <div class="sw-nav">
-    <button class="nav-btn" onclick="navigate('index.html')">🏠 Dashboard</button>
-    <button class="nav-btn" onclick="navigate('purchase.html')">🛒 Purchase</button>
-    <button class="nav-btn" onclick="navigate('services.html')">🔧 Services</button>
-    <button class="nav-btn" onclick="navigate('store.html')">🏪 Store</button>
-    <button class="nav-btn" onclick="navigate('sales.html')">💰 Sales</button>
-    <button class="nav-btn" onclick="navigate('customers.html')">👥 Customers</button>
-    <button class="nav-btn" onclick="navigate('suppliers.html')">📦 Suppliers</button>
-    <button class="nav-btn" onclick="navigate('expenses.html')">💵 Expenses</button>
-    <button class="nav-btn active">📊 Reports</button>
-    <button class="nav-btn" onclick="navigate('settings.html')">⚙️ Settings</button>
-  </div>
-  <div class="sw-content">
+
+  <div class="sw-content" style="padding-top: 20px;">
     <h1 class="page-title">Business Reports</h1>
-    <p class="page-subtitle">Complete overview – day / week / month / year wise</p>
 
     <div class="category-tabs">
-      <button class="cat-tab gold active" onclick="switchReport('sales', this)">💰 Sales</button>
-      <button class="cat-tab silver" onclick="switchReport('purchases', this)">🛒 Purchases</button>
-      <button class="cat-tab diamond" onclick="switchReport('debtors', this)">💸 Debtors</button>
-      <button class="cat-tab artificial" onclick="switchReport('creditors', this)">📌 Creditors</button>
-      <button class="cat-tab gold" onclick="switchReport('expenses', this)">💵 Expenses</button>
-      <button class="cat-tab silver" onclick="switchReport('profit', this)">📈 Profit/Loss</button>
+      <button class="cat-tab gold active" onclick="switchReport('purchases', this)">Purchase Khata</button>
+      <button class="cat-tab silver" onclick="switchReport('debtors', this)">Debtors (Receivable)</button>
+      <button class="cat-tab artificial" onclick="switchReport('creditors', this)">Creditors (Payable)</button>
+      <button class="cat-tab diamond" onclick="switchReport('sales', this)">Sales Log</button>
     </div>
 
     <div id="reportContent"></div>
@@ -44,244 +30,110 @@
   <script src="db.js"></script>
   <script src="app.js"></script>
   <script>
-    let currentReport = 'sales';
-
-    function switchReport(type, btn) {
-      currentReport = type;
+    async function switchReport(type, btn) {
       document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
       btn.classList.add('active');
-      loadReport(type);
-    }
-
-    function periodSummary(rows, amountKey) {
-      const day = {}, week = {}, month = {}, year = {};
-      rows.forEach(r => {
-        const d = r.date || r.created_at;
-        if (!d) return;
-        const amt = parseFloat(r[amountKey]) || 0;
-        day[getDayKey(d)] = (day[getDayKey(d)] || 0) + amt;
-        week[getWeekKey(d)] = (week[getWeekKey(d)] || 0) + amt;
-        month[getMonthKey(d)] = (month[getMonthKey(d)] || 0) + amt;
-        year[getYearKey(d)] = (year[getYearKey(d)] || 0) + amt;
-      });
-      return { day, week, month, year };
-    }
-
-    function renderPeriodTable(title, obj) {
-      const entries = Object.entries(obj).sort().reverse();
-      if (entries.length === 0) return `<div class="empty-state">No data</div>`;
-      return `
-        <h2 class="section-title">${title}</h2>
-        <div class="data-list">
-          ${entries.map(([k, v]) => `
-            <div class="data-item">
-              <div class="data-item-title">${k}</div>
-              <div class="data-item-value">${formatPKR(v)}</div>
-            </div>
-          `).join('')}
-        </div>`;
-    }
-
-    async function loadReport(type) {
       const container = document.getElementById('reportContent');
 
-      if (type === 'sales') {
-        const sales = await getAllRecords('sales') || [];
-        const total = sales.reduce((s, x) => s + (parseFloat(x.total) || 0), 0);
-        const received = sales.reduce((s, x) => s + (parseFloat(x.received) || 0), 0);
-        const balance = sales.reduce((s, x) => s + (parseFloat(x.balance) || 0), 0);
-        const periods = periodSummary(sales, 'total');
-
-        container.innerHTML = `
-          <div class="stats-grid">
-            <div class="stat-card gold"><div class="stat-icon">💰</div><div class="stat-value">${formatPKR(total)}</div><div class="stat-label">Total Sales</div></div>
-            <div class="stat-card gold"><div class="stat-icon">✅</div><div class="stat-value">${formatPKR(received)}</div><div class="stat-label">Received</div></div>
-            <div class="stat-card gold"><div class="stat-icon">⏳</div><div class="stat-value">${formatPKR(balance)}</div><div class="stat-label">Balance (Udhaar)</div></div>
-            <div class="stat-card gold"><div class="stat-icon">📊</div><div class="stat-value">${sales.length}</div><div class="stat-label">Transactions</div></div>
-          </div>
-          ${renderPeriodTable('📅 Day-wise Sales', periods.day)}
-          ${renderPeriodTable('🗓️ Week-wise Sales', periods.week)}
-          ${renderPeriodTable('📆 Month-wise Sales', periods.month)}
-          ${renderPeriodTable('📈 Year-wise Sales', periods.year)}
-          <h2 class="section-title">🧾 Sold Items Log</h2>
-          <div class="data-list">
-            ${sales.length === 0 ? '<div class="empty-state">No sales yet</div>' :
-              sales.map(s => `
-                <div class="data-item">
-                  <div>
-                    <div class="data-item-title">${s.items_summary}</div>
-                    <div class="data-item-sub">${s.customer_name} • ${s.invoice_number} • ${formatDate(s.date)}</div>
-                  </div>
-                  <div class="data-item-value">${formatPKR(s.total)}</div>
-                </div>`).join('')}
-          </div>`;
-      }
-
-      else if (type === 'purchases') {
+      if (type === 'purchases') {
         const purchases = await getAllRecords('purchases') || [];
-        const total = purchases.reduce((s, x) => s + (parseFloat(x.total) || 0), 0);
-        const paid = purchases.reduce((s, x) => s + (parseFloat(x.paid) || 0), 0);
-        const balance = purchases.reduce((s, x) => s + (parseFloat(x.balance) || 0), 0);
-        const periods = periodSummary(purchases, 'total');
-
         container.innerHTML = `
-          <div class="stats-grid">
-            <div class="stat-card silver"><div class="stat-icon">🛒</div><div class="stat-value">${formatPKR(total)}</div><div class="stat-label">Total Purchases</div></div>
-            <div class="stat-card silver"><div class="stat-icon">✅</div><div class="stat-value">${formatPKR(paid)}</div><div class="stat-label">Paid</div></div>
-            <div class="stat-card silver"><div class="stat-icon">⏳</div><div class="stat-value">${formatPKR(balance)}</div><div class="stat-label">Balance (Payable)</div></div>
-          </div>
-          ${renderPeriodTable('📅 Day-wise Purchases', periods.day)}
-          ${renderPeriodTable('🗓️ Week-wise Purchases', periods.week)}
-          ${renderPeriodTable('📆 Month-wise Purchases', periods.month)}
-          ${renderPeriodTable('📈 Year-wise Purchases', periods.year)}
-          <h2 class="section-title">Purchases Log</h2>
+          <h2 class="section-title">All Purchase Records</h2>
           <div class="data-list">
-            ${purchases.length === 0 ? '<div class="empty-state">No purchases yet</div>' :
+            ${purchases.length === 0 ? '<div class="empty-state">No purchases</div>' : 
               purchases.map(p => `
                 <div class="data-item">
                   <div>
                     <div class="data-item-title">${p.item}</div>
-                    <div class="data-item-sub">${p.supplier_name} • ${p.category} • ${formatDate(p.date)}</div>
+                    <div class="data-item-sub">${p.supplier_name} • ${formatDate(p.date)}</div>
                   </div>
-                  <div class="data-item-value">${formatPKR(p.total)}</div>
-                </div>`).join('')}
-          </div>`;
+                  <div style="text-align:right;">
+                    <div class="data-item-value">${formatPKR(p.total)}</div>
+                    <div class="data-item-sub" style="color:${p.balance > 0 ? '#FCD34D' : '#86EFAC'};">Bal: ${formatPKR(p.balance)}</div>
+                  </div>
+                </div>
+              `).join('')}
+          </div>
+        `;
       }
 
       else if (type === 'debtors') {
-        // Debtors = customers who owe us money (sales with balance > 0)
         const sales = await getAllRecords('sales') || [];
         const debtors = sales.filter(s => (parseFloat(s.balance) || 0) > 0);
         const totalDue = debtors.reduce((s, x) => s + (parseFloat(x.balance) || 0), 0);
-
+        
         container.innerHTML = `
           <div class="stats-grid">
-            <div class="stat-card artificial"><div class="stat-icon">💸</div><div class="stat-value">${formatPKR(totalDue)}</div><div class="stat-label">Total Receivable</div></div>
-            <div class="stat-card artificial"><div class="stat-icon">👥</div><div class="stat-value">${debtors.length}</div><div class="stat-label">Debtors</div></div>
+            <div class="stat-card gold"><div class="stat-icon">💰</div><div class="stat-value">${formatPKR(totalDue)}</div><div class="stat-label">Total Receivable</div></div>
           </div>
-          <h2 class="section-title">Debtors Ledger (Customers Owing)</h2>
+          <h2 class="section-title">Customers Owing Money</h2>
           <div class="data-list">
-            ${debtors.length === 0 ? '<div class="empty-state"><div class="icon">✅</div><p>No outstanding dues</p></div>' :
+            ${debtors.length === 0 ? '<div class="empty-state">No outstanding dues</div>' : 
               debtors.map(d => `
                 <div class="data-item">
                   <div>
                     <div class="data-item-title">${d.customer_name}</div>
-                    <div class="data-item-sub">📞 ${d.customer_phone || '—'} • ${d.invoice_number} • ${formatDate(d.date)}</div>
+                    <div class="data-item-sub">${d.invoice_number} • ${formatDate(d.date)}</div>
                   </div>
                   <div style="text-align:right;">
                     <div class="data-item-value" style="color:#FCD34D;">${formatPKR(d.balance)}</div>
-                    <div class="data-item-sub">Total: ${formatPKR(d.total)}</div>
                   </div>
-                </div>`).join('')}
-          </div>`;
+                </div>
+              `).join('')}
+          </div>
+        `;
       }
 
       else if (type === 'creditors') {
-        // Creditors = suppliers we owe (purchases with balance > 0) + karigar unpaid
         const purchases = await getAllRecords('purchases') || [];
-        const services = await getAllRecords('services') || [];
-        const supplierDues = purchases.filter(p => (parseFloat(p.balance) || 0) > 0);
-        const karigarDues = services.filter(s => (parseFloat(s.balance) || 0) > 0);
-        const totalSupplier = supplierDues.reduce((s, x) => s + (parseFloat(x.balance) || 0), 0);
-        const totalKarigar = karigarDues.reduce((s, x) => s + (parseFloat(x.balance) || 0), 0);
-
+        const creditors = purchases.filter(p => (parseFloat(p.balance) || 0) > 0);
+        const totalPayable = creditors.reduce((s, x) => s + (parseFloat(x.balance) || 0), 0);
+        
         container.innerHTML = `
           <div class="stats-grid">
-            <div class="stat-card artificial"><div class="stat-icon">📌</div><div class="stat-value">${formatPKR(totalSupplier + totalKarigar)}</div><div class="stat-label">Total Payable</div></div>
-            <div class="stat-card artificial"><div class="stat-icon">📦</div><div class="stat-value">${formatPKR(totalSupplier)}</div><div class="stat-label">Supplier Dues</div></div>
-            <div class="stat-card artificial"><div class="stat-icon">🔧</div><div class="stat-value">${formatPKR(totalKarigar)}</div><div class="stat-label">Karigar Dues</div></div>
+            <div class="stat-card artificial"><div class="stat-icon">📌</div><div class="stat-value">${formatPKR(totalPayable)}</div><div class="stat-label">Total Payable</div></div>
           </div>
-          <h2 class="section-title">📦 Supplier Payables</h2>
+          <h2 class="section-title">Suppliers We Owe</h2>
           <div class="data-list">
-            ${supplierDues.length === 0 ? '<div class="empty-state">No supplier dues</div>' :
-              supplierDues.map(p => `
+            ${creditors.length === 0 ? '<div class="empty-state">No supplier dues</div>' : 
+              creditors.map(p => `
                 <div class="data-item">
                   <div>
                     <div class="data-item-title">${p.supplier_name}</div>
-                    <div class="data-item-sub">📞 ${p.supplier_phone || '—'} • ${p.item} • ${formatDate(p.date)}</div>
+                    <div class="data-item-sub">${p.item} • ${formatDate(p.date)}</div>
                   </div>
                   <div style="text-align:right;">
                     <div class="data-item-value" style="color:#FCD34D;">${formatPKR(p.balance)}</div>
-                    <div class="data-item-sub">Total: ${formatPKR(p.total)}</div>
                   </div>
-                </div>`).join('')}
+                </div>
+              `).join('')}
           </div>
-          <h2 class="section-title">🔧 Karigar Payables</h2>
+        `;
+      }
+
+      else if (type === 'sales') {
+        const sales = await getAllRecords('sales') || [];
+        container.innerHTML = `
+          <h2 class="section-title">All Sales</h2>
           <div class="data-list">
-            ${karigarDues.length === 0 ? '<div class="empty-state">No karigar dues</div>' :
-              karigarDues.map(s => `
+            ${sales.length === 0 ? '<div class="empty-state">No sales</div>' : 
+              sales.map(s => `
                 <div class="data-item">
                   <div>
-                    <div class="data-item-title">${s.karigar_name}</div>
-                    <div class="data-item-sub">📞 ${s.karigar_phone || '—'} • ${s.item} • ${formatDate(s.date)}</div>
+                    <div class="data-item-title">${s.items_summary}</div>
+                    <div class="data-item-sub">${s.customer_name} • ${s.invoice_number}</div>
                   </div>
-                  <div style="text-align:right;">
-                    <div class="data-item-value" style="color:#FCD34D;">${formatPKR(s.balance)}</div>
-                    <div class="data-item-sub">Total: ${formatPKR(s.charges)}</div>
-                  </div>
-                </div>`).join('')}
-          </div>`;
-      }
-
-      else if (type === 'expenses') {
-        const expenses = await getAllRecords('expenses') || [];
-        const total = expenses.reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
-        const periods = periodSummary(expenses, 'amount');
-        const byCategory = {};
-        expenses.forEach(e => { byCategory[e.category] = (byCategory[e.category] || 0) + (parseFloat(e.amount) || 0); });
-
-        container.innerHTML = `
-          <div class="stats-grid">
-            <div class="stat-card silver"><div class="stat-icon">💵</div><div class="stat-value">${formatPKR(total)}</div><div class="stat-label">Total Expenses</div></div>
+                  <div class="data-item-value">${formatPKR(s.total)}</div>
+                </div>
+              `).join('')}
           </div>
-          ${renderPeriodTable('📅 Day-wise Expenses', periods.day)}
-          ${renderPeriodTable('🗓️ Week-wise Expenses', periods.week)}
-          ${renderPeriodTable('📆 Month-wise Expenses', periods.month)}
-          ${renderPeriodTable('📈 Year-wise Expenses', periods.year)}
-          <h2 class="section-title">By Category</h2>
-          <div class="data-list">
-            ${Object.entries(byCategory).map(([cat, amt]) => `
-              <div class="data-item"><div class="data-item-title">${cat.toUpperCase()}</div><div class="data-item-value">${formatPKR(amt)}</div></div>
-            `).join('') || '<div class="empty-state">No expenses</div>'}
-          </div>`;
-      }
-
-      else if (type === 'profit') {
-        const sales = await getAllRecords('sales') || [];
-        const purchases = await getAllRecords('purchases') || [];
-        const oldGold = await getAllRecords('old_gold') || [];
-        const expenses = await getAllRecords('expenses') || [];
-        const services = await getAllRecords('services') || [];
-
-        const totalSales = sales.reduce((s, x) => s + (parseFloat(x.total) || 0), 0);
-        const totalPurchases = purchases.reduce((s, x) => s + (parseFloat(x.total) || 0), 0);
-        const totalOldGold = oldGold.reduce((s, x) => s + (parseFloat(x.total) || 0), 0);
-        const totalExpenses = expenses.reduce((s, x) => s + (parseFloat(x.amount) || 0), 0);
-        const totalKarigar = services.reduce((s, x) => s + (parseFloat(x.paid) || 0), 0);
-        const totalOut = totalPurchases + totalOldGold + totalExpenses + totalKarigar;
-        const profit = totalSales - totalOut;
-
-        container.innerHTML = `
-          <div class="stats-grid">
-            <div class="stat-card gold"><div class="stat-icon">💰</div><div class="stat-value">${formatPKR(totalSales)}</div><div class="stat-label">Total Income</div></div>
-            <div class="stat-card silver"><div class="stat-icon">🛒</div><div class="stat-value">${formatPKR(totalPurchases)}</div><div class="stat-label">Purchases</div></div>
-            <div class="stat-card diamond"><div class="stat-icon">🥇</div><div class="stat-value">${formatPKR(totalOldGold)}</div><div class="stat-label">Old Gold Bought</div></div>
-            <div class="stat-card artificial"><div class="stat-icon">🔧</div><div class="stat-value">${formatPKR(totalKarigar)}</div><div class="stat-label">Karigar Paid</div></div>
-            <div class="stat-card silver"><div class="stat-icon">💵</div><div class="stat-value">${formatPKR(totalExpenses)}</div><div class="stat-label">Expenses</div></div>
-          </div>
-          <div class="form-card" style="background: linear-gradient(135deg, ${profit >= 0 ? 'rgba(37,211,102,0.1)' : 'rgba(220,38,38,0.1)'}, #1C1C1C); border-color: ${profit >= 0 ? '#25D366' : '#DC2626'};">
-            <h3 class="form-card-title" style="color: ${profit >= 0 ? '#86EFAC' : '#FCA5A5'};">${profit >= 0 ? '📈 NET PROFIT' : '📉 NET LOSS'}</h3>
-            <div style="text-align:center; padding:20px;">
-              <div style="font-family:'Playfair Display', serif; font-size:3rem; color:${profit >= 0 ? '#25D366' : '#DC2626'};">${formatPKR(Math.abs(profit))}</div>
-              <div style="color:#B8B8B8; margin-top:10px;">Income (${formatPKR(totalSales)}) - Outgoing (${formatPKR(totalOut)})</div>
-            </div>
-          </div>`;
+        `;
       }
     }
 
-    document.addEventListener('DOMContentLoaded', async () => {
-      await initDB();
-      loadReport('sales');
+    document.addEventListener('DOMContentLoaded', async () => { 
+      await initDB(); 
+      switchReport('purchases', document.querySelector('.cat-tab')); 
     });
   </script>
 </body>

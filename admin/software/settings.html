@@ -3,180 +3,114 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#FFD700">
   <title>Settings – SRJ Software</title>
   <link rel="manifest" href="manifest.json">
-  <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style-software.css">
   <style>
-    body { background: #0A0A0A; color: #FFF8DC; font-family: 'Poppins', sans-serif; }
-    .sw-header { background: #1C1C1C; border-bottom: 2px solid #FFD700; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-    .sw-logo { font-family: 'Playfair Display', serif; color: #FFD700; font-weight: 700; }
-    .sw-nav { display: flex; gap: 5px; padding: 10px 15px; background: #1C1C1C; overflow-x: auto; }
-    .nav-btn { padding: 10px 20px; background: transparent; border: 1px solid rgba(255,215,0,0.3); color: #FFF8DC; border-radius: 50px; cursor: pointer; white-space: nowrap; }
-    .nav-btn.active { background: #FFD700; color: #0A0A0A; }
-    .sw-content { padding: 20px; max-width: 900px; margin: 0 auto; }
-    .section-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: #FFD700; margin-bottom: 20px; }
+    .sw-content { max-width: 800px; }
     .settings-card { background: #1C1C1C; border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-    .settings-card h3 { color: #FFD700; font-family: 'Playfair Display', serif; margin-bottom: 15px; font-size: 1.1rem; }
-    .setting-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,215,0,0.1); }
-    .setting-row:last-child { border-bottom: none; }
-    .setting-label { color: #FFF8DC; }
-    .setting-value { color: #FFD700; font-weight: 600; }
-    .btn-danger { background: rgba(220,38,38,0.2); color: #FCA5A5; border: 1px solid #DC2626; padding: 12px 25px; border-radius: 50px; cursor: pointer; font-weight: 600; width: 100%; margin-top: 10px; }
-    .btn-danger:hover { background: #DC2626; color: white; }
+    .settings-card h3 { color: #FFD700; margin-bottom: 15px; }
   </style>
 </head>
 <body>
-
   <div class="sw-header">
-    <div class="sw-logo">Settings</div>
-    <button onclick="window.location.href='index.html'" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer;">← Back</button>
+    <div class="sw-logo"><img src="images/settings.png" onerror="this.style.display='none'" style="width:24px; margin-right:8px;">Settings</div>
+    <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-family: 'Poppins', sans-serif;">← Back</button>
   </div>
 
-  <div class="sw-nav">
-    <button class="nav-btn" onclick="window.location.href='index.html'">🏠 Dashboard</button>
-    <button class="nav-btn" onclick="window.location.href='sales.html'">💰 Sales</button>
-    <button class="nav-btn" onclick="window.location.href='store.html'">🏪 Store</button>
-    <button class="nav-btn" onclick="window.location.href='customers.html'">👥 Customers</button>
-    <button class="nav-btn" onclick="window.location.href='reports.html'">📊 Reports</button>
-    <button class="nav-btn active">⚙️ Settings</button>
-  </div>
-
-  <div class="sw-content">
+  <div class="sw-content" style="padding-top: 20px;">
     <h2 class="section-title">Software Settings</h2>
 
     <div class="settings-card">
-      <h3>🏪 Shop Information</h3>
-      <div class="setting-row">
-        <span class="setting-label">Shop Name</span>
-        <span class="setting-value">SHAH REHAN JEWELLERS</span>
+      <h3>Shop Information</h3>
+      <div class="form-group"><label class="form-label">Shop Name</label><input type="text" id="setShopName" class="form-input"></div>
+      <div class="form-group"><label class="form-label">Address</label><input type="text" id="setShopAddress" class="form-input"></div>
+      <div class="form-group"><label class="form-label">WhatsApp Number</label><input type="text" id="setShopPhone" class="form-input"></div>
+      
+      <div class="form-group">
+        <label class="form-label">Admin Photo (For Invoice)</label>
+        <input type="file" id="setAdminPhoto" class="form-input" accept="image/*" style="padding:10px;">
+        <div id="adminPhotoPreview" style="margin-top:10px;"></div>
       </div>
-      <div class="setting-row">
-        <span class="setting-label">Address</span>
-        <span class="setting-value">Main Bazar #2, Ghaziabad</span>
-      </div>
-      <div class="setting-row">
-        <span class="setting-label">WhatsApp</span>
-        <span class="setting-value">0092 326 6501314</span>
-      </div>
+      <button class="btn-primary" onclick="saveSettings()" style="width:100%;">Save Shop Info</button>
     </div>
 
     <div class="settings-card">
-      <h3>💰 Business Rules</h3>
-      <div class="setting-row">
-        <span class="setting-label">Making Charges</span>
-        <span class="setting-value">15%</span>
+      <h3>Business Rules</h3>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">GST %</label><input type="number" id="setGST" class="form-input"></div>
+        <div class="form-group"><label class="form-label">Making %</label><input type="number" id="setMaking" class="form-input"></div>
       </div>
-      <div class="setting-row">
-        <span class="setting-label">Polish Charges</span>
-        <span class="setting-value">10%</span>
-      </div>
-      <div class="setting-row">
-        <span class="setting-label">GST / Tax</span>
-        <span class="setting-value">3%</span>
-      </div>
+      <button class="btn-primary" onclick="saveRules()" style="width:100%;">Save Rules</button>
     </div>
 
     <div class="settings-card">
-      <h3>☁️ Cloud Database</h3>
-      <div class="setting-row">
-        <span class="setting-label">Provider</span>
-        <span class="setting-value">Supabase</span>
-      </div>
-      <div class="setting-row">
-        <span class="setting-label">Project URL</span>
-        <span class="setting-value" id="dbUrl" style="font-size:0.75rem; word-break:break-all;">—</span>
-      </div>
-      <div class="setting-row">
-        <span class="setting-label">Status</span>
-        <span class="setting-value" id="dbStatus">Checking…</span>
-      </div>
-    </div>
-
-    <div class="settings-card">
-      <h3>📱 App Info</h3>
-      <div class="setting-row">
-        <span class="setting-label">Version</span>
-        <span class="setting-value">2.0.0</span>
-      </div>
-      <div class="setting-row">
-        <span class="setting-label">Developer</span>
-        <span class="setting-value">Bilal Marghoob Creations</span>
-      </div>
-      <div class="setting-row">
-        <span class="setting-label">Support</span>
-        <span class="setting-value">0092 326 69501314</span>
-      </div>
-    </div>
-
-    <div class="settings-card">
-      <h3>🗑️ Danger Zone</h3>
+      <h3>Danger Zone</h3>
       <button class="btn-danger" onclick="clearAllData()">Clear All Cloud Data</button>
-      <p style="color: #B8B8B8; font-size: 0.8rem; margin-top: 10px;">
-        This will delete all sales, customers, purchases, services, stock, suppliers and expenses from the cloud database.
-      </p>
     </div>
   </div>
 
   <script src="db.js"></script>
+  <script src="app.js"></script>
   <script>
-    // Show DB info + connection check on load
+    let newAdminPhotoUrl = null;
+
     document.addEventListener('DOMContentLoaded', async () => {
       await initDB();
-
-      const urlEl = document.getElementById('dbUrl');
-      const statusEl = document.getElementById('dbStatus');
-
-      if (urlEl && typeof SUPABASE_URL !== 'undefined') {
-        urlEl.textContent = SUPABASE_URL;
-      }
-
-      try {
-        // Ping the DB with a tiny query to confirm connection
-        await fetch(`${SUPABASE_URL}/rest/v1/customers?select=id&limit=1`, {
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`
-          }
-        });
-        statusEl.textContent = '✅ Connected';
-        statusEl.style.color = '#86EFAC';
-      } catch (e) {
-        statusEl.textContent = '❌ Connection Error';
-        statusEl.style.color = '#FCA5A5';
-        console.error(e);
-      }
+      const s = getShopSettings();
+      document.getElementById('setShopName').value = s.name;
+      document.getElementById('setShopAddress').value = s.address;
+      document.getElementById('setShopPhone').value = s.phone;
+      document.getElementById('setGST').value = s.gst_pct;
+      document.getElementById('setMaking').value = s.making_pct;
+      if (s.admin_photo) document.getElementById('adminPhotoPreview').innerHTML = `<img src="${s.admin_photo}" style="height:60px; border-radius:8px;">`;
     });
 
-    async function clearAllData() {
-      if (!confirm('⚠️ Are you sure? This will delete ALL data from the cloud database.')) return;
-      if (!confirm('⚠️ This action cannot be undone. Continue?')) return;
+    document.getElementById('setAdminPhoto')?.addEventListener('change', (e) => {
+      if (e.target.files[0]) document.getElementById('adminPhotoPreview').innerHTML = `<img src="${URL.createObjectURL(e.target.files[0])}" style="height:60px; border-radius:8px;">`;
+    });
 
-      const tables = [
-        'sales', 'stock', 'customers', 'expenses',
-        'purchases', 'services', 'old_gold', 'suppliers'
-      ];
+    async function saveSettings() {
+      const btn = event.target;
+      btn.textContent = 'Saving...'; btn.disabled = true;
 
-      let ok = 0, fail = 0;
-      for (const t of tables) {
-        try {
-          await clearStore(t);
-          ok++;
-          console.log(`✅ Cleared: ${t}`);
-        } catch (e) {
-          fail++;
-          console.warn(`⚠️ Failed to clear ${t}:`, e.message);
+      try {
+        if (document.getElementById('setAdminPhoto').files[0]) {
+          newAdminPhotoUrl = await uploadImage(document.getElementById('setAdminPhoto').files[0]);
         }
+        
+        const s = getShopSettings();
+        s.name = document.getElementById('setShopName').value;
+        s.address = document.getElementById('setShopAddress').value;
+        s.phone = document.getElementById('setShopPhone').value;
+        if (newAdminPhotoUrl) s.admin_photo = newAdminPhotoUrl;
+        
+        saveShopSettings(s);
+        alert('✅ Shop info saved!');
+      } catch (e) {
+        alert('❌ ' + e.message);
+      } finally {
+        btn.textContent = 'Save Shop Info'; btn.disabled = false;
       }
+    }
 
-      if (fail === 0) {
-        alert(`✅ All ${ok} tables cleared successfully.`);
-      } else {
-        alert(`⚠️ Cleared ${ok} tables, ${fail} failed.\nCheck console (F12) for details.`);
+    function saveRules() {
+      const s = getShopSettings();
+      s.gst_pct = parseFloat(document.getElementById('setGST').value) || 0;
+      s.making_pct = parseFloat(document.getElementById('setMaking').value) || 0;
+      saveShopSettings(s);
+      alert('✅ Rules saved!');
+    }
+
+    async function clearAllData() {
+      if (!confirm('⚠️ Delete ALL data?')) return;
+      if (!confirm('⚠️ Are you absolutely sure?')) return;
+      const tables = ['sales','stock','customers','expenses','purchases','services','old_gold','suppliers'];
+      for (const t of tables) {
+        try { await clearStore(t); } catch (e) { console.warn(t, e.message); }
       }
-
-      window.location.href = 'index.html';
+      alert('✅ All data cleared');
     }
   </script>
 </body>

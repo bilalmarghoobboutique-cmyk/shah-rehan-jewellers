@@ -10,123 +10,114 @@
 </head>
 <body>
   <div class="sw-header">
-    <div class="sw-logo">📦 Suppliers</div>
+    <div class="sw-logo"><img src="images/suppliers.png" onerror="this.style.display='none'" style="width:24px; margin-right:8px;">Suppliers</div>
     <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-family: 'Poppins', sans-serif;">← Back</button>
   </div>
-  <div class="sw-nav">
-    <button class="nav-btn" onclick="navigate('index.html')">🏠 Dashboard</button>
-    <button class="nav-btn" onclick="navigate('purchase.html')">🛒 Purchase</button>
-    <button class="nav-btn" onclick="navigate('services.html')">🔧 Services</button>
-    <button class="nav-btn" onclick="navigate('store.html')">🏪 Store</button>
-    <button class="nav-btn" onclick="navigate('sales.html')">💰 Sales</button>
-    <button class="nav-btn" onclick="navigate('customers.html')">👥 Customers</button>
-    <button class="nav-btn active">📦 Suppliers</button>
-    <button class="nav-btn" onclick="navigate('expenses.html')">💵 Expenses</button>
-    <button class="nav-btn" onclick="navigate('reports.html')">📊 Reports</button>
-    <button class="nav-btn" onclick="navigate('settings.html')">⚙️ Settings</button>
-  </div>
 
-  <div class="sw-content">
+  <div class="sw-content" style="padding-top: 20px;">
     <h1 class="page-title">Supplier Management</h1>
-    <p class="page-subtitle">Add suppliers with phone, address, and bill images</p>
 
     <div class="form-card">
-      <h3 class="form-card-title">➕ Add New Supplier</h3>
+      <h3 class="form-card-title">Add Supplier</h3>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Supplier Name *</label><input type="text" id="supName" class="form-input" placeholder="Enter supplier name"></div>
-        <div class="form-group"><label class="form-label">Phone Number *</label><input type="tel" id="supPhone" class="form-input" placeholder="03XXXXXXXXX"></div>
+        <div class="form-group"><label class="form-label">Name *</label><input type="text" id="supName" class="form-input" placeholder="Supplier Name"></div>
+        <div class="form-group"><label class="form-label">Phone *</label><input type="tel" id="supPhone" class="form-input" placeholder="03XXXXXXXXX"></div>
       </div>
-      <div class="form-group"><label class="form-label">Address</label><input type="text" id="supAddress" class="form-input" placeholder="Full address"></div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Bill/Invoice Number</label><input type="text" id="supBillNo" class="form-input" placeholder="Bill number"></div>
-        <div class="form-group"><label class="form-label">Bill Amount (Rs)</label><input type="number" id="supBillAmount" class="form-input" placeholder="0"></div>
+      <div class="form-group"><label class="form-label">Address</label><input type="text" id="supAddress" class="form-input" placeholder="Address"></div>
+      <div class="form-group">
+        <label class="form-label">Supplier Photo</label>
+        <input type="file" id="supPhoto" class="form-input" accept="image/*" style="padding:10px;">
+        <div id="supPhotoPreview" style="margin-top:10px;"></div>
       </div>
-      <div class="form-group"><label class="form-label">📷 Bill Image</label><input type="file" id="supBillImage" class="form-input" accept="image/*" capture="environment" style="padding:10px;"><div id="supBillPreview" style="margin-top:10px;"></div></div>
-      <div class="form-group"><label class="form-label">Notes</label><input type="text" id="supNotes" class="form-input" placeholder="Any notes"></div>
-      <button class="btn-primary" onclick="saveSupplier()" style="width:100%;">💾 Save Supplier</button>
+      <button class="btn-primary" onclick="saveSupplier()" style="width:100%;">Save Supplier</button>
     </div>
 
-    <h2 class="section-title">📋 All Suppliers</h2>
-    <div class="data-list" id="suppliersList"><div class="empty-state"><div class="icon">📦</div><p>No suppliers yet</p></div></div>
-  </div>
-
-  <div id="viewModal" class="modal">
-    <div class="modal-content">
-      <h2 class="modal-title">Supplier Details</h2>
-      <div id="viewContent"></div>
-      <button class="btn-secondary" onclick="closeViewModal()" style="width:100%; margin-top:20px;">Close</button>
-    </div>
+    <h2 class="section-title">All Suppliers</h2>
+    <div class="data-list" id="suppliersList"></div>
   </div>
 
   <script src="db.js"></script>
   <script src="app.js"></script>
   <script>
-    let currentBillImage = null;
-    document.getElementById('supBillImage')?.addEventListener('change', async (e) => {
-      if (e.target.files[0]) {
-        currentBillImage = await fileToBase64(e.target.files[0]);
-        document.getElementById('supBillPreview').innerHTML = `<img src="${currentBillImage}" style="max-width:200px; border-radius:8px; border:2px solid #FFD700;">`;
-      }
+    let supPhotoUrl = null;
+
+    document.getElementById('supPhoto')?.addEventListener('change', (e) => {
+      if (e.target.files[0]) document.getElementById('supPhotoPreview').innerHTML = `<img src="${URL.createObjectURL(e.target.files[0])}" style="max-width:100px; border-radius:8px;">`;
     });
 
     async function saveSupplier() {
       const name = document.getElementById('supName').value.trim();
       const phone = document.getElementById('supPhone').value.trim();
-      if (!name || !phone) { alert('❌ Name and phone are required'); return; }
-      const supplier = {
-        name, phone,
-        address: document.getElementById('supAddress').value.trim(),
-        bill_no: document.getElementById('supBillNo').value.trim(),
-        bill_amount: parseFloat(document.getElementById('supBillAmount').value) || 0,
-        bill_image: currentBillImage,
-        notes: document.getElementById('supNotes').value.trim()
-      };
+      if (!name || !phone) { alert('❌ Name and phone required'); return; }
+
+      const btn = event.target;
+      btn.textContent = 'Saving...'; btn.disabled = true;
+
       try {
-        await addRecord('suppliers', supplier);
+        if (document.getElementById('supPhoto').files[0]) {
+          supPhotoUrl = await uploadImage(document.getElementById('supPhoto').files[0]);
+        }
+
+        await addRecord('suppliers', {
+          name, phone,
+          address: document.getElementById('supAddress').value.trim(),
+          photo: supPhotoUrl
+        });
+
         alert('✅ Supplier saved!');
         clearForm(); loadSuppliers();
-      } catch (e) { alert('❌ ' + e.message); }
+      } catch (e) {
+        alert('❌ ' + e.message);
+      } finally {
+        btn.textContent = 'Save Supplier'; btn.disabled = false;
+      }
     }
 
     function clearForm() {
-      ['supName','supPhone','supAddress','supBillNo','supBillAmount','supNotes'].forEach(id => document.getElementById(id).value = '');
-      document.getElementById('supBillImage').value = '';
-      document.getElementById('supBillPreview').innerHTML = '';
-      currentBillImage = null;
+      ['supName','supPhone','supAddress'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('supPhoto').value = '';
+      document.getElementById('supPhotoPreview').innerHTML = '';
+      supPhotoUrl = null;
     }
 
     async function loadSuppliers() {
       const suppliers = await getAllRecords('suppliers') || [];
+      const purchases = await getAllRecords('purchases') || [];
       const container = document.getElementById('suppliersList');
-      if (suppliers.length === 0) { container.innerHTML = '<div class="empty-state"><div class="icon">📦</div><p>No suppliers yet</p></div>'; return; }
-      container.innerHTML = suppliers.map(s => `
+      
+      if (suppliers.length === 0) { container.innerHTML = '<div class="empty-state"><p>No suppliers yet</p></div>'; return; }
+
+      container.innerHTML = suppliers.map(s => {
+        // Calculate Balance / Advance
+        const sPurchases = purchases.filter(p => p.supplier_name.toLowerCase() === s.name.toLowerCase() || p.supplier_phone === s.phone);
+        let balance = 0;
+        let advance = 0;
+        sPurchases.forEach(p => {
+          if (p.balance > 0) balance += Number(p.balance);
+          if (p.paid > p.total) advance += (Number(p.paid) - Number(p.total));
+        });
+        
+        let balanceHtml = '';
+        if (balance > 0) balanceHtml = `<span style="color:#FCA5A5;">Payable: ${formatPKR(balance)}</span>`;
+        else if (advance > 0) balanceHtml = `<span style="color:#86EFAC;">Adv: ${formatPKR(advance)}</span>`;
+        else balanceHtml = `<span style="color:#B8B8B8;">Clear</span>`;
+
+        return `
         <div class="data-item">
-          <div>
-            <div class="data-item-title">${s.name}</div>
-            <div class="data-item-sub">📞 ${s.phone}${s.address ? ' • 📍 ' + s.address : ''}</div>
-            ${s.bill_no ? `<div class="data-item-sub">Bill # ${s.bill_no} • Rs ${(s.bill_amount || 0).toLocaleString()}</div>` : ''}
-            <div class="data-item-actions">
-              <button class="btn-icon edit" onclick='viewSupplier(${JSON.stringify(s).replace(/'/g, "&#39;")})'>👁️ View</button>
-              <button class="btn-icon delete" onclick="deleteSupplier(${s.id})">🗑️ Delete</button>
+          <div style="display:flex; gap:15px; align-items:center;">
+            ${s.photo ? `<img src="${s.photo}" style="width:50px; height:50px; border-radius:50%; border:2px solid #FFD700; object-fit:cover;">` : `<img src="images/placeholder.png" onerror="this.style.display='none'" style="width:50px; height:50px; border-radius:50%;">`}
+            <div>
+              <div class="data-item-title">${s.name}</div>
+              <div class="data-item-sub">📞 ${s.phone}</div>
             </div>
           </div>
-          <div class="data-item-sub">${formatDate(s.date)}</div>
-        </div>`).join('');
+          <div style="text-align:right;">
+            <div class="data-item-value" style="font-size:0.9rem;">${balanceHtml}</div>
+          </div>
+        </div>
+        `;
+      }).join('');
     }
-
-    function viewSupplier(s) {
-      document.getElementById('viewContent').innerHTML = `
-        <div style="padding:15px 0;">
-          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Name:</span><strong style="color:#FFD700;">${s.name}</strong></div>
-          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Phone:</span><strong>${s.phone}</strong></div>
-          ${s.address ? `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Address:</span><strong>${s.address}</strong></div>` : ''}
-          ${s.bill_image ? `<div style="margin-top:20px;"><div style="color:#FFD700; margin-bottom:10px;">📷 Bill Image:</div><img src="${s.bill_image}" style="width:100%; border-radius:8px; border:2px solid #FFD700;"></div>` : ''}
-        </div>`;
-      document.getElementById('viewModal').classList.add('active');
-    }
-
-    function closeViewModal() { document.getElementById('viewModal').classList.remove('active'); }
-    async function deleteSupplier(id) { if (!confirm('Delete this supplier?')) return; await deleteRecord('suppliers', id); loadSuppliers(); }
 
     document.addEventListener('DOMContentLoaded', async () => { await initDB(); loadSuppliers(); });
   </script>

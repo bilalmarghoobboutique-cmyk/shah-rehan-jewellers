@@ -10,261 +10,129 @@
 </head>
 <body>
   <div class="sw-header">
-    <div class="sw-logo">👥 Customers</div>
+    <div class="sw-logo"><img src="images/customer-service.png" onerror="this.style.display='none'" style="width:24px; margin-right:8px;">Customers</div>
     <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-family: 'Poppins', sans-serif;">← Back</button>
   </div>
+
   <div class="sw-nav">
-    <button class="nav-btn" onclick="navigate('index.html')">🏠 Dashboard</button>
-    <button class="nav-btn" onclick="navigate('purchase.html')">🛒 Purchase</button>
-    <button class="nav-btn" onclick="navigate('services.html')">🔧 Services</button>
-    <button class="nav-btn" onclick="navigate('store.html')">🏪 Store</button>
-    <button class="nav-btn" onclick="navigate('sales.html')">💰 Sales</button>
-    <button class="nav-btn active">👥 Customers</button>
-    <button class="nav-btn" onclick="navigate('suppliers.html')">📦 Suppliers</button>
-    <button class="nav-btn" onclick="navigate('expenses.html')">💵 Expenses</button>
-    <button class="nav-btn" onclick="navigate('reports.html')">📊 Reports</button>
-    <button class="nav-btn" onclick="navigate('settings.html')">⚙️ Settings</button>
+    <button class="nav-btn" onclick="navigate('index.html')">Dashboard</button>
+    <button class="nav-btn" onclick="navigate('sales.html')">Sales</button>
+    <button class="nav-btn active">Customers</button>
+    <button class="nav-btn" onclick="navigate('suppliers.html')">Suppliers</button>
+    <button class="nav-btn" onclick="navigate('reports.html')">Reports</button>
+    <button class="nav-btn" onclick="navigate('settings.html')">Settings</button>
   </div>
 
   <div class="sw-content">
     <h1 class="page-title">Customer Management</h1>
-    <p class="page-subtitle">Manage customers and old gold purchases</p>
-
-    <div class="category-tabs">
-      <button class="cat-tab gold active" onclick="switchTab('customers', this)">👥 Add Customer</button>
-      <button class="cat-tab silver" onclick="switchTab('oldgold', this)">🥇 Old Gold Purchase</button>
-    </div>
-
-    <div id="customersTab">
-      <div class="form-card">
-        <h3 class="form-card-title">➕ Add New Customer</h3>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Customer Name *</label><input type="text" id="cName" class="form-input" placeholder="Full name"></div>
-          <div class="form-group"><label class="form-label">Phone Number *</label><input type="tel" id="cPhone" class="form-input" placeholder="03XXXXXXXXX"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">CNIC / ID Card Number</label><input type="text" id="cCNIC" class="form-input" placeholder="XXXXX-XXXXXXX-X"></div>
-          <div class="form-group"><label class="form-label">Address</label><input type="text" id="cAddress" class="form-input" placeholder="Full address"></div>
-        </div>
-        <div class="form-group"><label class="form-label">📷 Customer Photo</label><input type="file" id="cPhoto" class="form-input" accept="image/*" capture="user" style="padding:10px;"><div id="cPhotoPreview" style="margin-top:10px;"></div></div>
-        <div class="form-group"><label class="form-label">📷 ID Card Photo</label><input type="file" id="cIdPhoto" class="form-input" accept="image/*" capture="environment" style="padding:10px;"><div id="cIdPreview" style="margin-top:10px;"></div></div>
-        <button class="btn-primary" onclick="saveCustomer()" style="width:100%;">💾 Save Customer</button>
+    
+    <div class="form-card">
+      <h3 class="form-card-title">Add New Customer</h3>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Name *</label><input type="text" id="cName" class="form-input" placeholder="Full name"></div>
+        <div class="form-group"><label class="form-label">Phone *</label><input type="tel" id="cPhone" class="form-input" placeholder="03XXXXXXXXX"></div>
       </div>
-    </div>
-
-    <div id="oldgoldTab" style="display:none;">
-      <div class="form-card">
-        <h3 class="form-card-title">🥇 Old Gold / Silver Purchase from Customer</h3>
-        <p style="color:#B8B8B8; font-size:0.85rem; margin-bottom:20px;">Record when customer comes to sell old jewelry</p>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Customer Name *</label><input type="text" id="ogName" class="form-input" placeholder="Full name"></div>
-          <div class="form-group"><label class="form-label">Phone Number *</label><input type="tel" id="ogPhone" class="form-input" placeholder="03XXXXXXXXX"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">CNIC / ID Card Number</label><input type="text" id="ogCNIC" class="form-input" placeholder="XXXXX-XXXXXXX-X"></div>
-          <div class="form-group"><label class="form-label">Address</label><input type="text" id="ogAddress" class="form-input" placeholder="Full address"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Metal Type *</label><select id="ogMetal" class="form-select"><option value="gold">Gold</option><option value="silver">Silver</option></select></div>
-          <div class="form-group"><label class="form-label">Item Description *</label><input type="text" id="ogItem" class="form-input" placeholder="e.g., Old Gold Bangles"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Weight (grams) *</label><input type="number" id="ogWeight" class="form-input" step="0.001" placeholder="0.000"></div>
-          <div class="form-group"><label class="form-label">Rate/gram (Rs) *</label><input type="number" id="ogRate" class="form-input" placeholder="0"></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label class="form-label">Total Amount Paid (Rs) *</label><input type="number" id="ogTotal" class="form-input" readonly style="background:#2A2A2A; color:#FFD700; font-weight:700;"></div>
-          <div class="form-group"><label class="form-label">Payment Mode</label><select id="ogPayment" class="form-select"><option value="cash">Cash</option><option value="easypaisa">Easypaisa</option><option value="bank">Bank Transfer</option></select></div>
-        </div>
-        <div class="form-group"><label class="form-label">📷 Customer Photo</label><input type="file" id="ogPhoto" class="form-input" accept="image/*" capture="user" style="padding:10px;"><div id="ogPhotoPreview" style="margin-top:10px;"></div></div>
-        <div class="form-group"><label class="form-label">📷 ID Card Photo</label><input type="file" id="ogIdPhoto" class="form-input" accept="image/*" capture="environment" style="padding:10px;"><div id="ogIdPreview" style="margin-top:10px;"></div></div>
-        <div class="form-group"><label class="form-label">📷 Old Jewelry Photo</label><input type="file" id="ogJewelryPhoto" class="form-input" accept="image/*" capture="environment" style="padding:10px;"><div id="ogJewelryPreview" style="margin-top:10px;"></div></div>
-        <button class="btn-primary" onclick="saveOldGold()" style="width:100%;">💾 Save Old Gold Purchase</button>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">CNIC #</label><input type="text" id="cCNIC" class="form-input" placeholder="XXXXX-XXXXXXX-X"></div>
+        <div class="form-group"><label class="form-label">Address</label><input type="text" id="cAddress" class="form-input" placeholder="Address"></div>
       </div>
+      <div class="form-group">
+        <label class="form-label">Customer Photo</label>
+        <input type="file" id="cPhoto" class="form-input" accept="image/*" capture="user" style="padding:10px;">
+        <div id="cPhotoPreview" style="margin-top:10px;"></div>
+      </div>
+      <button class="btn-primary" onclick="saveCustomer()" style="width:100%;">Save Customer</button>
     </div>
 
-    <h2 class="section-title" id="listTitle">👥 All Customers</h2>
-    <div class="data-list" id="customersList"><div class="empty-state"><div class="icon">👥</div><p>No customers yet</p></div></div>
-  </div>
-
-  <div id="viewModal" class="modal">
-    <div class="modal-content">
-      <h2 class="modal-title">Details</h2>
-      <div id="viewContent"></div>
-      <button class="btn-secondary" onclick="closeViewModal()" style="width:100%; margin-top:20px;">Close</button>
-    </div>
+    <h2 class="section-title">All Customers</h2>
+    <div class="data-list" id="customersList"></div>
   </div>
 
   <script src="db.js"></script>
   <script src="app.js"></script>
   <script>
-    let currentTab = 'customers';
-    let cPhoto = null, cIdPhoto = null;
-    let ogPhoto = null, ogIdPhoto = null, ogJewelryPhoto = null;
+    let cPhotoUrl = null;
 
-    document.getElementById('cPhoto')?.addEventListener('change', async (e) => { if (e.target.files[0]) { cPhoto = await fileToBase64(e.target.files[0]); document.getElementById('cPhotoPreview').innerHTML = `<img src="${cPhoto}" style="max-width:150px; border-radius:8px; border:2px solid #FFD700;">`; } });
-    document.getElementById('cIdPhoto')?.addEventListener('change', async (e) => { if (e.target.files[0]) { cIdPhoto = await fileToBase64(e.target.files[0]); document.getElementById('cIdPreview').innerHTML = `<img src="${cIdPhoto}" style="max-width:200px; border-radius:8px; border:2px solid #FFD700;">`; } });
-    document.getElementById('ogPhoto')?.addEventListener('change', async (e) => { if (e.target.files[0]) { ogPhoto = await fileToBase64(e.target.files[0]); document.getElementById('ogPhotoPreview').innerHTML = `<img src="${ogPhoto}" style="max-width:150px; border-radius:8px; border:2px solid #FFD700;">`; } });
-    document.getElementById('ogIdPhoto')?.addEventListener('change', async (e) => { if (e.target.files[0]) { ogIdPhoto = await fileToBase64(e.target.files[0]); document.getElementById('ogIdPreview').innerHTML = `<img src="${ogIdPhoto}" style="max-width:200px; border-radius:8px; border:2px solid #FFD700;">`; } });
-    document.getElementById('ogJewelryPhoto')?.addEventListener('change', async (e) => { if (e.target.files[0]) { ogJewelryPhoto = await fileToBase64(e.target.files[0]); document.getElementById('ogJewelryPreview').innerHTML = `<img src="${ogJewelryPhoto}" style="max-width:200px; border-radius:8px; border:2px solid #FFD700;">`; } });
-
-    ['ogWeight','ogRate'].forEach(id => {
-      document.getElementById(id)?.addEventListener('input', () => {
-        const w = parseFloat(document.getElementById('ogWeight').value) || 0;
-        const r = parseFloat(document.getElementById('ogRate').value) || 0;
-        document.getElementById('ogTotal').value = Math.round(w * r);
-      });
+    document.getElementById('cPhoto')?.addEventListener('change', (e) => {
+      if (e.target.files[0]) document.getElementById('cPhotoPreview').innerHTML = `<img src="${URL.createObjectURL(e.target.files[0])}" style="max-width:100px; border-radius:8px; border:2px solid #FFD700;">`;
     });
-
-    function switchTab(tab, btn) {
-      currentTab = tab;
-      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
-      btn.classList.add('active');
-      document.getElementById('customersTab').style.display = tab === 'customers' ? 'block' : 'none';
-      document.getElementById('oldgoldTab').style.display = tab === 'oldgold' ? 'block' : 'none';
-      document.getElementById('listTitle').textContent = tab === 'customers' ? '👥 All Customers' : '🥇 Old Gold Purchases';
-      if (tab === 'customers') loadCustomers(); else loadOldGold();
-    }
 
     async function saveCustomer() {
       const name = document.getElementById('cName').value.trim();
       const phone = document.getElementById('cPhone').value.trim();
       if (!name || !phone) { alert('❌ Name and phone required'); return; }
-      const customer = {
-        name, phone,
-        cnic: document.getElementById('cCNIC').value.trim(),
-        address: document.getElementById('cAddress').value.trim(),
-        photo: cPhoto, id_photo: cIdPhoto
-      };
+
+      const btn = event.target;
+      btn.textContent = 'Saving...'; btn.disabled = true;
+
       try {
-        await addRecord('customers', customer);
+        if (document.getElementById('cPhoto').files[0]) {
+          cPhotoUrl = await uploadImage(document.getElementById('cPhoto').files[0]);
+        }
+
+        await addRecord('customers', {
+          name, phone,
+          cnic: document.getElementById('cCNIC').value.trim(),
+          address: document.getElementById('cAddress').value.trim(),
+          photo: cPhotoUrl
+        });
+        
         alert('✅ Customer saved!');
-        clearCustomerForm(); loadCustomers();
-      } catch (e) { alert('❌ ' + e.message); }
+        clearForm(); loadCustomers();
+      } catch (e) {
+        alert('❌ ' + e.message);
+      } finally {
+        btn.textContent = 'Save Customer'; btn.disabled = false;
+      }
     }
 
-    async function saveOldGold() {
-      const name = document.getElementById('ogName').value.trim();
-      const phone = document.getElementById('ogPhone').value.trim();
-      const item = document.getElementById('ogItem').value.trim();
-      const total = parseFloat(document.getElementById('ogTotal').value) || 0;
-      if (!name || !phone || !item || total <= 0) { alert('❌ Fill all required fields'); return; }
-      const oldGold = {
-        customer_name: name, customer_phone: phone,
-        customer_cnic: document.getElementById('ogCNIC').value.trim(),
-        customer_address: document.getElementById('ogAddress').value.trim(),
-        metal_type: document.getElementById('ogMetal').value,
-        item,
-        weight: parseFloat(document.getElementById('ogWeight').value) || 0,
-        rate: parseFloat(document.getElementById('ogRate').value) || 0,
-        total,
-        payment_mode: document.getElementById('ogPayment').value,
-        photo: ogPhoto, id_photo: ogIdPhoto, jewelry_photo: ogJewelryPhoto
-      };
-      try {
-        await addRecord('old_gold', oldGold);
-        alert('✅ Old gold purchase saved!');
-        clearOldGoldForm(); loadOldGold();
-      } catch (e) { alert('❌ ' + e.message); }
-    }
-
-    function clearCustomerForm() {
+    function clearForm() {
       ['cName','cPhone','cCNIC','cAddress'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('cPhoto').value = '';
-      document.getElementById('cIdPhoto').value = '';
       document.getElementById('cPhotoPreview').innerHTML = '';
-      document.getElementById('cIdPreview').innerHTML = '';
-      cPhoto = cIdPhoto = null;
-    }
-    function clearOldGoldForm() {
-      ['ogName','ogPhone','ogCNIC','ogAddress','ogItem','ogWeight','ogRate','ogTotal'].forEach(id => document.getElementById(id).value = '');
-      ['ogPhoto','ogIdPhoto','ogJewelryPhoto'].forEach(id => document.getElementById(id).value = '');
-      ['ogPhotoPreview','ogIdPreview','ogJewelryPreview'].forEach(id => document.getElementById(id).innerHTML = '');
-      ogPhoto = ogIdPhoto = ogJewelryPhoto = null;
+      cPhotoUrl = null;
     }
 
     async function loadCustomers() {
       const customers = await getAllRecords('customers') || [];
+      const sales = await getAllRecords('sales') || [];
       const container = document.getElementById('customersList');
-      if (customers.length === 0) { container.innerHTML = '<div class="empty-state"><div class="icon">👥</div><p>No customers yet</p></div>'; return; }
-      container.innerHTML = customers.map(c => `
+      
+      if (customers.length === 0) { container.innerHTML = '<div class="empty-state"><p>No customers yet</p></div>'; return; }
+      
+      container.innerHTML = customers.map(c => {
+        // Calculate Balance / Advance for this customer
+        const cSales = sales.filter(s => s.customer_name.toLowerCase() === c.name.toLowerCase() || s.customer_phone === c.phone);
+        let balance = 0;
+        let advance = 0;
+        cSales.forEach(s => {
+          if (s.balance > 0) balance += Number(s.balance);
+          if (s.received > s.total) advance += (Number(s.received) - Number(s.total));
+        });
+        
+        let balanceHtml = '';
+        if (balance > 0) balanceHtml = `<span style="color:#FCA5A5;">Due: ${formatPKR(balance)}</span>`;
+        else if (advance > 0) balanceHtml = `<span style="color:#86EFAC;">Adv: ${formatPKR(advance)}</span>`;
+        else balanceHtml = `<span style="color:#B8B8B8;">Clear</span>`;
+
+        return `
         <div class="data-item">
           <div style="display:flex; gap:15px; align-items:center;">
-            ${c.photo ? `<img src="${c.photo}" style="width:50px; height:50px; border-radius:50%; border:2px solid #FFD700; object-fit:cover;">` : '<div style="width:50px; height:50px; border-radius:50%; background:#2A2A2A; display:flex; align-items:center; justify-content:center;">👤</div>'}
+            ${c.photo ? `<img src="${c.photo}" style="width:50px; height:50px; border-radius:50%; border:2px solid #FFD700; object-fit:cover;">` : `<img src="images/placeholder.png" onerror="this.style.display='none'" style="width:50px; height:50px; border-radius:50%;">`}
             <div>
               <div class="data-item-title">${c.name}</div>
-              <div class="data-item-sub">📞 ${c.phone}</div>
-              ${c.cnic ? `<div class="data-item-sub">🆔 ${c.cnic}</div>` : ''}
-              ${c.address ? `<div class="data-item-sub">📍 ${c.address}</div>` : ''}
-            </div>
-          </div>
-          <div class="data-item-actions">
-            <button class="btn-icon edit" onclick='viewCustomer(${JSON.stringify(c).replace(/'/g, "&#39;")})'>👁️</button>
-            <button class="btn-icon delete" onclick="deleteCustomer(${c.id})">🗑️</button>
-          </div>
-        </div>`).join('');
-    }
-
-    async function loadOldGold() {
-      const items = await getAllRecords('old_gold') || [];
-      const container = document.getElementById('customersList');
-      if (items.length === 0) { container.innerHTML = '<div class="empty-state"><div class="icon">🥇</div><p>No old gold purchases yet</p></div>'; return; }
-      container.innerHTML = items.map(g => `
-        <div class="data-item">
-          <div style="display:flex; gap:15px; align-items:center;">
-            ${g.photo ? `<img src="${g.photo}" style="width:50px; height:50px; border-radius:50%; border:2px solid #FFD700; object-fit:cover;">` : '<div style="width:50px; height:50px; border-radius:50%; background:#2A2A2A; display:flex; align-items:center; justify-content:center;">👤</div>'}
-            <div>
-              <div class="data-item-title">${g.item} (${g.metal_type})</div>
-              <div class="data-item-sub">👤 ${g.customer_name} • 📞 ${g.customer_phone}</div>
-              <div class="data-item-sub">⚖️ ${g.weight}g @ Rs ${g.rate}/g</div>
+              <div class="data-item-sub">📞 ${c.phone} | 🆔 ${c.cnic || '—'}</div>
             </div>
           </div>
           <div style="text-align:right;">
-            <div class="data-item-value">${formatPKR(g.total)}</div>
-            <div class="data-item-actions" style="justify-content:flex-end; margin-top:6px;">
-              <button class="btn-icon edit" onclick='viewOldGold(${JSON.stringify(g).replace(/'/g, "&#39;")})'>👁️</button>
-              <button class="btn-icon delete" onclick="deleteOldGold(${g.id})">🗑️</button>
-            </div>
+            <div class="data-item-value" style="font-size:0.9rem;">${balanceHtml}</div>
           </div>
-        </div>`).join('');
+        </div>
+        `;
+      }).join('');
     }
 
-    function viewCustomer(c) {
-      document.getElementById('viewContent').innerHTML = `
-        <div style="padding:15px 0;">
-          ${c.photo ? `<img src="${c.photo}" style="width:120px; height:120px; border-radius:50%; border:3px solid #FFD700; display:block; margin:0 auto 20px;">` : ''}
-          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Name:</span><strong style="color:#FFD700;">${c.name}</strong></div>
-          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Phone:</span><strong>${c.phone}</strong></div>
-          ${c.cnic ? `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">CNIC:</span><strong>${c.cnic}</strong></div>` : ''}
-          ${c.address ? `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Address:</span><strong>${c.address}</strong></div>` : ''}
-          ${c.id_photo ? `<div style="margin-top:20px;"><div style="color:#FFD700; margin-bottom:10px;">🆔 ID Card Photo:</div><img src="${c.id_photo}" style="width:100%; border-radius:8px; border:2px solid #FFD700;"></div>` : ''}
-        </div>`;
-      document.getElementById('viewModal').classList.add('active');
-    }
-
-    function viewOldGold(g) {
-      document.getElementById('viewContent').innerHTML = `
-        <div style="padding:15px 0;">
-          ${g.photo ? `<img src="${g.photo}" style="width:120px; height:120px; border-radius:50%; border:3px solid #FFD700; display:block; margin:0 auto 20px;">` : ''}
-          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Customer:</span><strong style="color:#FFD700;">${g.customer_name}</strong></div>
-          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Phone:</span><strong>${g.customer_phone}</strong></div>
-          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Item:</span><strong>${g.item}</strong></div>
-          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Weight:</span><strong>${g.weight}g</strong></div>
-          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Total Paid:</span><strong style="color:#FFD700;">${formatPKR(g.total)}</strong></div>
-          ${g.jewelry_photo ? `<div style="margin-top:20px;"><div style="color:#FFD700; margin-bottom:10px;">📷 Jewelry Photo:</div><img src="${g.jewelry_photo}" style="width:100%; border-radius:8px; border:2px solid #FFD700;"></div>` : ''}
-        </div>`;
-      document.getElementById('viewModal').classList.add('active');
-    }
-
-    function closeViewModal() { document.getElementById('viewModal').classList.remove('active'); }
-
-    async function deleteCustomer(id) { if (!confirm('Delete?')) return; await deleteRecord('customers', id); loadCustomers(); }
-    async function deleteOldGold(id) { if (!confirm('Delete?')) return; await deleteRecord('old_gold', id); loadOldGold(); }
-
-    document.addEventListener('DOMContentLoaded', async () => {
-      await initDB();
-      loadCustomers();
-    });
+    document.addEventListener('DOMContentLoaded', async () => { await initDB(); loadCustomers(); });
   </script>
 </body>
 </html>

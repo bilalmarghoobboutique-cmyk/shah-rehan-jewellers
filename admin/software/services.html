@@ -10,152 +10,68 @@
 </head>
 <body>
   <div class="sw-header">
-    <div class="sw-logo">🔧 Karigar Services</div>
+    <div class="sw-logo"><img src="images/tools.png" onerror="this.style.display='none'" style="width:24px; margin-right:8px;">Karigar Services</div>
     <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-family: 'Poppins', sans-serif;">← Back</button>
   </div>
+
   <div class="sw-nav">
-    <button class="nav-btn" onclick="navigate('index.html')">🏠 Dashboard</button>
-    <button class="nav-btn" onclick="navigate('purchase.html')">🛒 Purchase</button>
-    <button class="nav-btn active">🔧 Services</button>
-    <button class="nav-btn" onclick="navigate('store.html')">🏪 Store</button>
-    <button class="nav-btn" onclick="navigate('sales.html')">💰 Sales</button>
-    <button class="nav-btn" onclick="navigate('customers.html')">👥 Customers</button>
-    <button class="nav-btn" onclick="navigate('suppliers.html')">📦 Suppliers</button>
-    <button class="nav-btn" onclick="navigate('expenses.html')">💵 Expenses</button>
-    <button class="nav-btn" onclick="navigate('reports.html')">📊 Reports</button>
-    <button class="nav-btn" onclick="navigate('settings.html')">⚙️ Settings</button>
+    <button class="nav-btn" onclick="navigate('index.html')">Dashboard</button>
+    <button class="nav-btn" onclick="navigate('purchase.html')">Purchase</button>
+    <button class="nav-btn active">Services</button>
+    <button class="nav-btn" onclick="navigate('store.html')">Store</button>
+    <button class="nav-btn" onclick="navigate('sales.html')">Sales</button>
+    <button class="nav-btn" onclick="navigate('customers.html')">Customers</button>
+    <button class="nav-btn" onclick="navigate('suppliers.html')">Suppliers</button>
+    <button class="nav-btn" onclick="navigate('reports.html')">Reports</button>
+    <button class="nav-btn" onclick="navigate('settings.html')">Settings</button>
   </div>
+
   <div class="sw-content">
     <h1 class="page-title">Karigar Services</h1>
-    <p class="page-subtitle">Manage karigars – full info + charges + balance inline</p>
+    <p class="page-subtitle">Manage karigars & job invoices</p>
 
     <div class="form-card">
-      <h3 class="form-card-title">➕ Karigar Info</h3>
+      <h3 class="form-card-title">Karigar Info</h3>
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Karigar Name *</label>
-          <input type="text" id="kName" class="form-input" placeholder="Karigar name">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Phone *</label>
-          <input type="tel" id="kPhone" class="form-input" placeholder="03XXXXXXXXX">
-        </div>
+        <div class="form-group"><label class="form-label">Karigar Name *</label><input type="text" id="kName" class="form-input" placeholder="Name"></div>
+        <div class="form-group"><label class="form-label">Phone *</label><input type="tel" id="kPhone" class="form-input" placeholder="03XXXXXXXXX"></div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Address</label>
-          <input type="text" id="kAddress" class="form-input" placeholder="Full address">
-        </div>
-        <div class="form-group">
-          <label class="form-label">CNIC</label>
-          <input type="text" id="kCNIC" class="form-input" placeholder="XXXXX-XXXXXXX-X">
-        </div>
-      </div>
-    </div>
-
-    <div class="form-card">
-      <h3 class="form-card-title">🔧 Service Details</h3>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Service Type</label>
-          <select id="kType" class="form-select">
-            <option value="making">Jewelry Making (Banwana)</option>
-            <option value="repair">Repair (Maramat)</option>
-            <option value="polish">Polish</option>
-            <option value="setting">Stone Setting</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Item Description *</label>
-          <input type="text" id="kItem" class="form-input" placeholder="e.g., Gold Ring 22K">
-        </div>
+        <div class="form-group"><label class="form-label">Item Description *</label><input type="text" id="kItem" class="form-input" placeholder="e.g., Ring Polish"></div>
+        <div class="form-group"><label class="form-label">Karigar Photo</label><input type="file" id="kPhoto" class="form-input" accept="image/*" capture="user" style="padding:10px;"><div id="kPhotoPreview" style="margin-top:5px;"></div></div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Gold Given (grams)</label>
-          <input type="number" id="kGoldGiven" class="form-input" step="0.001" placeholder="0.000">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Gold Returned (grams)</label>
-          <input type="number" id="kGoldReturned" class="form-input" step="0.001" placeholder="0.000">
-        </div>
+        <div class="form-group"><label class="form-label">Service Charges (Rs) *</label><input type="number" id="kCharges" class="form-input" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Paid Amount (Rs)</label><input type="number" id="kPaid" class="form-input" placeholder="0"></div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Service Charges (Rs) *</label>
-          <input type="number" id="kCharges" class="form-input" placeholder="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Paid to Karigar (Rs)</label>
-          <input type="number" id="kPaid" class="form-input" placeholder="0">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Balance / Udhaar (Rs)</label>
-          <input type="number" id="kBalance" class="form-input" readonly style="background:#2A2A2A; color:#FCD34D; font-weight:700;">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Expected Delivery</label>
-          <input type="date" id="kDelivery" class="form-input">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Status</label>
+        <div class="form-group"><label class="form-label">Balance (Rs)</label><input type="number" id="kBalance" class="form-input" readonly style="background:#2A2A2A; color:#FCD34D;"></div>
+        <div class="form-group"><label class="form-label">Status</label>
           <select id="kStatus" class="form-select">
             <option value="pending">Pending</option>
-            <option value="in-progress">In Progress</option>
             <option value="completed">Completed</option>
             <option value="delivered">Delivered</option>
           </select>
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">📷 Karigar Photo / ID</label>
-        <input type="file" id="kPhoto" class="form-input" accept="image/*" capture="environment" style="padding:10px;">
-        <div id="kPhotoPreview" style="margin-top:10px;"></div>
+
+      <div style="display: flex; gap: 12px; margin-top: 15px; flex-wrap: wrap;">
+        <button class="btn-primary" onclick="saveService(false)" style="flex: 1;">Save Service</button>
+        <button class="btn-secondary" onclick="saveService(true)" style="flex: 1; background: #25D366; color: white; border: none;">Save & WhatsApp Job</button>
       </div>
-      <div class="form-group">
-        <label class="form-label">🧾 Receipt / Bill Image</label>
-        <input type="file" id="kReceipt" class="form-input" accept="image/*" capture="environment" style="padding:10px;">
-        <div id="kReceiptPreview" style="margin-top:10px;"></div>
-      </div>
-      <button class="btn-primary" onclick="saveService()" style="width:100%;">💾 Save Service</button>
     </div>
 
-    <h2 class="section-title">📋 Service Records</h2>
-    <div class="data-list" id="servicesList">
-      <div class="empty-state"><div class="icon">🔧</div><p>No services yet</p></div>
-    </div>
-  </div>
-
-  <div id="viewModal" class="modal">
-    <div class="modal-content">
-      <h2 class="modal-title">Service Details</h2>
-      <div id="viewContent"></div>
-      <button class="btn-secondary" onclick="closeViewModal()" style="width:100%; margin-top:20px;">Close</button>
-    </div>
+    <h2 class="section-title">Service Records</h2>
+    <div class="data-list" id="servicesList"></div>
   </div>
 
   <script src="db.js"></script>
   <script src="app.js"></script>
   <script>
-    let currentPhoto = null;
-    let currentReceipt = null;
+    let kPhotoUrl = null;
 
-    document.getElementById('kPhoto')?.addEventListener('change', async (e) => {
-      if (e.target.files[0]) {
-        currentPhoto = await fileToBase64(e.target.files[0]);
-        document.getElementById('kPhotoPreview').innerHTML = `<img src="${currentPhoto}" style="max-width:200px; border-radius:8px; border:2px solid #FFD700;">`;
-      }
-    });
-    document.getElementById('kReceipt')?.addEventListener('change', async (e) => {
-      if (e.target.files[0]) {
-        currentReceipt = await fileToBase64(e.target.files[0]);
-        document.getElementById('kReceiptPreview').innerHTML = `<img src="${currentReceipt}" style="max-width:200px; border-radius:8px; border:2px solid #FFD700;">`;
-      }
+    document.getElementById('kPhoto')?.addEventListener('change', (e) => {
+      if (e.target.files[0]) document.getElementById('kPhotoPreview').innerHTML = `<img src="${URL.createObjectURL(e.target.files[0])}" style="max-width:80px; border-radius:8px;">`;
     });
 
     function autoCalc() {
@@ -165,112 +81,76 @@
     }
     ['kCharges', 'kPaid'].forEach(id => document.getElementById(id)?.addEventListener('input', autoCalc));
 
-    async function saveService() {
+    async function saveService(openWhatsApp) {
       const name = document.getElementById('kName').value.trim();
       const phone = document.getElementById('kPhone').value.trim();
       const item = document.getElementById('kItem').value.trim();
-      if (!name || !phone || !item) {
-        alert('❌ Name, phone, and item are required');
-        return;
-      }
-      const service = {
-        karigar_name: name,
-        karigar_phone: phone,
-        karigar_address: document.getElementById('kAddress').value.trim(),
-        karigar_cnic: document.getElementById('kCNIC').value.trim(),
-        type: document.getElementById('kType').value,
-        item: item,
-        gold_given: parseFloat(document.getElementById('kGoldGiven').value) || 0,
-        gold_returned: parseFloat(document.getElementById('kGoldReturned').value) || 0,
-        charges: parseFloat(document.getElementById('kCharges').value) || 0,
-        paid: parseFloat(document.getElementById('kPaid').value) || 0,
-        balance: parseFloat(document.getElementById('kBalance').value) || 0,
-        delivery: document.getElementById('kDelivery').value || null,
-        status: document.getElementById('kStatus').value,
-        photo: currentPhoto,
-        receipt: currentReceipt
-      };
+      if (!name || !phone || !item) { alert('❌ Name, phone, and item are required'); return; }
+
+      const btn = event.target;
+      btn.textContent = 'Saving...'; btn.disabled = true;
+
       try {
-        await addRecord('services', service);
-        alert('✅ Service saved!');
-        clearForm();
-        loadServices();
-      } catch (error) {
-        alert('❌ Error: ' + error.message);
+        if (document.getElementById('kPhoto').files[0]) {
+          kPhotoUrl = await uploadImage(document.getElementById('kPhoto').files[0]);
+        }
+
+        const service = {
+          karigar_name: name,
+          karigar_phone: phone,
+          item: item,
+          charges: parseFloat(document.getElementById('kCharges').value) || 0,
+          paid: parseFloat(document.getElementById('kPaid').value) || 0,
+          balance: parseFloat(document.getElementById('kBalance').value) || 0,
+          status: document.getElementById('kStatus').value,
+          photo: kPhotoUrl
+        };
+
+        const saved = await addRecord('services', service);
+        
+        if (openWhatsApp) {
+          const msg = buildJobInvoiceMessage(saved, getShopSettings());
+          openWhatsApp(phone, msg);
+        } else {
+          alert('✅ Service saved!');
+        }
+        
+        clearForm(); loadServices();
+      } catch (e) {
+        alert('❌ ' + e.message);
+      } finally {
+        btn.textContent = openWhatsApp ? 'Save & WhatsApp Job' : 'Save Service';
+        btn.disabled = false;
       }
     }
 
     function clearForm() {
-      ['kName','kPhone','kAddress','kCNIC','kItem','kGoldGiven','kGoldReturned','kCharges','kPaid','kBalance','kDelivery'].forEach(id => {
-        document.getElementById(id).value = '';
-      });
+      ['kName','kPhone','kItem','kCharges','kPaid','kBalance'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('kPhoto').value = '';
-      document.getElementById('kReceipt').value = '';
       document.getElementById('kPhotoPreview').innerHTML = '';
-      document.getElementById('kReceiptPreview').innerHTML = '';
-      currentPhoto = null;
-      currentReceipt = null;
+      kPhotoUrl = null;
     }
 
     async function loadServices() {
       const services = await getAllRecords('services') || [];
       const container = document.getElementById('servicesList');
-      if (services.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="icon">🔧</div><p>No services yet</p></div>';
-        return;
-      }
-      const statusColors = { pending: '#FCD34D', 'in-progress': '#93C5FD', completed: '#86EFAC', delivered: '#4ADE80' };
+      if (services.length === 0) { container.innerHTML = '<div class="empty-state"><p>No services yet</p></div>'; return; }
+      
       container.innerHTML = services.map(s => `
         <div class="data-item">
           <div>
             <div class="data-item-title">${s.item}</div>
-            <div class="data-item-sub">
-              🔧 ${s.karigar_name} • 📞 ${s.karigar_phone}<br>
-              ${s.type} • <span style="color:${statusColors[s.status] || '#FCD34D'}">${(s.status || '').toUpperCase()}</span>
-            </div>
-            <div class="data-item-sub">Gold: ${s.gold_given || 0}g → ${s.gold_returned || 0}g</div>
-            <div class="data-item-actions">
-              <button class="btn-icon edit" onclick='viewService(${JSON.stringify(s).replace(/'/g, "&#39;")})'>👁️ View</button>
-              <button class="btn-icon delete" onclick="deleteService(${s.id})">🗑️ Delete</button>
-            </div>
+            <div class="data-item-sub">${s.karigar_name} • 📞 ${s.karigar_phone}</div>
           </div>
-          <div style="text-align: right;">
+          <div style="text-align:right;">
             <div class="data-item-value">${formatPKR(s.charges)}</div>
-            <div class="data-item-sub">Paid: ${formatPKR(s.paid)}</div>
-            ${s.balance > 0 ? `<div class="data-item-sub" style="color:#FCD34D;">Balance: ${formatPKR(s.balance)}</div>` : ''}
+            <div class="data-item-sub" style="color:${s.balance > 0 ? '#FCD34D' : '#86EFAC'};">Bal: ${formatPKR(s.balance)}</div>
           </div>
         </div>
       `).join('');
     }
 
-    function viewService(s) {
-      document.getElementById('viewContent').innerHTML = `
-        <div style="padding:15px 0;">
-          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Karigar:</span><strong style="color:#FFD700;">${s.karigar_name}</strong></div>
-          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Phone:</span><strong>${s.karigar_phone}</strong></div>
-          ${s.karigar_address ? `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Address:</span><strong>${s.karigar_address}</strong></div>` : ''}
-          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Item:</span><strong>${s.item}</strong></div>
-          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Charges:</span><strong>${formatPKR(s.charges)}</strong></div>
-          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Paid:</span><strong>${formatPKR(s.paid)}</strong></div>
-          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Balance:</span><strong style="color:${(s.balance||0)>0?'#FCD34D':'#86EFAC'};">${formatPKR(s.balance)}</strong></div>
-          ${s.photo ? `<div style="margin-top:20px;"><div style="color:#FFD700; margin-bottom:10px;">👤 Karigar Photo:</div><img src="${s.photo}" style="width:100%; max-width:300px; border-radius:8px; border:2px solid #FFD700;"></div>` : ''}
-          ${s.receipt ? `<div style="margin-top:20px;"><div style="color:#FFD700; margin-bottom:10px;">🧾 Receipt:</div><img src="${s.receipt}" style="width:100%; border-radius:8px; border:2px solid #FFD700;"></div>` : ''}
-        </div>`;
-      document.getElementById('viewModal').classList.add('active');
-    }
-
-    function closeViewModal() { document.getElementById('viewModal').classList.remove('active'); }
-
-    async function deleteService(id) {
-      if (!confirm('Delete this service?')) return;
-      await deleteRecord('services', id);
-      loadServices();
-    }
-
-    document.addEventListener('DOMContentLoaded', async () => {
-      await initDB();
-      loadServices();
-    });
+    document.addEventListener('DOMContentLoaded', async () => { await initDB(); loadServices(); });
   </script>
 </body>
 </html>

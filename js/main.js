@@ -743,7 +743,10 @@ function openBiscuitPopup(metalType, unitLabel, grams, metalValue, metalName) {
     </div>
   `;
 
+  // Call this AFTER popup.innerHTML is set
   selectedBiscuitPayment = 'easypaisa';
+  selectBiscuitPayment('easypaisa');
+
   popup.classList.add('active');
   document.body.style.overflow = 'hidden';
 }

@@ -9,12 +9,10 @@
   <link rel="stylesheet" href="style-software.css">
 </head>
 <body>
-
   <div class="sw-header">
     <div class="sw-logo">🏪 Store Management</div>
     <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-family: 'Poppins', sans-serif;">← Back</button>
   </div>
-
   <div class="sw-nav">
     <button class="nav-btn" onclick="navigate('index.html')">🏠 Dashboard</button>
     <button class="nav-btn" onclick="navigate('purchase.html')">🛒 Purchase</button>
@@ -31,26 +29,10 @@
     <p class="page-subtitle">Complete stock management – Gold, Silver, Diamond, Artificial</p>
 
     <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
-      <div class="stat-card gold">
-        <div class="stat-icon">👑</div>
-        <div class="stat-value" id="stockGold">0g</div>
-        <div class="stat-label">Gold Stock (grams)</div>
-      </div>
-      <div class="stat-card silver">
-        <div class="stat-icon">💍</div>
-        <div class="stat-value" id="stockSilver">0g</div>
-        <div class="stat-label">Silver Stock (grams)</div>
-      </div>
-      <div class="stat-card diamond">
-        <div class="stat-icon">💎</div>
-        <div class="stat-value" id="stockDiamond">0</div>
-        <div class="stat-label">Diamond Items</div>
-      </div>
-      <div class="stat-card artificial">
-        <div class="stat-icon">✨</div>
-        <div class="stat-value" id="stockArtificial">0</div>
-        <div class="stat-label">Artificial Items</div>
-      </div>
+      <div class="stat-card gold"><div class="stat-icon">👑</div><div class="stat-value" id="stockGold">0g</div><div class="stat-label">Gold Stock (grams)</div></div>
+      <div class="stat-card silver"><div class="stat-icon">💍</div><div class="stat-value" id="stockSilver">0g</div><div class="stat-label">Silver Stock (grams)</div></div>
+      <div class="stat-card diamond"><div class="stat-icon">💎</div><div class="stat-value" id="stockDiamond">0</div><div class="stat-label">Diamond Items</div></div>
+      <div class="stat-card artificial"><div class="stat-icon">✨</div><div class="stat-value" id="stockArtificial">0</div><div class="stat-label">Artificial Items</div></div>
     </div>
 
     <h2 class="section-title">➕ Add Stock Entry</h2>
@@ -65,44 +47,21 @@
             <option value="artificial">Artificial</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Item Name *</label>
-          <input type="text" id="stItem" class="form-input" placeholder="e.g., Gold Necklace Set">
-        </div>
+        <div class="form-group"><label class="form-label">Item Name *</label><input type="text" id="stItem" class="form-input" placeholder="e.g., Gold Necklace Set"></div>
       </div>
-
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Quantity</label>
-          <input type="number" id="stQty" class="form-input" value="1" min="1">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Weight (grams)</label>
-          <input type="number" id="stWeight" class="form-input" step="0.001" placeholder="0.000">
-        </div>
+        <div class="form-group"><label class="form-label">Quantity</label><input type="number" id="stQty" class="form-input" value="1" min="1"></div>
+        <div class="form-group"><label class="form-label">Weight (grams)</label><input type="number" id="stWeight" class="form-input" step="0.001" placeholder="0.000"></div>
       </div>
-
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Cost Price (Rs)</label>
-          <input type="number" id="stCost" class="form-input" placeholder="0">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Sale Price (Rs)</label>
-          <input type="number" id="stSale" class="form-input" placeholder="0">
-        </div>
+        <div class="form-group"><label class="form-label">Cost Price (Rs)</label><input type="number" id="stCost" class="form-input" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Sale Price (Rs)</label><input type="number" id="stSale" class="form-input" placeholder="0"></div>
       </div>
-
-      <button class="btn-primary" onclick="saveStock()" style="width: 100%;">💾 Add to Store</button>
+      <button class="btn-primary" onclick="saveStock()" style="width:100%;">💾 Add to Store</button>
     </div>
 
     <h2 class="section-title">📋 Store Items</h2>
-    <div class="data-list" id="storeList">
-      <div class="empty-state">
-        <div class="icon">📦</div>
-        <p>No items in store yet</p>
-      </div>
-    </div>
+    <div class="data-list" id="storeList"><div class="empty-state"><div class="icon">📦</div><p>No items in store yet</p></div></div>
   </div>
 
   <script src="db.js"></script>
@@ -111,37 +70,30 @@
     async function saveStock() {
       const item = document.getElementById('stItem').value.trim();
       if (!item) { alert('❌ Please enter item name'); return; }
-
       const stock = {
         category: document.getElementById('stCategory').value,
-        item: item,
+        item,
         qty: parseInt(document.getElementById('stQty').value) || 1,
         weight: parseFloat(document.getElementById('stWeight').value) || 0,
         cost: parseFloat(document.getElementById('stCost').value) || 0,
-        sale: parseFloat(document.getElementById('stSale').value) || 0,
-        date: new Date().toISOString()
+        sale: parseFloat(document.getElementById('stSale').value) || 0
       };
-
-      await addRecord('stock', stock);
-      alert('✅ Stock added!');
-      clearForm();
-      loadStore();
+      try {
+        await addRecord('stock', stock);
+        alert('✅ Stock added!');
+        clearForm(); loadStore();
+      } catch (e) { alert('❌ ' + e.message); }
     }
-
     function clearForm() {
-      ['stItem', 'stQty', 'stWeight', 'stCost', 'stSale'].forEach(id => {
-        document.getElementById(id).value = '';
-      });
+      ['stItem','stWeight','stCost','stSale'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('stQty').value = '1';
     }
 
     async function loadStore() {
       const stock = await getAllRecords('stock') || [];
       const container = document.getElementById('storeList');
-
-      // Stats
-      const goldWt = stock.filter(s => s.category === 'gold').reduce((sum, s) => sum + (s.weight || 0), 0);
-      const silverWt = stock.filter(s => s.category === 'silver').reduce((sum, s) => sum + (s.weight || 0), 0);
+      const goldWt = stock.filter(s => s.category === 'gold').reduce((sum, s) => sum + (parseFloat(s.weight) || 0), 0);
+      const silverWt = stock.filter(s => s.category === 'silver').reduce((sum, s) => sum + (parseFloat(s.weight) || 0), 0);
       const diamondCount = stock.filter(s => s.category === 'diamond').length;
       const artificialCount = stock.filter(s => s.category === 'artificial').length;
 
@@ -150,32 +102,21 @@
       document.getElementById('stockDiamond').textContent = diamondCount;
       document.getElementById('stockArtificial').textContent = artificialCount;
 
-      if (stock.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="icon">📦</div><p>No items in store yet</p></div>';
-        return;
-      }
-
-      const catIcons = { gold: '👑', silver: '💍', diamond: '💎', artificial: '✨' };
-
-      container.innerHTML = stock.slice(-30).reverse().map(s => `
+      if (stock.length === 0) { container.innerHTML = '<div class="empty-state"><div class="icon">📦</div><p>No items in store yet</p></div>'; return; }
+      const catIcons = { gold:'👑', silver:'💍', diamond:'💎', artificial:'✨' };
+      container.innerHTML = stock.map(s => `
         <div class="data-item">
           <div>
             <div class="data-item-title">${catIcons[s.category] || '📦'} ${s.item}</div>
-            <div class="data-item-sub">Qty: ${s.qty} • Weight: ${s.weight}g • ${s.category.toUpperCase()}</div>
+            <div class="data-item-sub">Qty: ${s.qty} • Weight: ${s.weight}g • ${(s.category||'').toUpperCase()}</div>
           </div>
-          <div style="text-align: right;">
+          <div style="text-align:right;">
             <div class="data-item-value">${formatPKR(s.sale)}</div>
             <div class="data-item-sub">Cost: ${formatPKR(s.cost)}</div>
           </div>
-        </div>
-      `).join('');
+        </div>`).join('');
     }
-
-    document.addEventListener('DOMContentLoaded', async () => {
-      await initDB();
-      loadStore();
-    });
+    document.addEventListener('DOMContentLoaded', async () => { await initDB(); loadStore(); });
   </script>
-
 </body>
 </html>

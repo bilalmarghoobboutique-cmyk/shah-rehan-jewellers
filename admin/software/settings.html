@@ -37,7 +37,7 @@
   <div class="sw-nav">
     <button class="nav-btn" onclick="window.location.href='index.html'">🏠 Dashboard</button>
     <button class="nav-btn" onclick="window.location.href='sales.html'">💰 Sales</button>
-    <button class="nav-btn" onclick="window.location.href='stock.html'">📦 Stock</button>
+    <button class="nav-btn" onclick="window.location.href='store.html'">🏪 Store</button>
     <button class="nav-btn" onclick="window.location.href='customers.html'">👥 Customers</button>
     <button class="nav-btn" onclick="window.location.href='reports.html'">📊 Reports</button>
     <button class="nav-btn active">⚙️ Settings</button>
@@ -79,10 +79,26 @@
     </div>
 
     <div class="settings-card">
+      <h3>☁️ Cloud Database</h3>
+      <div class="setting-row">
+        <span class="setting-label">Provider</span>
+        <span class="setting-value">Supabase</span>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Project URL</span>
+        <span class="setting-value" id="dbUrl" style="font-size:0.75rem; word-break:break-all;">—</span>
+      </div>
+      <div class="setting-row">
+        <span class="setting-label">Status</span>
+        <span class="setting-value" id="dbStatus">Checking…</span>
+      </div>
+    </div>
+
+    <div class="settings-card">
       <h3>📱 App Info</h3>
       <div class="setting-row">
         <span class="setting-label">Version</span>
-        <span class="setting-value">1.0.0</span>
+        <span class="setting-value">2.0.0</span>
       </div>
       <div class="setting-row">
         <span class="setting-label">Developer</span>
@@ -96,30 +112,72 @@
 
     <div class="settings-card">
       <h3>🗑️ Danger Zone</h3>
-      <button class="btn-danger" onclick="clearAllData()">Clear All Local Data</button>
-      <p style="color: #B8B8B8; font-size: 0.8rem; margin-top: 10px;">This will delete all sales, customers, and stock records from this device.</p>
+      <button class="btn-danger" onclick="clearAllData()">Clear All Cloud Data</button>
+      <p style="color: #B8B8B8; font-size: 0.8rem; margin-top: 10px;">
+        This will delete all sales, customers, purchases, services, stock, suppliers and expenses from the cloud database.
+      </p>
     </div>
   </div>
 
   <script src="db.js"></script>
   <script>
-    async function clearAllData() {
-      if (!confirm('⚠️ Are you sure? This will delete ALL data from this device.')) return;
-      if (!confirm('⚠️ This action cannot be undone. Continue?')) return;
-      
-      await clearStore('sales');
-      await clearStore('stock');
-      await clearStore('customers');
-      await clearStore('expenses');
-      await clearStore('invoices');
-      
-      alert('✅ All data cleared');
-      window.location.href = 'index.html';
-    }
-    
+    // Show DB info + connection check on load
     document.addEventListener('DOMContentLoaded', async () => {
       await initDB();
+
+      const urlEl = document.getElementById('dbUrl');
+      const statusEl = document.getElementById('dbStatus');
+
+      if (urlEl && typeof SUPABASE_URL !== 'undefined') {
+        urlEl.textContent = SUPABASE_URL;
+      }
+
+      try {
+        // Ping the DB with a tiny query to confirm connection
+        await fetch(`${SUPABASE_URL}/rest/v1/customers?select=id&limit=1`, {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`
+          }
+        });
+        statusEl.textContent = '✅ Connected';
+        statusEl.style.color = '#86EFAC';
+      } catch (e) {
+        statusEl.textContent = '❌ Connection Error';
+        statusEl.style.color = '#FCA5A5';
+        console.error(e);
+      }
     });
+
+    async function clearAllData() {
+      if (!confirm('⚠️ Are you sure? This will delete ALL data from the cloud database.')) return;
+      if (!confirm('⚠️ This action cannot be undone. Continue?')) return;
+
+      const tables = [
+        'sales', 'stock', 'customers', 'expenses',
+        'purchases', 'services', 'old_gold', 'suppliers'
+      ];
+
+      let ok = 0, fail = 0;
+      for (const t of tables) {
+        try {
+          await clearStore(t);
+          ok++;
+          console.log(`✅ Cleared: ${t}`);
+        } catch (e) {
+          fail++;
+          console.warn(`⚠️ Failed to clear ${t}:`, e.message);
+        }
+      }
+
+      if (fail === 0) {
+        alert(`✅ All ${ok} tables cleared successfully.`);
+      } else {
+        alert(`⚠️ Cleared ${ok} tables, ${fail} failed.\nCheck console (F12) for details.`);
+      }
+
+      window.location.href = 'index.html';
+    }
   </script>
 </body>
 </html>

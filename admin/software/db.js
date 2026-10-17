@@ -1,95 +1,54 @@
-// ===== SHAH REHAN JEWELLERS – OFFLINE DATABASE =====
+// ===== SHAH REHAN JEWELLERS – SUPABASE + LOCAL DB =====
+const SUPABASE_URL = 'https://jwelbgexizmxdwozcxut.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3ZWxiZ2V4aXpteGR3b3pjeHV0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE5OTMwOTMsImV4cCI6MjEwNzU2OTA5M30.D_yqxv2sDzijObjHjMXDL-HsXAX6wPsM6s2-GVoQtuE';
 
-const DB_NAME = 'srj_jeweller_db';
-const DB_VERSION = 3;
-
-let db = null;
-
-async function initDB() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-    
-    request.onupgradeneeded = (event) => {
-      const database = event.target.result;
-      
-      const stores = [
-        'sales', 'purchases', 'services', 'stock',
-        'customers', 'suppliers', 'expenses', 'invoices',
-        'karigars', 'old_gold', 'supplier_payments', 'karigar_payments'
-      ];
-      
-      stores.forEach(store => {
-        if (!database.objectStoreNames.contains(store)) {
-          database.createObjectStore(store, { keyPath: 'id', autoIncrement: true });
-        }
-      });
-      
-      if (!database.objectStoreNames.contains('settings')) {
-        database.createObjectStore('settings', { keyPath: 'key' });
-      }
-    };
-    
-    request.onsuccess = (event) => {
-      db = event.target.result;
-      console.log('✅ DB opened');
-      resolve(db);
-    };
-    
-    request.onerror = (event) => reject(event.target.error);
+// ---------- Supabase helpers ----------
+async function sbFetch(path, options = {}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...options,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+      ...(options.headers || {})
+    }
   });
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(`Supabase ${res.status}: ${txt}`);
+  }
+  if (res.status === 204) return null;
+  return res.json();
 }
 
-function addRecord(storeName, data) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(storeName, 'readwrite');
-    const store = tx.objectStore(storeName);
-    const request = store.add(data);
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
+async function addRecord(storeName, data) {
+  const clean = { ...data };
+  delete clean.id;
+  delete clean.date;
+  const result = await sbFetch(storeName, { method: 'POST', body: JSON.stringify(clean) });
+  return Array.isArray(result) ? result[0] : result;
 }
 
-function getAllRecords(storeName) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(storeName, 'readonly');
-    const store = tx.objectStore(storeName);
-    const request = store.getAll();
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
+async function getAllRecords(storeName) {
+  const rows = await sbFetch(`${storeName}?select=*&order=created_at.desc`, { method: 'GET' });
+  return (rows || []).map(r => ({ ...r, date: r.created_at }));
 }
 
-function updateRecord(storeName, data) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(storeName, 'readwrite');
-    const store = tx.objectStore(storeName);
-    const request = store.put(data);
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
+async function updateRecord(storeName, data) {
+  const { id, ...rest } = data;
+  return sbFetch(`${storeName}?id=eq.${id}`, { method: 'PATCH', body: JSON.stringify(rest) });
 }
 
-function deleteRecord(storeName, id) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(storeName, 'readwrite');
-    const store = tx.objectStore(storeName);
-    const request = store.delete(id);
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
+async function deleteRecord(storeName, id) {
+  return sbFetch(`${storeName}?id=eq.${id}`, { method: 'DELETE' });
 }
 
-function clearStore(storeName) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(storeName, 'readwrite');
-    const store = tx.objectStore(storeName);
-    const request = store.clear();
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
+async function clearStore(storeName) {
+  return sbFetch(`${storeName}?id=gt.0`, { method: 'DELETE' });
 }
 
-// Image to base64 helper
+// ---------- Image helper ----------
 function fileToBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -97,4 +56,10 @@ function fileToBase64(file) {
     reader.onerror = () => reject(reader.error);
     reader.readAsDataURL(file);
   });
+}
+
+// Legacy shim
+async function initDB() {
+  console.log('✅ Supabase ready:', SUPABASE_URL);
+  return true;
 }

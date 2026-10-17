@@ -9,12 +9,10 @@
   <link rel="stylesheet" href="style-software.css">
 </head>
 <body>
-
   <div class="sw-header">
     <div class="sw-logo">🔧 Karigar Services</div>
     <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-family: 'Poppins', sans-serif;">← Back</button>
   </div>
-
   <div class="sw-nav">
     <button class="nav-btn" onclick="navigate('index.html')">🏠 Dashboard</button>
     <button class="nav-btn" onclick="navigate('purchase.html')">🛒 Purchase</button>
@@ -27,30 +25,36 @@
     <button class="nav-btn" onclick="navigate('reports.html')">📊 Reports</button>
     <button class="nav-btn" onclick="navigate('settings.html')">⚙️ Settings</button>
   </div>
-
   <div class="sw-content">
     <h1 class="page-title">Karigar Services</h1>
-    <p class="page-subtitle">Manage karigars with contact info and receipts</p>
+    <p class="page-subtitle">Manage karigars – full info + charges + balance inline</p>
 
     <div class="form-card">
-      <h3 class="form-card-title">➕ Add Karigar / Service</h3>
-      
+      <h3 class="form-card-title">➕ Karigar Info</h3>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Karigar Name *</label>
           <input type="text" id="kName" class="form-input" placeholder="Karigar name">
         </div>
         <div class="form-group">
-          <label class="form-label">Phone Number *</label>
+          <label class="form-label">Phone *</label>
           <input type="tel" id="kPhone" class="form-input" placeholder="03XXXXXXXXX">
         </div>
       </div>
-
-      <div class="form-group">
-        <label class="form-label">Address</label>
-        <input type="text" id="kAddress" class="form-input" placeholder="Full address">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Address</label>
+          <input type="text" id="kAddress" class="form-input" placeholder="Full address">
+        </div>
+        <div class="form-group">
+          <label class="form-label">CNIC</label>
+          <input type="text" id="kCNIC" class="form-input" placeholder="XXXXX-XXXXXXX-X">
+        </div>
       </div>
+    </div>
 
+    <div class="form-card">
+      <h3 class="form-card-title">🔧 Service Details</h3>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Service Type</label>
@@ -67,7 +71,6 @@
           <input type="text" id="kItem" class="form-input" placeholder="e.g., Gold Ring 22K">
         </div>
       </div>
-
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Gold Given (grams)</label>
@@ -78,23 +81,27 @@
           <input type="number" id="kGoldReturned" class="form-input" step="0.001" placeholder="0.000">
         </div>
       </div>
-
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Service Charges (Rs)</label>
+          <label class="form-label">Service Charges (Rs) *</label>
           <input type="number" id="kCharges" class="form-input" placeholder="0">
         </div>
         <div class="form-group">
-          <label class="form-label">Amount Paid to Karigar (Rs)</label>
+          <label class="form-label">Paid to Karigar (Rs)</label>
           <input type="number" id="kPaid" class="form-input" placeholder="0">
         </div>
       </div>
-
       <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Balance / Udhaar (Rs)</label>
+          <input type="number" id="kBalance" class="form-input" readonly style="background:#2A2A2A; color:#FCD34D; font-weight:700;">
+        </div>
         <div class="form-group">
           <label class="form-label">Expected Delivery</label>
           <input type="date" id="kDelivery" class="form-input">
         </div>
+      </div>
+      <div class="form-row">
         <div class="form-group">
           <label class="form-label">Status</label>
           <select id="kStatus" class="form-select">
@@ -105,28 +112,22 @@
           </select>
         </div>
       </div>
-
       <div class="form-group">
-        <label class="form-label">📷 Karigar Photo / ID (Upload from mobile or desktop)</label>
-        <input type="file" id="kPhoto" class="form-input" accept="image/*" capture="environment" style="padding: 10px;">
-        <div id="kPhotoPreview" style="margin-top: 10px;"></div>
+        <label class="form-label">📷 Karigar Photo / ID</label>
+        <input type="file" id="kPhoto" class="form-input" accept="image/*" capture="environment" style="padding:10px;">
+        <div id="kPhotoPreview" style="margin-top:10px;"></div>
       </div>
-
       <div class="form-group">
         <label class="form-label">🧾 Receipt / Bill Image</label>
-        <input type="file" id="kReceipt" class="form-input" accept="image/*" capture="environment" style="padding: 10px;">
-        <div id="kReceiptPreview" style="margin-top: 10px;"></div>
+        <input type="file" id="kReceipt" class="form-input" accept="image/*" capture="environment" style="padding:10px;">
+        <div id="kReceiptPreview" style="margin-top:10px;"></div>
       </div>
-
-      <button class="btn-primary" onclick="saveService()" style="width: 100%;">💾 Save Service</button>
+      <button class="btn-primary" onclick="saveService()" style="width:100%;">💾 Save Service</button>
     </div>
 
     <h2 class="section-title">📋 Service Records</h2>
     <div class="data-list" id="servicesList">
-      <div class="empty-state">
-        <div class="icon">🔧</div>
-        <p>No services yet</p>
-      </div>
+      <div class="empty-state"><div class="icon">🔧</div><p>No services yet</p></div>
     </div>
   </div>
 
@@ -134,7 +135,7 @@
     <div class="modal-content">
       <h2 class="modal-title">Service Details</h2>
       <div id="viewContent"></div>
-      <button class="btn-secondary" onclick="closeViewModal()" style="width: 100%; margin-top: 20px;">Close</button>
+      <button class="btn-secondary" onclick="closeViewModal()" style="width:100%; margin-top:20px;">Close</button>
     </div>
   </div>
 
@@ -145,50 +146,50 @@
     let currentReceipt = null;
 
     document.getElementById('kPhoto')?.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        currentPhoto = await fileToBase64(file);
-        document.getElementById('kPhotoPreview').innerHTML = 
-          `<img src="${currentPhoto}" style="max-width: 200px; border-radius: 8px; border: 2px solid #FFD700;">`;
+      if (e.target.files[0]) {
+        currentPhoto = await fileToBase64(e.target.files[0]);
+        document.getElementById('kPhotoPreview').innerHTML = `<img src="${currentPhoto}" style="max-width:200px; border-radius:8px; border:2px solid #FFD700;">`;
+      }
+    });
+    document.getElementById('kReceipt')?.addEventListener('change', async (e) => {
+      if (e.target.files[0]) {
+        currentReceipt = await fileToBase64(e.target.files[0]);
+        document.getElementById('kReceiptPreview').innerHTML = `<img src="${currentReceipt}" style="max-width:200px; border-radius:8px; border:2px solid #FFD700;">`;
       }
     });
 
-    document.getElementById('kReceipt')?.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        currentReceipt = await fileToBase64(file);
-        document.getElementById('kReceiptPreview').innerHTML = 
-          `<img src="${currentReceipt}" style="max-width: 200px; border-radius: 8px; border: 2px solid #FFD700;">`;
-      }
-    });
+    function autoCalc() {
+      const charges = parseFloat(document.getElementById('kCharges').value) || 0;
+      const paid = parseFloat(document.getElementById('kPaid').value) || 0;
+      document.getElementById('kBalance').value = Math.max(0, charges - paid);
+    }
+    ['kCharges', 'kPaid'].forEach(id => document.getElementById(id)?.addEventListener('input', autoCalc));
 
     async function saveService() {
       const name = document.getElementById('kName').value.trim();
       const phone = document.getElementById('kPhone').value.trim();
       const item = document.getElementById('kItem').value.trim();
-
       if (!name || !phone || !item) {
         alert('❌ Name, phone, and item are required');
         return;
       }
-
       const service = {
         karigar_name: name,
         karigar_phone: phone,
         karigar_address: document.getElementById('kAddress').value.trim(),
+        karigar_cnic: document.getElementById('kCNIC').value.trim(),
         type: document.getElementById('kType').value,
         item: item,
         gold_given: parseFloat(document.getElementById('kGoldGiven').value) || 0,
         gold_returned: parseFloat(document.getElementById('kGoldReturned').value) || 0,
         charges: parseFloat(document.getElementById('kCharges').value) || 0,
         paid: parseFloat(document.getElementById('kPaid').value) || 0,
-        delivery: document.getElementById('kDelivery').value,
+        balance: parseFloat(document.getElementById('kBalance').value) || 0,
+        delivery: document.getElementById('kDelivery').value || null,
         status: document.getElementById('kStatus').value,
         photo: currentPhoto,
-        receipt: currentReceipt,
-        date: new Date().toISOString()
+        receipt: currentReceipt
       };
-
       try {
         await addRecord('services', service);
         alert('✅ Service saved!');
@@ -200,7 +201,7 @@
     }
 
     function clearForm() {
-      ['kName', 'kPhone', 'kAddress', 'kItem', 'kGoldGiven', 'kGoldReturned', 'kCharges', 'kPaid', 'kDelivery'].forEach(id => {
+      ['kName','kPhone','kAddress','kCNIC','kItem','kGoldGiven','kGoldReturned','kCharges','kPaid','kBalance','kDelivery'].forEach(id => {
         document.getElementById(id).value = '';
       });
       document.getElementById('kPhoto').value = '';
@@ -214,27 +215,18 @@
     async function loadServices() {
       const services = await getAllRecords('services') || [];
       const container = document.getElementById('servicesList');
-
       if (services.length === 0) {
         container.innerHTML = '<div class="empty-state"><div class="icon">🔧</div><p>No services yet</p></div>';
         return;
       }
-
-      const statusColors = {
-        'pending': '#FCD34D',
-        'in-progress': '#93C5FD',
-        'completed': '#86EFAC',
-        'delivered': '#4ADE80'
-      };
-
-      container.innerHTML = services.slice().reverse().map(s => `
+      const statusColors = { pending: '#FCD34D', 'in-progress': '#93C5FD', completed: '#86EFAC', delivered: '#4ADE80' };
+      container.innerHTML = services.map(s => `
         <div class="data-item">
           <div>
             <div class="data-item-title">${s.item}</div>
             <div class="data-item-sub">
               🔧 ${s.karigar_name} • 📞 ${s.karigar_phone}<br>
-              ${s.type} • 
-              <span style="color: ${statusColors[s.status] || '#FCD34D'}">${s.status.toUpperCase()}</span>
+              ${s.type} • <span style="color:${statusColors[s.status] || '#FCD34D'}">${(s.status || '').toUpperCase()}</span>
             </div>
             <div class="data-item-sub">Gold: ${s.gold_given || 0}g → ${s.gold_returned || 0}g</div>
             <div class="data-item-actions">
@@ -245,62 +237,29 @@
           <div style="text-align: right;">
             <div class="data-item-value">${formatPKR(s.charges)}</div>
             <div class="data-item-sub">Paid: ${formatPKR(s.paid)}</div>
+            ${s.balance > 0 ? `<div class="data-item-sub" style="color:#FCD34D;">Balance: ${formatPKR(s.balance)}</div>` : ''}
           </div>
         </div>
       `).join('');
     }
 
     function viewService(s) {
-      const html = `
-        <div style="padding: 15px 0;">
-          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
-            <span style="color: #B8B8B8;">Karigar:</span>
-            <strong style="color: #FFD700;">${s.karigar_name}</strong>
-          </div>
-          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
-            <span style="color: #B8B8B8;">Phone:</span>
-            <strong>${s.karigar_phone}</strong>
-          </div>
-          ${s.karigar_address ? `
-          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
-            <span style="color: #B8B8B8;">Address:</span>
-            <strong>${s.karigar_address}</strong>
-          </div>` : ''}
-          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
-            <span style="color: #B8B8B8;">Service:</span>
-            <strong>${s.type}</strong>
-          </div>
-          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
-            <span style="color: #B8B8B8;">Item:</span>
-            <strong>${s.item}</strong>
-          </div>
-          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
-            <span style="color: #B8B8B8;">Charges:</span>
-            <strong>${formatPKR(s.charges)}</strong>
-          </div>
-          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
-            <span style="color: #B8B8B8;">Paid:</span>
-            <strong>${formatPKR(s.paid)}</strong>
-          </div>
-          ${s.photo ? `
-          <div style="margin-top: 20px;">
-            <div style="color: #FFD700; margin-bottom: 10px;">👤 Karigar Photo:</div>
-            <img src="${s.photo}" style="width: 100%; max-width: 300px; border-radius: 8px; border: 2px solid #FFD700;">
-          </div>` : ''}
-          ${s.receipt ? `
-          <div style="margin-top: 20px;">
-            <div style="color: #FFD700; margin-bottom: 10px;">🧾 Receipt:</div>
-            <img src="${s.receipt}" style="width: 100%; border-radius: 8px; border: 2px solid #FFD700;">
-          </div>` : ''}
-        </div>
-      `;
-      document.getElementById('viewContent').innerHTML = html;
+      document.getElementById('viewContent').innerHTML = `
+        <div style="padding:15px 0;">
+          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Karigar:</span><strong style="color:#FFD700;">${s.karigar_name}</strong></div>
+          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Phone:</span><strong>${s.karigar_phone}</strong></div>
+          ${s.karigar_address ? `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Address:</span><strong>${s.karigar_address}</strong></div>` : ''}
+          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Item:</span><strong>${s.item}</strong></div>
+          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Charges:</span><strong>${formatPKR(s.charges)}</strong></div>
+          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Paid:</span><strong>${formatPKR(s.paid)}</strong></div>
+          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Balance:</span><strong style="color:${(s.balance||0)>0?'#FCD34D':'#86EFAC'};">${formatPKR(s.balance)}</strong></div>
+          ${s.photo ? `<div style="margin-top:20px;"><div style="color:#FFD700; margin-bottom:10px;">👤 Karigar Photo:</div><img src="${s.photo}" style="width:100%; max-width:300px; border-radius:8px; border:2px solid #FFD700;"></div>` : ''}
+          ${s.receipt ? `<div style="margin-top:20px;"><div style="color:#FFD700; margin-bottom:10px;">🧾 Receipt:</div><img src="${s.receipt}" style="width:100%; border-radius:8px; border:2px solid #FFD700;"></div>` : ''}
+        </div>`;
       document.getElementById('viewModal').classList.add('active');
     }
 
-    function closeViewModal() {
-      document.getElementById('viewModal').classList.remove('active');
-    }
+    function closeViewModal() { document.getElementById('viewModal').classList.remove('active'); }
 
     async function deleteService(id) {
       if (!confirm('Delete this service?')) return;
@@ -313,6 +272,5 @@
       loadServices();
     });
   </script>
-
 </body>
 </html>

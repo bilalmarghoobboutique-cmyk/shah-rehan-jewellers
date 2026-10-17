@@ -1,4 +1,4 @@
-// ===== SHAH REHAN JEWELLERS – SOFTWARE LOGIC =====
+// ===== SHAH REHAN JEWELLERS – SHARED APP LOGIC =====
 
 function formatPKR(amount) {
   return 'Rs ' + Math.round(amount || 0).toLocaleString('en-PK');
@@ -17,12 +17,25 @@ function generateInvoiceNumber() {
   return `SRJ-${dateStr}-${random}`;
 }
 
-// Navigation helper
-function navigate(page) {
-  window.location.href = page;
+function navigate(page) { window.location.href = page; }
+
+// ---------- Date helpers for reports ----------
+function getDayKey(d) { return new Date(d).toISOString().slice(0, 10); }
+function getMonthKey(d) { return new Date(d).toISOString().slice(0, 7); }
+
+function getWeekKey(d) {
+  const date = new Date(d);
+  const temp = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = temp.getUTCDay() || 7;
+  temp.setUTCDate(temp.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(temp.getUTCFullYear(), 0, 1));
+  const weekNo = Math.ceil((((temp - yearStart) / 86400000) + 1) / 7);
+  return `${temp.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
 }
 
-// ===== DASHBOARD =====
+function getYearKey(d) { return new Date(d).getFullYear().toString(); }
+
+// ---------- DASHBOARD ----------
 async function loadDashboard() {
   try {
     const sales = await getAllRecords('sales') || [];
@@ -30,19 +43,17 @@ async function loadDashboard() {
     const customers = await getAllRecords('customers') || [];
     const stock = await getAllRecords('stock') || [];
     const services = await getAllRecords('services') || [];
-    
+
     const today = new Date().toISOString().slice(0, 10);
     const thisMonth = new Date().toISOString().slice(0, 7);
-    
+
     const todaySales = sales.filter(s => s.date?.startsWith(today))
       .reduce((sum, s) => sum + (parseFloat(s.total) || 0), 0);
-    
     const monthSales = sales.filter(s => s.date?.startsWith(thisMonth))
       .reduce((sum, s) => sum + (parseFloat(s.total) || 0), 0);
-    
     const monthPurchases = purchases.filter(s => s.date?.startsWith(thisMonth))
       .reduce((sum, s) => sum + (parseFloat(s.total) || 0), 0);
-    
+
     const el = (id) => document.getElementById(id);
     if (el('todaySales')) el('todaySales').textContent = formatPKR(todaySales);
     if (el('monthSales')) el('monthSales').textContent = formatPKR(monthSales);
@@ -50,9 +61,8 @@ async function loadDashboard() {
     if (el('totalCustomers')) el('totalCustomers').textContent = customers.length;
     if (el('stockItems')) el('stockItems').textContent = stock.length;
     if (el('totalServices')) el('totalServices').textContent = services.length;
-    
-    // Recent sales
-    const recent = sales.slice(-5).reverse();
+
+    const recent = sales.slice(0, 5);
     const container = el('recentSales');
     if (container) {
       if (recent.length === 0) {

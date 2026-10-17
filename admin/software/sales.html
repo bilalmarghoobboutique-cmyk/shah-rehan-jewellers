@@ -37,9 +37,9 @@
       <button class="cat-tab artificial" onclick="switchCat('artificial', this)">✨ Artificial</button>
     </div>
 
+    <!-- CUSTOMER INFO -->
     <div class="form-card">
       <h3 class="form-card-title">👤 Customer Info</h3>
-      
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Customer Name *</label>
@@ -50,16 +50,15 @@
           <input type="tel" id="cPhone" class="form-input" placeholder="03XXXXXXXXX">
         </div>
       </div>
-
       <div class="form-group">
         <label class="form-label">Address</label>
         <input type="text" id="cAddress" class="form-input" placeholder="City / Area">
       </div>
     </div>
 
+    <!-- ITEM DETAILS -->
     <div class="form-card">
       <h3 class="form-card-title" id="itemTitle">👑 Item Details</h3>
-      
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Item Description *</label>
@@ -115,28 +114,23 @@
       </div>
     </div>
 
+    <!-- TOTAL CALC -->
     <div class="form-card" style="background: linear-gradient(135deg, #1C1C1C, #2A2A2A); border-color: #FFD700;">
       <h3 class="form-card-title">📊 Total Calculation</h3>
-      
       <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
-        <span>Metal Value:</span>
-        <strong id="calMetal" style="color: #FFF8DC;">Rs 0</strong>
+        <span>Metal Value:</span><strong id="calMetal" style="color: #FFF8DC;">Rs 0</strong>
       </div>
       <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
-        <span>Making + Polish:</span>
-        <strong id="calMaking" style="color: #FFF8DC;">Rs 0</strong>
+        <span>Making + Polish:</span><strong id="calMaking" style="color: #FFF8DC;">Rs 0</strong>
       </div>
       <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
-        <span>Subtotal:</span>
-        <strong id="calSubtotal" style="color: #FFF8DC;">Rs 0</strong>
+        <span>Subtotal:</span><strong id="calSubtotal" style="color: #FFF8DC;">Rs 0</strong>
       </div>
       <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
-        <span>GST:</span>
-        <strong id="calGST" style="color: #FFF8DC;">Rs 0</strong>
+        <span>GST:</span><strong id="calGST" style="color: #FFF8DC;">Rs 0</strong>
       </div>
       <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
-        <span>Discount:</span>
-        <strong id="calDiscount" style="color: #FCA5A5;">Rs 0</strong>
+        <span>Discount:</span><strong id="calDiscount" style="color: #FCA5A5;">Rs 0</strong>
       </div>
       <div style="display: flex; justify-content: space-between; padding: 15px 0; border-top: 2px solid #FFD700; margin-top: 10px; font-size: 1.3rem;">
         <span style="color: #FFD700; font-weight: 700;">TOTAL:</span>
@@ -144,6 +138,7 @@
       </div>
     </div>
 
+    <!-- PAYMENT -->
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">Payment Mode</label>
@@ -155,14 +150,14 @@
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">Amount Paid (Rs)</label>
+        <label class="form-label">Received Amount (Rs)</label>
         <input type="number" id="sPaid" class="form-input" placeholder="0">
       </div>
     </div>
 
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Remaining (Rs)</label>
+        <label class="form-label">Balance Amount (Rs)</label>
         <input type="number" id="sRemaining" class="form-input" readonly style="background: #2A2A2A; color: #FCD34D; font-weight: 700;">
       </div>
       <div class="form-group">
@@ -177,18 +172,14 @@
     </div>
   </div>
 
-  <!-- Invoice Preview Modal -->
+  <!-- Invoice Modal -->
   <div id="invoiceModal" class="modal">
     <div class="modal-content" style="max-width: 900px;">
       <div class="no-print" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <h2 class="modal-title" style="margin: 0;">📄 Invoice Preview</h2>
         <button onclick="closeInvoice()" style="background: none; border: none; color: #FFD700; font-size: 1.5rem; cursor: pointer;">×</button>
       </div>
-
-      <div id="invoiceContent" class="invoice-container">
-        <!-- Invoice content will be generated here -->
-      </div>
-
+      <div id="invoiceContent" class="invoice-container"></div>
       <div class="no-print" style="display: flex; gap: 12px; margin-top: 20px;">
         <button class="btn-primary" onclick="printInvoice()" style="flex: 1;">🖨️ Print Invoice</button>
         <button class="btn-secondary" onclick="closeInvoice()" style="flex: 1;">Close</button>
@@ -198,34 +189,24 @@
 
   <h2 class="section-title">📋 Recent Sales</h2>
   <div class="data-list" id="salesList">
-    <div class="empty-state">
-      <div class="icon">💰</div>
-      <p>No sales yet</p>
-    </div>
+    <div class="empty-state"><div class="icon">💰</div><p>No sales yet</p></div>
   </div>
 
   <script src="db.js"></script>
   <script src="app.js"></script>
   <script>
     let currentCat = 'gold';
-    let lastSaleId = null;
 
     function switchCat(cat, btn) {
       currentCat = cat;
       document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
       btn.classList.add('active');
-
       const titles = {
-        gold: '👑 Gold Item Details',
-        silver: '💍 Silver Item Details',
-        diamond: '💎 Diamond Item Details',
-        artificial: '✨ Artificial Item Details'
+        gold: '👑 Gold Item Details', silver: '💍 Silver Item Details',
+        diamond: '💎 Diamond Item Details', artificial: '✨ Artificial Item Details'
       };
       document.getElementById('itemTitle').textContent = titles[cat];
-
-      const karatGroup = document.getElementById('karatGroup');
-      karatGroup.style.display = (cat === 'artificial') ? 'none' : 'block';
-
+      document.getElementById('karatGroup').style.display = (cat === 'artificial') ? 'none' : 'block';
       autoCalc();
     }
 
@@ -250,7 +231,6 @@
       document.getElementById('calDiscount').textContent = formatPKR(discount);
       document.getElementById('calTotal').textContent = formatPKR(total);
 
-      // Auto-fill remaining
       const paid = parseFloat(document.getElementById('sPaid').value) || 0;
       const remaining = Math.max(0, total - paid);
       document.getElementById('sRemaining').value = Math.round(remaining);
@@ -263,7 +243,8 @@
     async function saveSale() {
       const customer = document.getElementById('cName').value.trim();
       const item = document.getElementById('sItem').value.trim();
-      const total = parseFloat(document.getElementById('calTotal').textContent.replace(/[^0-9]/g, '')) || 0;
+      const totalText = document.getElementById('calTotal').textContent.replace(/[^0-9]/g, '');
+      const total = parseFloat(totalText) || 0;
 
       if (!customer || !item || total <= 0) {
         alert('❌ Please fill customer name, item, and valid amounts');
@@ -285,17 +266,16 @@
         discount: parseFloat(document.getElementById('sDiscount').value) || 0,
         total: total,
         payment_mode: document.getElementById('sPayment').value,
-        paid: parseFloat(document.getElementById('sPaid').value) || 0,
-        remaining: parseFloat(document.getElementById('sRemaining').value) || 0,
+        received: parseFloat(document.getElementById('sPaid').value) || 0,
+        balance: parseFloat(document.getElementById('sRemaining').value) || 0,
         notes: document.getElementById('sNotes').value.trim(),
-        invoice_number: generateInvoiceNumber(),
-        date: new Date().toISOString()
+        invoice_number: generateInvoiceNumber()
       };
 
       try {
-        lastSaleId = await addRecord('sales', sale);
-        sale.id = lastSaleId;
-        showInvoice(sale);
+        const saved = await addRecord('sales', sale);
+        const full = Array.isArray(saved) ? saved[0] : saved;
+        showInvoice({ ...sale, ...full });
         loadSales();
       } catch (error) {
         alert('❌ Error: ' + error.message);
@@ -303,12 +283,13 @@
     }
 
     function showInvoice(sale) {
-      const invoiceNumber = sale.invoice_number;
-      const date = new Date(sale.date).toLocaleDateString('en-PK', {
+      const date = new Date(sale.created_at || sale.date || Date.now()).toLocaleDateString('en-PK', {
         day: '2-digit', month: 'long', year: 'numeric'
       });
+      const received = sale.received || 0;
+      const balance = sale.balance || 0;
 
-      const html = `
+      document.getElementById('invoiceContent').innerHTML = `
         <div class="invoice-header">
           <div>
             <div class="invoice-shop-name">SHAH REHAN JEWELLERS</div>
@@ -320,11 +301,10 @@
           </div>
           <div class="invoice-number">
             <div class="label">Invoice #</div>
-            <div class="value">${invoiceNumber}</div>
+            <div class="value">${sale.invoice_number}</div>
             <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">${date}</div>
           </div>
         </div>
-
         <div class="invoice-details">
           <div>
             <div class="section-title">Bill To:</div>
@@ -334,22 +314,14 @@
           </div>
           <div>
             <div class="section-title">Payment:</div>
-            <p>Mode: ${sale.payment_mode.toUpperCase()}</p>
-            <p>Paid: Rs ${sale.paid.toLocaleString()}</p>
-            ${sale.remaining > 0 ? `<p style="color: #DC2626;">Remaining: Rs ${sale.remaining.toLocaleString()}</p>` : '<p style="color: #25D366;">Fully Paid ✓</p>'}
+            <p>Mode: ${(sale.payment_mode || '').toUpperCase()}</p>
+            <p>Received: Rs ${received.toLocaleString()}</p>
+            ${balance > 0 ? `<p style="color: #DC2626;">Balance: Rs ${balance.toLocaleString()}</p>` : '<p style="color: #25D366;">Fully Paid ✓</p>'}
           </div>
         </div>
-
         <table class="invoice-table">
           <thead>
-            <tr>
-              <th>#</th>
-              <th>Description</th>
-              <th>Karat</th>
-              <th>Weight</th>
-              <th>Rate</th>
-              <th style="text-align: right;">Amount</th>
-            </tr>
+            <tr><th>#</th><th>Description</th><th>Karat</th><th>Weight</th><th>Rate</th><th style="text-align:right;">Amount</th></tr>
           </thead>
           <tbody>
             <tr>
@@ -357,59 +329,29 @@
               <td>${sale.items_summary}</td>
               <td>${sale.karat || '—'}</td>
               <td>${sale.weight}g</td>
-              <td>Rs ${sale.rate.toLocaleString()}</td>
-              <td style="text-align: right;">Rs ${(sale.weight * sale.rate).toLocaleString()}</td>
+              <td>Rs ${(sale.rate||0).toLocaleString()}</td>
+              <td style="text-align:right;">Rs ${((sale.weight||0) * (sale.rate||0)).toLocaleString()}</td>
             </tr>
           </tbody>
         </table>
-
         <div class="invoice-totals">
           <div class="invoice-totals-inner">
-            <div class="invoice-total-row">
-              <span>Metal Value:</span>
-              <span>Rs ${(sale.weight * sale.rate).toLocaleString()}</span>
-            </div>
-            <div class="invoice-total-row">
-              <span>Making + Polish:</span>
-              <span>Rs ${(sale.making + sale.polish).toLocaleString()}</span>
-            </div>
-            <div class="invoice-total-row">
-              <span>Subtotal:</span>
-              <span>Rs ${((sale.weight * sale.rate) + sale.making + sale.polish).toLocaleString()}</span>
-            </div>
-            <div class="invoice-total-row">
-              <span>GST (${sale.gst_pct}%):</span>
-              <span>Rs ${Math.round(((sale.weight * sale.rate) + sale.making + sale.polish) * sale.gst_pct / 100).toLocaleString()}</span>
-            </div>
-            ${sale.discount > 0 ? `
-            <div class="invoice-total-row">
-              <span>Discount:</span>
-              <span style="color: #DC2626;">- Rs ${sale.discount.toLocaleString()}</span>
-            </div>
-            ` : ''}
-            <div class="invoice-total-row grand">
-              <span>GRAND TOTAL:</span>
-              <span>Rs ${sale.total.toLocaleString()}</span>
-            </div>
+            <div class="invoice-total-row"><span>Metal Value:</span><span>Rs ${((sale.weight||0)*(sale.rate||0)).toLocaleString()}</span></div>
+            <div class="invoice-total-row"><span>Making + Polish:</span><span>Rs ${((sale.making||0)+(sale.polish||0)).toLocaleString()}</span></div>
+            <div class="invoice-total-row"><span>Subtotal:</span><span>Rs ${(((sale.weight||0)*(sale.rate||0))+(sale.making||0)+(sale.polish||0)).toLocaleString()}</span></div>
+            <div class="invoice-total-row"><span>GST (${sale.gst_pct}%):</span><span>Rs ${Math.round((((sale.weight||0)*(sale.rate||0))+(sale.making||0)+(sale.polish||0))*(sale.gst_pct||0)/100).toLocaleString()}</span></div>
+            ${sale.discount > 0 ? `<div class="invoice-total-row"><span>Discount:</span><span style="color:#DC2626;">- Rs ${sale.discount.toLocaleString()}</span></div>` : ''}
+            <div class="invoice-total-row grand"><span>GRAND TOTAL:</span><span>Rs ${(sale.total||0).toLocaleString()}</span></div>
           </div>
         </div>
-
         ${sale.notes ? `<div style="margin-top: 15px; padding: 12px; background: #FAF7F0; border-radius: 6px; font-size: 0.85rem;"><strong>Notes:</strong> ${sale.notes}</div>` : ''}
-
         <div class="invoice-footer">
           <p><strong>Thank you for shopping with SHAH REHAN JEWELLERS</strong></p>
           <p style="margin-top: 5px;">For any queries, contact us at 0092 326 6501314</p>
-
-          <div class="invoice-taglines">
-            آپ کا آرڈر رازداری کے ساتھ آپ تک پہنچایا جائے گا<br>
-            آخر میں آپ کا اعتماد، ہماری ضمانت
-          </div>
-
+          <div class="invoice-taglines">آپ کا آرڈر رازداری کے ساتھ آپ تک پہنچایا جائے گا<br>آخر میں آپ کا اعتماد، ہماری ضمانت</div>
           <p class="invoice-creator">Designed by Bilal Marghoob Creations | 0092 326 69501314</p>
         </div>
       `;
-
-      document.getElementById('invoiceContent').innerHTML = html;
       document.getElementById('invoiceModal').classList.add('active');
     }
 
@@ -417,13 +359,10 @@
       document.getElementById('invoiceModal').classList.remove('active');
       clearAll();
     }
-
-    function printInvoice() {
-      window.print();
-    }
+    function printInvoice() { window.print(); }
 
     function clearAll() {
-      ['cName', 'cPhone', 'cAddress', 'sItem', 'sWeight', 'sRate', 'sMaking', 'sPolish', 'sDiscount', 'sPaid', 'sRemaining', 'sNotes'].forEach(id => {
+      ['cName','cPhone','cAddress','sItem','sWeight','sRate','sMaking','sPolish','sDiscount','sPaid','sRemaining','sNotes'].forEach(id => {
         document.getElementById(id).value = '';
       });
       document.getElementById('sGST').value = '3';
@@ -433,21 +372,16 @@
     async function loadSales() {
       const sales = await getAllRecords('sales') || [];
       const container = document.getElementById('salesList');
-
       if (sales.length === 0) {
         container.innerHTML = '<div class="empty-state"><div class="icon">💰</div><p>No sales yet</p></div>';
         return;
       }
-
       const catIcons = { gold: '👑', silver: '💍', diamond: '💎', artificial: '✨' };
-
-      container.innerHTML = sales.slice(-20).reverse().map(s => `
+      container.innerHTML = sales.slice(0, 20).map(s => `
         <div class="data-item">
           <div>
             <div class="data-item-title">${catIcons[s.category] || '💰'} ${s.items_summary}</div>
-            <div class="data-item-sub">
-              ${s.customer_name} • ${s.invoice_number} • ${formatDate(s.date)}
-            </div>
+            <div class="data-item-sub">${s.customer_name} • ${s.invoice_number} • ${formatDate(s.date)}</div>
             <div class="data-item-actions">
               <button class="btn-icon print" onclick='reprintInvoice(${JSON.stringify(s).replace(/'/g, "&#39;")})'>🖨️ Print</button>
               <button class="btn-icon delete" onclick="deleteSale(${s.id})">🗑️ Delete</button>
@@ -455,15 +389,13 @@
           </div>
           <div style="text-align: right;">
             <div class="data-item-value">${formatPKR(s.total)}</div>
-            ${s.remaining > 0 ? `<div class="data-item-sub" style="color: #FCD34D;">Due: ${formatPKR(s.remaining)}</div>` : '<div class="data-item-sub" style="color: #86EFAC;">Paid ✓</div>'}
+            ${s.balance > 0 ? `<div class="data-item-sub" style="color:#FCD34D;">Due: ${formatPKR(s.balance)}</div>` : '<div class="data-item-sub" style="color:#86EFAC;">Paid ✓</div>'}
           </div>
         </div>
       `).join('');
     }
 
-    function reprintInvoice(sale) {
-      showInvoice(sale);
-    }
+    function reprintInvoice(sale) { showInvoice(sale); }
 
     async function deleteSale(id) {
       if (!confirm('Delete this sale?')) return;
@@ -476,6 +408,5 @@
       loadSales();
     });
   </script>
-
 </body>
 </html>

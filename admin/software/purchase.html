@@ -9,12 +9,10 @@
   <link rel="stylesheet" href="style-software.css">
 </head>
 <body>
-
   <div class="sw-header">
     <div class="sw-logo">🛒 Purchase</div>
     <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-family: 'Poppins', sans-serif;">← Back</button>
   </div>
-
   <div class="sw-nav">
     <button class="nav-btn" onclick="navigate('index.html')">🏠 Dashboard</button>
     <button class="nav-btn active">🛒 Purchase</button>
@@ -22,13 +20,14 @@
     <button class="nav-btn" onclick="navigate('store.html')">🏪 Store</button>
     <button class="nav-btn" onclick="navigate('sales.html')">💰 Sales</button>
     <button class="nav-btn" onclick="navigate('customers.html')">👥 Customers</button>
+    <button class="nav-btn" onclick="navigate('suppliers.html')">📦 Suppliers</button>
+    <button class="nav-btn" onclick="navigate('expenses.html')">💵 Expenses</button>
     <button class="nav-btn" onclick="navigate('reports.html')">📊 Reports</button>
     <button class="nav-btn" onclick="navigate('settings.html')">⚙️ Settings</button>
   </div>
-
   <div class="sw-content">
     <h1 class="page-title">Purchase Entry</h1>
-    <p class="page-subtitle">Record new purchases from suppliers</p>
+    <p class="page-subtitle">Record purchases – full supplier info inline</p>
 
     <div class="category-tabs">
       <button class="cat-tab gold active" onclick="switchCategory('gold', this)">👑 Gold</button>
@@ -37,22 +36,40 @@
       <button class="cat-tab artificial" onclick="switchCategory('artificial', this)">✨ Artificial</button>
     </div>
 
+    <!-- SUPPLIER INFO -->
     <div class="form-card">
-      <h3 class="form-card-title" id="formTitle">👑 Gold Purchase Details</h3>
-      
+      <h3 class="form-card-title">📦 Supplier / Vendor Info</h3>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Supplier Name *</label>
-          <input type="text" id="pSupplier" class="form-input" placeholder="Enter supplier name">
+          <input type="text" id="pSupplier" class="form-input" placeholder="Supplier name">
         </div>
+        <div class="form-group">
+          <label class="form-label">Phone *</label>
+          <input type="tel" id="pPhone" class="form-input" placeholder="03XXXXXXXXX">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Address</label>
+          <input type="text" id="pAddress" class="form-input" placeholder="Full address">
+        </div>
+        <div class="form-group">
+          <label class="form-label">CNIC / ID</label>
+          <input type="text" id="pCNIC" class="form-input" placeholder="XXXXX-XXXXXXX-X">
+        </div>
+      </div>
+    </div>
+
+    <!-- ITEM DETAILS -->
+    <div class="form-card">
+      <h3 class="form-card-title" id="formTitle">👑 Gold Purchase Details</h3>
+      <div class="form-row">
         <div class="form-group">
           <label class="form-label">Invoice/Bill #</label>
           <input type="text" id="pInvoice" class="form-input" placeholder="Supplier bill no.">
         </div>
-      </div>
-
-      <div class="form-row" id="karatRow">
-        <div class="form-group">
+        <div class="form-group" id="karatRow">
           <label class="form-label">Karat</label>
           <select id="pKarat" class="form-select">
             <option value="24K">24K</option>
@@ -66,12 +83,11 @@
             <option value="8K">8K</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Item Description *</label>
-          <input type="text" id="pItem" class="form-input" placeholder="e.g., Gold Necklace Set">
-        </div>
       </div>
-
+      <div class="form-group">
+        <label class="form-label">Item Description *</label>
+        <input type="text" id="pItem" class="form-input" placeholder="e.g., Gold Necklace Set">
+      </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Weight (grams) *</label>
@@ -82,11 +98,20 @@
           <input type="number" id="pRate" class="form-input" placeholder="0">
         </div>
       </div>
-
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Total Cost (Rs) *</label>
           <input type="number" id="pTotal" class="form-input" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Paid Amount (Rs)</label>
+          <input type="number" id="pPaid" class="form-input" placeholder="0">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Balance / Udhaar (Rs)</label>
+          <input type="number" id="pBalance" class="form-input" readonly style="background:#2A2A2A; color:#FCD34D; font-weight:700;">
         </div>
         <div class="form-group">
           <label class="form-label">Payment Mode</label>
@@ -98,21 +123,21 @@
           </select>
         </div>
       </div>
-
+      <div class="form-group">
+        <label class="form-label">📷 Bill Image</label>
+        <input type="file" id="pBillImage" class="form-input" accept="image/*" capture="environment" style="padding:10px;">
+        <div id="pBillPreview" style="margin-top:10px;"></div>
+      </div>
       <div class="form-group">
         <label class="form-label">Notes</label>
         <input type="text" id="pNotes" class="form-input" placeholder="Any additional notes">
       </div>
-
-      <button class="btn-primary" onclick="savePurchase()" style="width: 100%; margin-top: 10px;">💾 Save Purchase</button>
+      <button class="btn-primary" onclick="savePurchase()" style="width:100%; margin-top:10px;">💾 Save Purchase</button>
     </div>
 
     <h2 class="section-title">📋 Recent Purchases</h2>
     <div class="data-list" id="purchasesList">
-      <div class="empty-state">
-        <div class="icon">🛒</div>
-        <p>No purchases yet</p>
-      </div>
+      <div class="empty-state"><div class="icon">🛒</div><p>No purchases yet</p></div>
     </div>
   </div>
 
@@ -120,24 +145,26 @@
   <script src="app.js"></script>
   <script>
     let currentCategory = 'gold';
+    let pBillImage = null;
+
+    document.getElementById('pBillImage')?.addEventListener('change', async (e) => {
+      if (e.target.files[0]) {
+        pBillImage = await fileToBase64(e.target.files[0]);
+        document.getElementById('pBillPreview').innerHTML = `<img src="${pBillImage}" style="max-width:200px; border-radius:8px; border:2px solid #FFD700;">`;
+      }
+    });
 
     function switchCategory(cat, btn) {
       currentCategory = cat;
       document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
       btn.classList.add('active');
-
       const titles = {
-        gold: '👑 Gold Purchase Details',
-        silver: '💍 Silver Purchase Details',
-        diamond: '💎 Diamond Purchase Details',
-        artificial: '✨ Artificial Purchase Details'
+        gold: '👑 Gold Purchase Details', silver: '💍 Silver Purchase Details',
+        diamond: '💎 Diamond Purchase Details', artificial: '✨ Artificial Purchase Details'
       };
       document.getElementById('formTitle').textContent = titles[cat];
-
-      // Hide karat for silver & artificial
       const karatRow = document.getElementById('karatRow');
       if (cat === 'silver' || cat === 'artificial') {
-        document.getElementById('pKarat').value = '';
         karatRow.querySelector('.form-group').style.display = 'none';
       } else {
         karatRow.querySelector('.form-group').style.display = 'block';
@@ -147,39 +174,40 @@
     function autoCalc() {
       const weight = parseFloat(document.getElementById('pWeight').value) || 0;
       const rate = parseFloat(document.getElementById('pRate').value) || 0;
-      document.getElementById('pTotal').value = Math.round(weight * rate);
+      const total = Math.round(weight * rate);
+      document.getElementById('pTotal').value = total;
+      const paid = parseFloat(document.getElementById('pPaid').value) || 0;
+      document.getElementById('pBalance').value = Math.max(0, total - paid);
     }
-
-    ['pWeight', 'pRate'].forEach(id => {
-      document.getElementById(id)?.addEventListener('input', autoCalc);
-    });
+    ['pWeight', 'pRate', 'pPaid'].forEach(id => document.getElementById(id)?.addEventListener('input', autoCalc));
 
     async function savePurchase() {
       const supplier = document.getElementById('pSupplier').value.trim();
+      const phone = document.getElementById('pPhone').value.trim();
       const item = document.getElementById('pItem').value.trim();
-      const weight = parseFloat(document.getElementById('pWeight').value) || 0;
-      const rate = parseFloat(document.getElementById('pRate').value) || 0;
       const total = parseFloat(document.getElementById('pTotal').value) || 0;
-
-      if (!supplier || !item || total <= 0) {
-        alert('❌ Please fill all required fields');
+      if (!supplier || !phone || !item || total <= 0) {
+        alert('❌ Please fill supplier name, phone, item, and valid amounts');
         return;
       }
-
       const purchase = {
         category: currentCategory,
-        supplier: supplier,
+        supplier_name: supplier,
+        supplier_phone: phone,
+        supplier_address: document.getElementById('pAddress').value.trim(),
+        supplier_cnic: document.getElementById('pCNIC').value.trim(),
         invoice_no: document.getElementById('pInvoice').value.trim(),
         karat: document.getElementById('pKarat').value,
         item: item,
-        weight: weight,
-        rate: rate,
+        weight: parseFloat(document.getElementById('pWeight').value) || 0,
+        rate: parseFloat(document.getElementById('pRate').value) || 0,
         total: total,
+        paid: parseFloat(document.getElementById('pPaid').value) || 0,
+        balance: parseFloat(document.getElementById('pBalance').value) || 0,
         payment_mode: document.getElementById('pPayment').value,
         notes: document.getElementById('pNotes').value.trim(),
-        date: new Date().toISOString()
+        bill_image: pBillImage
       };
-
       try {
         await addRecord('purchases', purchase);
         alert('✅ Purchase saved!');
@@ -191,25 +219,27 @@
     }
 
     function clearForm() {
-      ['pSupplier', 'pInvoice', 'pItem', 'pWeight', 'pRate', 'pTotal', 'pNotes'].forEach(id => {
+      ['pSupplier','pPhone','pAddress','pCNIC','pInvoice','pItem','pWeight','pRate','pTotal','pPaid','pBalance','pNotes'].forEach(id => {
         document.getElementById(id).value = '';
       });
+      document.getElementById('pBillImage').value = '';
+      document.getElementById('pBillPreview').innerHTML = '';
+      pBillImage = null;
     }
 
     async function loadPurchases() {
       const purchases = await getAllRecords('purchases') || [];
       const container = document.getElementById('purchasesList');
-
       if (purchases.length === 0) {
         container.innerHTML = '<div class="empty-state"><div class="icon">🛒</div><p>No purchases yet</p></div>';
         return;
       }
-
-      container.innerHTML = purchases.slice(-20).reverse().map(p => `
+      container.innerHTML = purchases.slice(0, 20).map(p => `
         <div class="data-item">
           <div>
             <div class="data-item-title">${p.item} (${p.karat || p.category})</div>
-            <div class="data-item-sub">${p.supplier} • ${p.weight}g @ Rs ${p.rate} • ${formatDate(p.date)}</div>
+            <div class="data-item-sub">${p.supplier_name} • 📞 ${p.supplier_phone || '—'} • ${p.weight}g @ Rs ${p.rate} • ${formatDate(p.date)}</div>
+            ${p.balance > 0 ? `<div class="data-item-sub" style="color:#FCD34D;">Balance: ${formatPKR(p.balance)}</div>` : ''}
           </div>
           <div class="data-item-value">${formatPKR(p.total)}</div>
         </div>
@@ -221,6 +251,5 @@
       loadPurchases();
     });
   </script>
-
 </body>
 </html>

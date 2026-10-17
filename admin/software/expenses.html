@@ -9,12 +9,10 @@
   <link rel="stylesheet" href="style-software.css">
 </head>
 <body>
-
   <div class="sw-header">
     <div class="sw-logo">💵 Expenses</div>
     <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-family: 'Poppins', sans-serif;">← Back</button>
   </div>
-
   <div class="sw-nav">
     <button class="nav-btn" onclick="navigate('index.html')">🏠 Dashboard</button>
     <button class="nav-btn" onclick="navigate('purchase.html')">🛒 Purchase</button>
@@ -33,26 +31,13 @@
     <p class="page-subtitle">Track daily business expenses</p>
 
     <div class="stats-grid">
-      <div class="stat-card gold">
-        <div class="stat-icon">💰</div>
-        <div class="stat-value" id="totalExpenses">Rs 0</div>
-        <div class="stat-label">Total Expenses</div>
-      </div>
-      <div class="stat-card silver">
-        <div class="stat-icon">📅</div>
-        <div class="stat-value" id="monthExpenses">Rs 0</div>
-        <div class="stat-label">This Month</div>
-      </div>
-      <div class="stat-card diamond">
-        <div class="stat-icon">📊</div>
-        <div class="stat-value" id="totalCount">0</div>
-        <div class="stat-label">Total Entries</div>
-      </div>
+      <div class="stat-card gold"><div class="stat-icon">💰</div><div class="stat-value" id="totalExpenses">Rs 0</div><div class="stat-label">Total Expenses</div></div>
+      <div class="stat-card silver"><div class="stat-icon">📅</div><div class="stat-value" id="monthExpenses">Rs 0</div><div class="stat-label">This Month</div></div>
+      <div class="stat-card diamond"><div class="stat-icon">📊</div><div class="stat-value" id="totalCount">0</div><div class="stat-label">Total Entries</div></div>
     </div>
 
     <div class="form-card">
       <h3 class="form-card-title">➕ Add Expense</h3>
-      
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Category *</label>
@@ -69,19 +54,11 @@
             <option value="other">Other</option>
           </select>
         </div>
-        <div class="form-group">
-          <label class="form-label">Amount (Rs) *</label>
-          <input type="number" id="eAmount" class="form-input" placeholder="0">
-        </div>
+        <div class="form-group"><label class="form-label">Amount (Rs) *</label><input type="number" id="eAmount" class="form-input" placeholder="0"></div>
       </div>
-
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Paid To</label>
-          <input type="text" id="ePaidTo" class="form-input" placeholder="Person / Business name">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Payment Mode</label>
+        <div class="form-group"><label class="form-label">Paid To</label><input type="text" id="ePaidTo" class="form-input" placeholder="Person / Business name"></div>
+        <div class="form-group"><label class="form-label">Payment Mode</label>
           <select id="ePayment" class="form-select">
             <option value="cash">Cash</option>
             <option value="easypaisa">Easypaisa</option>
@@ -89,22 +66,12 @@
           </select>
         </div>
       </div>
-
-      <div class="form-group">
-        <label class="form-label">Description / Notes</label>
-        <input type="text" id="eNotes" class="form-input" placeholder="Optional details">
-      </div>
-
-      <button class="btn-primary" onclick="saveExpense()" style="width: 100%;">💾 Save Expense</button>
+      <div class="form-group"><label class="form-label">Description / Notes</label><input type="text" id="eNotes" class="form-input" placeholder="Optional details"></div>
+      <button class="btn-primary" onclick="saveExpense()" style="width:100%;">💾 Save Expense</button>
     </div>
 
     <h2 class="section-title">📋 Recent Expenses</h2>
-    <div class="data-list" id="expensesList">
-      <div class="empty-state">
-        <div class="icon">💵</div>
-        <p>No expenses yet</p>
-      </div>
-    </div>
+    <div class="data-list" id="expensesList"><div class="empty-state"><div class="icon">💵</div><p>No expenses yet</p></div></div>
   </div>
 
   <script src="db.js"></script>
@@ -113,77 +80,52 @@
     async function saveExpense() {
       const amount = parseFloat(document.getElementById('eAmount').value) || 0;
       if (amount <= 0) { alert('❌ Enter valid amount'); return; }
-
       const expense = {
         category: document.getElementById('eCategory').value,
-        amount: amount,
+        amount,
         paid_to: document.getElementById('ePaidTo').value.trim(),
         payment_mode: document.getElementById('ePayment').value,
-        notes: document.getElementById('eNotes').value.trim(),
-        date: new Date().toISOString()
+        notes: document.getElementById('eNotes').value.trim()
       };
-
-      await addRecord('expenses', expense);
-      alert('✅ Expense saved!');
-      clearForm();
-      loadExpenses();
+      try {
+        await addRecord('expenses', expense);
+        alert('✅ Expense saved!');
+        clearForm(); loadExpenses();
+      } catch (e) { alert('❌ ' + e.message); }
     }
-
-    function clearForm() {
-      ['eAmount', 'ePaidTo', 'eNotes'].forEach(id => document.getElementById(id).value = '');
-    }
+    function clearForm() { ['eAmount','ePaidTo','eNotes'].forEach(id => document.getElementById(id).value = ''); }
 
     async function loadExpenses() {
       const expenses = await getAllRecords('expenses') || [];
       const container = document.getElementById('expensesList');
-
-      const total = expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+      const total = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
       const thisMonth = new Date().toISOString().slice(0, 7);
-      const monthTotal = expenses.filter(e => e.date?.startsWith(thisMonth)).reduce((sum, e) => sum + (e.amount || 0), 0);
+      const monthTotal = expenses.filter(e => e.date?.startsWith(thisMonth)).reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
 
       document.getElementById('totalExpenses').textContent = formatPKR(total);
       document.getElementById('monthExpenses').textContent = formatPKR(monthTotal);
       document.getElementById('totalCount').textContent = expenses.length;
 
-      if (expenses.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="icon">💵</div><p>No expenses yet</p></div>';
-        return;
-      }
-
-      const catIcons = {
-        rent: '🏪', electricity: '⚡', salary: '👤', karigar: '🔧',
-        supplier: '📦', transport: '🚚', food: '🍵', packaging: '📦',
-        repair: '🛠️', other: '📌'
-      };
-
-      container.innerHTML = expenses.slice().reverse().map(e => `
+      if (expenses.length === 0) { container.innerHTML = '<div class="empty-state"><div class="icon">💵</div><p>No expenses yet</p></div>'; return; }
+      const catIcons = { rent:'🏪', electricity:'⚡', salary:'👤', karigar:'🔧', supplier:'📦', transport:'🚚', food:'🍵', packaging:'📦', repair:'🛠️', other:'📌' };
+      container.innerHTML = expenses.map(e => `
         <div class="data-item">
           <div>
-            <div class="data-item-title">${catIcons[e.category] || '💵'} ${e.category.toUpperCase()}</div>
+            <div class="data-item-title">${catIcons[e.category] || '💵'} ${(e.category||'').toUpperCase()}</div>
             <div class="data-item-sub">${e.paid_to ? '👤 ' + e.paid_to + ' • ' : ''}${e.payment_mode} • ${formatDate(e.date)}</div>
             ${e.notes ? `<div class="data-item-sub">${e.notes}</div>` : ''}
           </div>
-          <div style="text-align: right;">
-            <div class="data-item-value" style="color: #FCA5A5;">- ${formatPKR(e.amount)}</div>
-            <div class="data-item-actions" style="justify-content: flex-end; margin-top: 6px;">
+          <div style="text-align:right;">
+            <div class="data-item-value" style="color:#FCA5A5;">- ${formatPKR(e.amount)}</div>
+            <div class="data-item-actions" style="justify-content:flex-end; margin-top:6px;">
               <button class="btn-icon delete" onclick="deleteExpense(${e.id})">🗑️</button>
             </div>
           </div>
-        </div>
-      `).join('');
+        </div>`).join('');
     }
 
-    async function deleteExpense(id) {
-      if (!confirm('Delete this expense?')) return;
-      await deleteRecord('expenses', id);
-      loadExpenses();
-    }
-
-    document.addEventListener('DOMContentLoaded', async () => {
-      await initDB();
-      loadExpenses();
-    });
+    async function deleteExpense(id) { if (!confirm('Delete this expense?')) return; await deleteRecord('expenses', id); loadExpenses(); }
+    document.addEventListener('DOMContentLoaded', async () => { await initDB(); loadExpenses(); });
   </script>
-
 </body>
 </html>

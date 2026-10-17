@@ -9,12 +9,10 @@
   <link rel="stylesheet" href="style-software.css">
 </head>
 <body>
-
   <div class="sw-header">
     <div class="sw-logo">📦 Suppliers</div>
     <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-family: 'Poppins', sans-serif;">← Back</button>
   </div>
-
   <div class="sw-nav">
     <button class="nav-btn" onclick="navigate('index.html')">🏠 Dashboard</button>
     <button class="nav-btn" onclick="navigate('purchase.html')">🛒 Purchase</button>
@@ -34,63 +32,29 @@
 
     <div class="form-card">
       <h3 class="form-card-title">➕ Add New Supplier</h3>
-      
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Supplier Name *</label>
-          <input type="text" id="supName" class="form-input" placeholder="Enter supplier name">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Phone Number *</label>
-          <input type="tel" id="supPhone" class="form-input" placeholder="03XXXXXXXXX">
-        </div>
+        <div class="form-group"><label class="form-label">Supplier Name *</label><input type="text" id="supName" class="form-input" placeholder="Enter supplier name"></div>
+        <div class="form-group"><label class="form-label">Phone Number *</label><input type="tel" id="supPhone" class="form-input" placeholder="03XXXXXXXXX"></div>
       </div>
-
-      <div class="form-group">
-        <label class="form-label">Address</label>
-        <input type="text" id="supAddress" class="form-input" placeholder="Full address">
-      </div>
-
+      <div class="form-group"><label class="form-label">Address</label><input type="text" id="supAddress" class="form-input" placeholder="Full address"></div>
       <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Bill/Invoice Number</label>
-          <input type="text" id="supBillNo" class="form-input" placeholder="Bill number">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Bill Amount (Rs)</label>
-          <input type="number" id="supBillAmount" class="form-input" placeholder="0">
-        </div>
+        <div class="form-group"><label class="form-label">Bill/Invoice Number</label><input type="text" id="supBillNo" class="form-input" placeholder="Bill number"></div>
+        <div class="form-group"><label class="form-label">Bill Amount (Rs)</label><input type="number" id="supBillAmount" class="form-input" placeholder="0"></div>
       </div>
-
-      <div class="form-group">
-        <label class="form-label">📷 Bill Image (Upload from mobile or desktop)</label>
-        <input type="file" id="supBillImage" class="form-input" accept="image/*" capture="environment" style="padding: 10px;">
-        <div id="supBillPreview" style="margin-top: 10px;"></div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Notes</label>
-        <input type="text" id="supNotes" class="form-input" placeholder="Any notes">
-      </div>
-
-      <button class="btn-primary" onclick="saveSupplier()" style="width: 100%;">💾 Save Supplier</button>
+      <div class="form-group"><label class="form-label">📷 Bill Image</label><input type="file" id="supBillImage" class="form-input" accept="image/*" capture="environment" style="padding:10px;"><div id="supBillPreview" style="margin-top:10px;"></div></div>
+      <div class="form-group"><label class="form-label">Notes</label><input type="text" id="supNotes" class="form-input" placeholder="Any notes"></div>
+      <button class="btn-primary" onclick="saveSupplier()" style="width:100%;">💾 Save Supplier</button>
     </div>
 
     <h2 class="section-title">📋 All Suppliers</h2>
-    <div class="data-list" id="suppliersList">
-      <div class="empty-state">
-        <div class="icon">📦</div>
-        <p>No suppliers yet</p>
-      </div>
-    </div>
+    <div class="data-list" id="suppliersList"><div class="empty-state"><div class="icon">📦</div><p>No suppliers yet</p></div></div>
   </div>
 
-  <!-- View Supplier Modal -->
   <div id="viewModal" class="modal">
     <div class="modal-content">
       <h2 class="modal-title">Supplier Details</h2>
       <div id="viewContent"></div>
-      <button class="btn-secondary" onclick="closeViewModal()" style="width: 100%; margin-top: 20px;">Close</button>
+      <button class="btn-secondary" onclick="closeViewModal()" style="width:100%; margin-top:20px;">Close</button>
     </div>
   </div>
 
@@ -98,50 +62,34 @@
   <script src="app.js"></script>
   <script>
     let currentBillImage = null;
-
     document.getElementById('supBillImage')?.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        currentBillImage = await fileToBase64(file);
-        document.getElementById('supBillPreview').innerHTML = 
-          `<img src="${currentBillImage}" style="max-width: 200px; border-radius: 8px; border: 2px solid #FFD700;">`;
+      if (e.target.files[0]) {
+        currentBillImage = await fileToBase64(e.target.files[0]);
+        document.getElementById('supBillPreview').innerHTML = `<img src="${currentBillImage}" style="max-width:200px; border-radius:8px; border:2px solid #FFD700;">`;
       }
     });
 
     async function saveSupplier() {
       const name = document.getElementById('supName').value.trim();
       const phone = document.getElementById('supPhone').value.trim();
-      
-      if (!name || !phone) {
-        alert('❌ Name and phone are required');
-        return;
-      }
-
+      if (!name || !phone) { alert('❌ Name and phone are required'); return; }
       const supplier = {
-        name: name,
-        phone: phone,
+        name, phone,
         address: document.getElementById('supAddress').value.trim(),
         bill_no: document.getElementById('supBillNo').value.trim(),
         bill_amount: parseFloat(document.getElementById('supBillAmount').value) || 0,
         bill_image: currentBillImage,
-        notes: document.getElementById('supNotes').value.trim(),
-        date: new Date().toISOString()
+        notes: document.getElementById('supNotes').value.trim()
       };
-
       try {
         await addRecord('suppliers', supplier);
         alert('✅ Supplier saved!');
-        clearForm();
-        loadSuppliers();
-      } catch (error) {
-        alert('❌ Error: ' + error.message);
-      }
+        clearForm(); loadSuppliers();
+      } catch (e) { alert('❌ ' + e.message); }
     }
 
     function clearForm() {
-      ['supName', 'supPhone', 'supAddress', 'supBillNo', 'supBillAmount', 'supNotes'].forEach(id => {
-        document.getElementById(id).value = '';
-      });
+      ['supName','supPhone','supAddress','supBillNo','supBillAmount','supNotes'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('supBillImage').value = '';
       document.getElementById('supBillPreview').innerHTML = '';
       currentBillImage = null;
@@ -150,13 +98,8 @@
     async function loadSuppliers() {
       const suppliers = await getAllRecords('suppliers') || [];
       const container = document.getElementById('suppliersList');
-
-      if (suppliers.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="icon">📦</div><p>No suppliers yet</p></div>';
-        return;
-      }
-
-      container.innerHTML = suppliers.slice().reverse().map(s => `
+      if (suppliers.length === 0) { container.innerHTML = '<div class="empty-state"><div class="icon">📦</div><p>No suppliers yet</p></div>'; return; }
+      container.innerHTML = suppliers.map(s => `
         <div class="data-item">
           <div>
             <div class="data-item-title">${s.name}</div>
@@ -164,76 +107,28 @@
             ${s.bill_no ? `<div class="data-item-sub">Bill # ${s.bill_no} • Rs ${(s.bill_amount || 0).toLocaleString()}</div>` : ''}
             <div class="data-item-actions">
               <button class="btn-icon edit" onclick='viewSupplier(${JSON.stringify(s).replace(/'/g, "&#39;")})'>👁️ View</button>
-              ${s.bill_image ? `<button class="btn-icon print" onclick='viewBill("${s.bill_image.substring(0, 30)}...")'>🖼️ Bill</button>` : ''}
               <button class="btn-icon delete" onclick="deleteSupplier(${s.id})">🗑️ Delete</button>
             </div>
           </div>
           <div class="data-item-sub">${formatDate(s.date)}</div>
-        </div>
-      `).join('');
+        </div>`).join('');
     }
 
     function viewSupplier(s) {
-      const html = `
-        <div style="padding: 15px 0;">
-          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
-            <span style="color: #B8B8B8;">Name:</span>
-            <strong style="color: #FFD700;">${s.name}</strong>
-          </div>
-          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
-            <span style="color: #B8B8B8;">Phone:</span>
-            <strong>${s.phone}</strong>
-          </div>
-          ${s.address ? `
-          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
-            <span style="color: #B8B8B8;">Address:</span>
-            <strong>${s.address}</strong>
-          </div>` : ''}
-          ${s.bill_no ? `
-          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
-            <span style="color: #B8B8B8;">Bill #:</span>
-            <strong>${s.bill_no}</strong>
-          </div>` : ''}
-          ${s.bill_amount ? `
-          <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
-            <span style="color: #B8B8B8;">Bill Amount:</span>
-            <strong>Rs ${s.bill_amount.toLocaleString()}</strong>
-          </div>` : ''}
-          ${s.notes ? `
-          <div style="padding: 8px 0; border-bottom: 1px solid rgba(255,215,0,0.1);">
-            <span style="color: #B8B8B8;">Notes:</span>
-            <p>${s.notes}</p>
-          </div>` : ''}
-          ${s.bill_image ? `
-          <div style="margin-top: 20px;">
-            <div style="color: #FFD700; margin-bottom: 10px;">📷 Bill Image:</div>
-            <img src="${s.bill_image}" style="width: 100%; border-radius: 8px; border: 2px solid #FFD700;">
-          </div>` : ''}
-        </div>
-      `;
-      document.getElementById('viewContent').innerHTML = html;
+      document.getElementById('viewContent').innerHTML = `
+        <div style="padding:15px 0;">
+          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Name:</span><strong style="color:#FFD700;">${s.name}</strong></div>
+          <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Phone:</span><strong>${s.phone}</strong></div>
+          ${s.address ? `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,215,0,0.1);"><span style="color:#B8B8B8;">Address:</span><strong>${s.address}</strong></div>` : ''}
+          ${s.bill_image ? `<div style="margin-top:20px;"><div style="color:#FFD700; margin-bottom:10px;">📷 Bill Image:</div><img src="${s.bill_image}" style="width:100%; border-radius:8px; border:2px solid #FFD700;"></div>` : ''}
+        </div>`;
       document.getElementById('viewModal').classList.add('active');
     }
 
-    function closeViewModal() {
-      document.getElementById('viewModal').classList.remove('active');
-    }
+    function closeViewModal() { document.getElementById('viewModal').classList.remove('active'); }
+    async function deleteSupplier(id) { if (!confirm('Delete this supplier?')) return; await deleteRecord('suppliers', id); loadSuppliers(); }
 
-    function viewBill() {
-      alert('Bill image is visible in the supplier view. Click 👁️ View.');
-    }
-
-    async function deleteSupplier(id) {
-      if (!confirm('Delete this supplier?')) return;
-      await deleteRecord('suppliers', id);
-      loadSuppliers();
-    }
-
-    document.addEventListener('DOMContentLoaded', async () => {
-      await initDB();
-      loadSuppliers();
-    });
+    document.addEventListener('DOMContentLoaded', async () => { await initDB(); loadSuppliers(); });
   </script>
-
 </body>
 </html>

@@ -803,19 +803,19 @@ function openBiscuitPopup(metalType, unitLabel, grams, metalValue, metalName) {
         </div>
 
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
-          <label class="payment-method-card" style="cursor: pointer; text-align: center; padding: 15px 10px; background: #0A0A0A; border: 2px solid rgba(255,215,0,0.3); border-radius: 12px;" onclick="selectBiscuitPayment('easypaisa')">
+          <label class="payment-method-card" style="cursor: pointer; text-align: center; padding: 15px 10px; background: #0A0A0A; border: 2px solid rgba(255,215,0,0.3); border-radius: 12px;" onclick="event.preventDefault(); selectBiscuitPayment('easypaisa')">
             <input type="radio" name="biscuitPayment" value="easypaisa" checked style="display: none;">
             <img src="images/easypaisa.jpg" alt="Easypaisa" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin: 0 auto 8px; display: block; border: 2px solid #25D366;" onerror="this.src='images/placeholder.svg'">
             <div style="color: #FFD700; font-weight: 700; font-size: 0.8rem;">Easypaisa</div>
           </label>
 
-          <label class="payment-method-card" style="cursor: pointer; text-align: center; padding: 15px 10px; background: #0A0A0A; border: 2px solid rgba(255,215,0,0.3); border-radius: 12px;" onclick="selectBiscuitPayment('jazzcash')">
+          <label class="payment-method-card" style="cursor: pointer; text-align: center; padding: 15px 10px; background: #0A0A0A; border: 2px solid rgba(255,215,0,0.3); border-radius: 12px;" onclick="event.preventDefault(); selectBiscuitPayment('jazzcash')">
             <input type="radio" name="biscuitPayment" value="jazzcash" style="display: none;">
             <img src="images/jazzcash.jpg" alt="JazzCash" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin: 0 auto 8px; display: block; border: 2px solid #DC2626;" onerror="this.src='images/placeholder.svg'">
             <div style="color: #FFD700; font-weight: 700; font-size: 0.8rem;">JazzCash</div>
           </label>
 
-          <label class="payment-method-card" style="cursor: pointer; text-align: center; padding: 15px 10px; background: #0A0A0A; border: 2px solid rgba(255,215,0,0.3); border-radius: 12px;" onclick="selectBiscuitPayment('bank')">
+          <label class="payment-method-card" style="cursor: pointer; text-align: center; padding: 15px 10px; background: #0A0A0A; border: 2px solid rgba(255,215,0,0.3); border-radius: 12px;" onclick="event.preventDefault(); selectBiscuitPayment('bank')">
             <input type="radio" name="biscuitPayment" value="bank" style="display: none;">
             <img src="images/bank.jpg" alt="Bank Transfer" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; margin: 0 auto 8px; display: block; border: 2px solid #3B82F6;" onerror="this.src='images/placeholder.svg'">
             <div style="color: #FFD700; font-weight: 700; font-size: 0.8rem;">Bank Transfer</div>
@@ -879,6 +879,8 @@ function selectBiscuitPayment(method) {
   };
 
   const m = methods[method];
+  if (!m) return;
+
   details.style.background = m.bg;
   details.innerHTML = `
     <h4 style="color: #FFF8DC; margin-bottom: 10px; font-size: 1rem;">${m.title}</h4>

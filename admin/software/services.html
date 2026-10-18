@@ -10,7 +10,7 @@
 </head>
 <body>
   <div class="sw-header">
-    <div class="sw-logo"><img src="images/tools.png" onerror="this.style.display='none'" style="width:24px; margin-right:8px;">Karigar Services</div>
+    <div class="sw-logo"><img src="images/services.png" onerror="this.style.display='none'" style="width:24px; margin-right:8px;">Karigar Services</div>
     <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-family: 'Poppins', sans-serif;">← Back</button>
   </div>
 
@@ -109,7 +109,9 @@
         const saved = await addRecord('services', service);
         
         if (openWhatsApp) {
-          const msg = buildJobInvoiceMessage(saved, getShopSettings());
+          // Yahan await lagana zaroori tha taake cloud se settings aayen
+          const shop = await getShopSettings();
+          const msg = buildJobInvoiceMessage(saved, shop);
           openWhatsApp(phone, msg);
         } else {
           alert('✅ Service saved!');

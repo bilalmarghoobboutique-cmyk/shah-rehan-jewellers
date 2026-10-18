@@ -109,7 +109,9 @@
         const saved = await addRecord('sales', sale);
         
         if (openWhatsApp) {
-          const msg = buildSaleInvoiceMessage(saved, getShopSettings());
+          // Yahan await lagana zaroori tha taake cloud se settings aayen
+          const shop = await getShopSettings();
+          const msg = buildSaleInvoiceMessage(saved, shop);
           openWhatsApp(phone, msg);
         } else {
           alert('✅ Sale saved!');

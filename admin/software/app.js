@@ -1,5 +1,6 @@
 // ===== SHAH REHAN JEWELLERS – SHARED APP LOGIC =====
 
+// ---------- Formatters ----------
 function formatPKR(amount) {
   return 'Rs ' + Math.round(amount || 0).toLocaleString('en-PK');
 }
@@ -10,18 +11,19 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('en-PK', { day: '2-digit', month: 'short', year: 'numeric' });
 }
 
-function generateInvoiceNumber() {
+function generateInvoiceNumber(prefix = 'SRJ') {
   const now = new Date();
   const dateStr = now.toISOString().slice(0, 10).replace(/-/g, '');
   const random = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
-  return `SRJ-${dateStr}-${random}`;
+  return `${prefix}-${dateStr}-${random}`;
 }
 
 function navigate(page) { window.location.href = page; }
 
-// ---------- Date helpers for reports ----------
+// ---------- Date Helpers for Reports ----------
 function getDayKey(d) { return new Date(d).toISOString().slice(0, 10); }
 function getMonthKey(d) { return new Date(d).toISOString().slice(0, 7); }
+function getYearKey(d) { return new Date(d).getFullYear().toString(); }
 
 function getWeekKey(d) {
   const date = new Date(d);
@@ -33,16 +35,139 @@ function getWeekKey(d) {
   return `${temp.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
 }
 
-function getYearKey(d) { return new Date(d).getFullYear().toString(); }
+// ---------- Cloud Shop Settings (Supabase) ----------
+async function getShopSettings() {
+  const defaults = {
+    name: 'SHAH REHAN JEWELLERS',
+    address: 'Main Bazar #2, Ghaziabad, Lahore Cantt',
+    phone: '0092 326 6501314',
+    email: 'shahrehanjewellers@google.com',
+    making_pct: 15,
+    polish_pct: 10,
+    gst_pct: 3,
+    admin_photo: ''
+  };
 
-// ---------- DASHBOARD ----------
+  try {
+    const rows = await sbFetch('settings?select=*', { method: 'GET' });
+    if (!rows || rows.length === 0) return defaults;
+    
+    const settings = { ...defaults };
+    rows.forEach(r => {
+      const isNum = ['gst_pct', 'making_pct', 'polish_pct'].includes(r.key);
+      settings[r.key] = isNum ? parseFloat(r.value) : r.value;
+    });
+    return settings;
+  } catch (e) {
+    console.warn('Settings fetch error:', e);
+    return defaults;
+  }
+}
+
+async function saveShopSettings(settings) {
+  for (const key in settings) {
+    if (settings.hasOwnProperty(key)) {
+      await sbFetch(`settings?on_conflict=key`, {
+        method: 'POST',
+        headers: { 'Prefer': 'resolution=merge-duplicates' },
+        body: JSON.stringify({ key: key, value: String(settings[key]) })
+      });
+    }
+  }
+}
+
+// ---------- WhatsApp Helpers ----------
+function normalizePhone(phone) {
+  if (!phone) return '';
+  let p = phone.toString().replace(/[^0-9]/g, '');
+  if (p.startsWith('0')) p = '92' + p.slice(1);
+  if (!p.startsWith('92') && p.length === 10) p = '92' + p;
+  return p;
+}
+
+function openWhatsApp(phone, message) {
+  const num = normalizePhone(phone);
+  if (!num) {
+    alert('❌ Phone number missing or invalid');
+    return;
+  }
+  const url = `https://wa.me/${num}?text=${encodeURIComponent(message)}`;
+  window.open(url, '_blank');
+}
+
+// ---------- WhatsApp Invoice Builders ----------
+function buildSaleInvoiceMessage(sale, shop) {
+  const shopName = shop?.name || 'SHAH REHAN JEWELLERS';
+  const shopAddr = shop?.address || 'Main Bazar #2, Ghaziabad';
+  const shopPhone = shop?.phone || '0092 326 6501314';
+  const lines = [
+    `*${shopName}*`, shopAddr, `📞 ${shopPhone}`, '',
+    `*INVOICE: ${sale.invoice_number || '—'}*`,
+    `Date: ${formatDate(sale.created_at || sale.date || Date.now())}`, '',
+    `*Customer:* ${sale.customer_name || 'Walk-in'}`,
+    sale.customer_phone ? `📞 ${sale.customer_phone}` : '', '',
+    `*Item:* ${sale.items_summary || '—'}`,
+    sale.karat ? `Karat: ${sale.karat}` : '',
+    `Weight: ${sale.weight || 0}g`,
+    `Rate: ${formatPKR(sale.rate)}/g`, '',
+    `Metal Value: ${formatPKR((sale.weight || 0) * (sale.rate || 0))}`,
+    `Making + Polish: ${formatPKR((sale.making || 0) + (sale.polish || 0))}`,
+    `GST (${sale.gst_pct || 0}%): ${formatPKR(Math.round(((sale.weight || 0) * (sale.rate || 0) + (sale.making || 0) + (sale.polish || 0)) * (sale.gst_pct || 0) / 100))}`,
+    sale.discount > 0 ? `Discount: -${formatPKR(sale.discount)}` : '', '',
+    `*TOTAL: ${formatPKR(sale.total)}*`,
+    `Received: ${formatPKR(sale.received)}`,
+    `Balance: ${formatPKR(sale.balance)}`, '',
+    'شکریہ! آپ کا اعتماد، ہماری ضمانت'
+  ].filter(Boolean);
+  return lines.join('\n');
+}
+
+function buildPurchaseInvoiceMessage(purchase, shop) {
+  const shopName = shop?.name || 'SHAH REHAN JEWELLERS';
+  const lines = [
+    `*${shopName}*`, '',
+    `*PURCHASE BILL: ${purchase.invoice_no || '—'}*`,
+    `Date: ${formatDate(purchase.created_at || purchase.date || Date.now())}`, '',
+    `*Supplier:* ${purchase.supplier_name || '—'}`,
+    purchase.supplier_phone ? `📞 ${purchase.supplier_phone}` : '', '',
+    `*Item:* ${purchase.item || '—'}`,
+    purchase.karat ? `Karat: ${purchase.karat}` : '',
+    `Weight: ${purchase.weight || 0}g`,
+    `Rate: ${formatPKR(purchase.rate)}/g`, '',
+    `*TOTAL COST: ${formatPKR(purchase.total)}*`,
+    `Paid: ${formatPKR(purchase.paid)}`,
+    `Balance: ${formatPKR(purchase.balance)}`, '',
+    'شکریہ!'
+  ].filter(Boolean);
+  return lines.join('\n');
+}
+
+function buildJobInvoiceMessage(service, shop) {
+  const shopName = shop?.name || 'SHAH REHAN JEWELLERS';
+  const lines = [
+    `*${shopName}* – KARIGAR JOB`, '',
+    `*Karigar:* ${service.karigar_name || '—'}`,
+    service.karigar_phone ? `📞 ${service.karigar_phone}` : '', '',
+    `*Job:* ${service.item || '—'}`,
+    `Type: ${service.type || '—'}`,
+    `Gold Given: ${service.gold_given || 0}g`,
+    `Gold Returned: ${service.gold_returned || 0}g`,
+    `Status: ${(service.status || '').toUpperCase()}`, '',
+    `*Charges: ${formatPKR(service.charges)}*`,
+    `Paid: ${formatPKR(service.paid)}`,
+    `Balance: ${formatPKR(service.balance)}`, '',
+    'شکریہ!'
+  ].filter(Boolean);
+  return lines.join('\n');
+}
+
+// ---------- Dashboard ----------
 async function loadDashboard() {
   try {
-    const sales = await getAllRecords('sales') || [];
-    const purchases = await getAllRecords('purchases') || [];
-    const customers = await getAllRecords('customers') || [];
-    const stock = await getAllRecords('stock') || [];
-    const services = await getAllRecords('services') || [];
+    const [sales, purchases, customers, stock, services] = await Promise.all([
+      getAllRecords('sales'), getAllRecords('purchases'), getAllRecords('customers'),
+      getAllRecords('stock'), getAllRecords('services')
+    ]);
 
     const today = new Date().toISOString().slice(0, 10);
     const thisMonth = new Date().toISOString().slice(0, 7);
@@ -84,10 +209,9 @@ async function loadDashboard() {
   }
 }
 
+// ---------- Auto Init ----------
 document.addEventListener('DOMContentLoaded', async () => {
-  await initDB();
-  if (document.getElementById('todaySales')) {
-    await loadDashboard();
-  }
+  if (typeof initDB === 'function') await initDB();
+  if (document.getElementById('todaySales')) await loadDashboard();
   console.log('✅ Software loaded');
 });

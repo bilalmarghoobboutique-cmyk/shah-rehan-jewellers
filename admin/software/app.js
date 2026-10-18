@@ -65,20 +65,17 @@ async function getShopSettings() {
 }
 
 async function saveShopSettings(settings) {
-  for (const key in settings) {
-    if (settings.hasOwnProperty(key)) {
-      await sbFetch(`settings`, {
-        method: 'POST',
-        headers: { 
-          'Prefer': 'resolution=merge-duplicates' 
-        },
-        body: JSON.stringify({ 
-          key: key, 
-          value: String(settings[key]) 
-        })
-      });
-    }
-  }
+  // Batch Upsert (Insert or Update) format for Supabase
+  const upsertData = Object.keys(settings).map(key => ({
+    key: key,
+    value: String(settings[key])
+  }));
+
+  await sbFetch('settings', {
+    method: 'POST',
+    headers: { 'Prefer': 'resolution=merge-duplicates' },
+    body: JSON.stringify(upsertData)
+  });
 }
 
 // ---------- WhatsApp Helpers ----------

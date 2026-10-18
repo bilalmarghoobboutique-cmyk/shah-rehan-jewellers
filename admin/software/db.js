@@ -53,6 +53,26 @@ async function clearStore(storeName) {
   return sbFetch(`${storeName}?id=gt.0`, { method: 'DELETE' });
 }
 
+// ---------- NAYA FUNCTION: Setting Save (Update or Insert) ----------
+async function saveSetting(key, value) {
+  // 1. Check karein ke key pehle se maujood hai ya nahi
+  const existing = await sbFetch(`settings?key=eq.${encodeURIComponent(key)}&select=key`, { method: 'GET' });
+  
+  if (existing && existing.length > 0) {
+    // Agar maujood hai, toh UPDATE (PATCH) karein
+    return sbFetch(`settings?key=eq.${encodeURIComponent(key)}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ value: String(value) })
+    });
+  } else {
+    // Agar nahi hai, toh INSERT (POST) karein
+    return sbFetch(`settings`, {
+      method: 'POST',
+      body: JSON.stringify({ key: key, value: String(value) })
+    });
+  }
+}
+
 // ---------- Cloudinary Upload Helpers ----------
 async function uploadToCloudinary(file, resourceType = 'image') {
   if (!file) return null;
@@ -107,6 +127,3 @@ async function initDB() {
   console.log('✅ Cloudinary ready:', CLOUD_NAME);
   return true;
 }
-
-
-

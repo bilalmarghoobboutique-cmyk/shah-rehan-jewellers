@@ -67,10 +67,15 @@ async function getShopSettings() {
 async function saveShopSettings(settings) {
   for (const key in settings) {
     if (settings.hasOwnProperty(key)) {
-      await sbFetch(`settings?on_conflict=key`, {
+      await sbFetch(`settings`, {
         method: 'POST',
-        headers: { 'Prefer': 'resolution=merge-duplicates' },
-        body: JSON.stringify({ key: key, value: String(settings[key]) })
+        headers: { 
+          'Prefer': 'resolution=merge-duplicates' 
+        },
+        body: JSON.stringify({ 
+          key: key, 
+          value: String(settings[key]) 
+        })
       });
     }
   }

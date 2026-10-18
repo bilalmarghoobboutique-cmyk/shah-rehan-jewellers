@@ -16,7 +16,7 @@
 <body>
 
   <div class="sw-header">
-    <div class="sw-logo">Settings</div>
+    <div class="sw-logo"><img src="images/settings.png" onerror="this.style.display='none'" style="width:24px; margin-right:8px;">Settings</div>
     <button onclick="window.location.href='index.html'" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer;">← Back</button>
   </div>
 
@@ -50,6 +50,7 @@
   </div>
 
   <script src="db.js"></script>
+  <script src="app.js"></script>
   <script>
     // ===== YEH FUNCTIONS AB SUPABASE SE DATA LAATE HAIN =====
     
@@ -68,7 +69,6 @@
         
         const settings = { ...defaults };
         rows.forEach(r => {
-          // Check karta hai ke value number hai ya string
           const isNum = ['gst_pct', 'making_pct'].includes(r.key);
           settings[r.key] = isNum ? parseFloat(r.value) : r.value;
         });
@@ -80,8 +80,7 @@
     }
 
     async function saveCloudSetting(key, value) {
-      // UPSERT (Insert ya Update) logic Supabase ke liye
-      await sbFetch(`settings?on_conflict=key`, {
+      await sbFetch('settings', {
         method: 'POST',
         headers: { 'Prefer': 'resolution=merge-duplicates' },
         body: JSON.stringify({ key: key, value: String(value) })
@@ -90,6 +89,7 @@
 
     // ===== PAGE LOAD =====
     document.addEventListener('DOMContentLoaded', async () => {
+      await initDB();
       const s = await getCloudSettings();
       
       document.getElementById('setShopName').value = s.name;

@@ -42,12 +42,15 @@
         <div class="form-group"><label class="form-label">Item Description *</label><input type="text" id="sItem" class="form-input" placeholder="e.g., Gold Ring"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">Weight (grams) *</label><input type="number" id="sWeight" class="form-input" step="0.001" placeholder="0.000"></div>
-        <div class="form-group"><label class="form-label">Rate/gram (Rs) *</label><input type="number" id="sRate" class="form-input" placeholder="0"></div>
+        <div class="form-group"><label class="form-label">Quantity *</label><input type="number" id="sQty" class="form-input" value="1" min="1" placeholder="1"></div>
+        <div class="form-group"><label class="form-label">Weight/gram (per piece) *</label><input type="number" id="sWeight" class="form-input" step="0.001" placeholder="0.000"></div>
       </div>
       <div class="form-row">
+        <div class="form-group"><label class="form-label">Rate/gram (Rs) *</label><input type="number" id="sRate" class="form-input" placeholder="0"></div>
         <div class="form-group"><label class="form-label">Making Charges (Rs)</label><input type="number" id="sMaking" class="form-input" placeholder="0"></div>
-        <div class="form-group"><label class="form-label">GST % (Auto from Settings)</label><input type="number" id="sGST" class="form-input" readonly style="background:#2A2A2A; color:#FFD700;"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">GST % (Auto)</label><input type="number" id="sGST" class="form-input" readonly style="background:#2A2A2A; color:#FFD700;"></div>
       </div>
     </div>
 
@@ -94,13 +97,10 @@
     document.addEventListener('DOMContentLoaded', async () => {
       if (!checkAuth(['admin', 'sales'])) return;
       
-      // Set today's date
       document.getElementById('sDate').value = new Date().toISOString().slice(0, 10);
-      
       shopRules = await getShopSettings();
       document.getElementById('sGST').value = shopRules.gst_pct;
       
-      // Load products for dropdown
       allProducts = await getRecordsFast('products');
       const prodSelect = document.getElementById('sProductId');
       allProducts.forEach(p => {
@@ -123,17 +123,24 @@
     }
 
     function autoCalc() {
+      const qty = parseFloat(document.getElementById('sQty').value) || 1;
       const weight = parseFloat(document.getElementById('sWeight').value) || 0;
       const rate = parseFloat(document.getElementById('sRate').value) || 0;
       const making = parseFloat(document.getElementById('sMaking').value) || 0;
       
-      const calc = calculateInvoice(weight, rate, making, 0, shopRules.gst_pct, 0);
+      // Total metal = Qty * Weight * Rate
+      const totalWeight = qty * weight;
+      const metal = totalWeight * rate;
+      const makingTotal = making * qty; // Making per piece
+      const subtotal = metal + makingTotal;
+      const gst = subtotal * (shopRules.gst_pct / 100);
+      const total = subtotal + gst;
       
-      document.getElementById('calTotal').textContent = formatPKR(calc.total);
+      document.getElementById('calTotal').textContent = formatPKR(total);
       const paid = parseFloat(document.getElementById('sPaid').value) || 0;
-      document.getElementById('sRemaining').value = Math.max(0, Math.round(calc.total - paid));
+      document.getElementById('sRemaining').value = Math.max(0, Math.round(total - paid));
     }
-    ['sWeight', 'sRate', 'sMaking', 'sPaid'].forEach(id => document.getElementById(id)?.addEventListener('input', autoCalc));
+    ['sQty', 'sWeight', 'sRate', 'sMaking', 'sPaid'].forEach(id => document.getElementById(id)?.addEventListener('input', autoCalc));
 
     async function saveSale(sendWA) {
       const customer = document.getElementById('cName').value.trim();
@@ -146,6 +153,9 @@
       btn.textContent = 'Saving...'; btn.disabled = true;
 
       try {
+        const qty = parseFloat(document.getElementById('sQty').value) || 1;
+        const weight = parseFloat(document.getElementById('sWeight').value) || 0;
+        
         const sale = {
           invoice_number: 'SRJ-' + Date.now(),
           product_id: document.getElementById('sProductId').value || null,
@@ -153,7 +163,9 @@
           customer_phone: document.getElementById('cPhone').value.trim(),
           customer_address: document.getElementById('cAddress').value.trim(),
           items_summary: item,
-          weight: parseFloat(document.getElementById('sWeight').value) || 0,
+          qty: qty,
+          weight: weight,
+          total_weight: qty * weight, // Total weight save karein
           rate: parseFloat(document.getElementById('sRate').value) || 0,
           making: parseFloat(document.getElementById('sMaking').value) || 0,
           gst_pct: shopRules.gst_pct,
@@ -167,11 +179,10 @@
         
         if (sendWA) {
           const shop = await getShopSettings();
-          const msg = `*INVOICE: ${sale.invoice_number}*\nCustomer: ${customer}\nItem: ${item}\nTotal: ${formatPKR(total)}\nReceived: ${formatPKR(sale.received)}\nBalance: ${formatPKR(sale.balance)}\n\nThank you! ${shop.name}`;
+          const msg = `*INVOICE: ${sale.invoice_number}*\nCustomer: ${customer}\nItem: ${item} (Qty: ${qty})\nWeight: ${qty * weight}g\nRate: ${formatPKR(sale.rate)}/g\nTotal: ${formatPKR(total)}\nReceived: ${formatPKR(sale.received)}\nBalance: ${formatPKR(sale.balance)}\n\nThank you! ${shop.name}`;
           openWhatsApp(sale.customer_phone, msg);
         }
         
-        // Show invoice modal
         currentInvoice = saved;
         showInvoice(saved);
         clearForm(); loadSales();
@@ -206,15 +217,17 @@
             <thead>
               <tr style="background:#FAF7F0;">
                 <th style="border:1px solid #ddd; padding:10px; text-align:left; font-size:12px; color:#D4AF37;">Item</th>
-                <th style="border:1px solid #ddd; padding:10px; text-align:left; font-size:12px; color:#D4AF37;">Weight</th>
-                <th style="border:1px solid #ddd; padding:10px; text-align:left; font-size:12px; color:#D4AF37;">Rate</th>
+                <th style="border:1px solid #ddd; padding:10px; text-align:left; font-size:12px; color:#D4AF37;">Qty</th>
+                <th style="border:1px solid #ddd; padding:10px; text-align:left; font-size:12px; color:#D4AF37;">Weight (Total)</th>
+                <th style="border:1px solid #ddd; padding:10px; text-align:left; font-size:12px; color:#D4AF37;">Rate/g</th>
                 <th style="border:1px solid #ddd; padding:10px; text-align:left; font-size:12px; color:#D4AF37;">Total</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 <td style="border:1px solid #ddd; padding:10px; font-size:14px;">${sale.items_summary}</td>
-                <td style="border:1px solid #ddd; padding:10px; font-size:14px;">${sale.weight}g</td>
+                <td style="border:1px solid #ddd; padding:10px; font-size:14px;">${sale.qty || 1}</td>
+                <td style="border:1px solid #ddd; padding:10px; font-size:14px;">${((sale.qty || 1) * (sale.weight || 0)).toFixed(3)}g</td>
                 <td style="border:1px solid #ddd; padding:10px; font-size:14px;">${formatPKR(sale.rate)}</td>
                 <td style="border:1px solid #ddd; padding:10px; font-size:14px;">${formatPKR(sale.total)}</td>
               </tr>
@@ -237,12 +250,13 @@
 
     function sendInvoiceWhatsApp() {
       if (!currentInvoice) return;
-      const msg = `*INVOICE: ${currentInvoice.invoice_number}*\nCustomer: ${currentInvoice.customer_name}\nItem: ${currentInvoice.items_summary}\nTotal: ${formatPKR(currentInvoice.total)}\nReceived: ${formatPKR(currentInvoice.received)}\nBalance: ${formatPKR(currentInvoice.balance)}\n\nThank you!`;
+      const msg = `*INVOICE: ${currentInvoice.invoice_number}*\nCustomer: ${currentInvoice.customer_name}\nItem: ${currentInvoice.items_summary} (Qty: ${currentInvoice.qty||1})\nTotal: ${formatPKR(currentInvoice.total)}\nReceived: ${formatPKR(currentInvoice.received)}\nBalance: ${formatPKR(currentInvoice.balance)}\n\nThank you!`;
       openWhatsApp(currentInvoice.customer_phone, msg);
     }
 
     function clearForm() {
       ['cName','cPhone','cAddress','sItem','sWeight','sRate','sMaking','sPaid','sRemaining'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('sQty').value = '1';
       document.getElementById('sProductId').value = '';
       document.getElementById('sDate').value = new Date().toISOString().slice(0,10);
       autoCalc();
@@ -256,7 +270,7 @@
       container.innerHTML = sales.slice(0, 20).map(s => `
         <div class="data-item" style="cursor:pointer;" onclick='showInvoice(${JSON.stringify(s).replace(/'/g, "&#39;")})'>
           <div>
-            <div class="data-item-title">${s.items_summary}</div>
+            <div class="data-item-title">${s.items_summary} <span style="color:#FFD700; font-size:0.8rem;">(Qty: ${s.qty || 1})</span></div>
             <div class="data-item-sub">${s.customer_name} • ${formatDate(s.sale_date || s.created_at)}</div>
           </div>
           <div style="text-align:right;">

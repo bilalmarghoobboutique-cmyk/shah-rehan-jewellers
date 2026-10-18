@@ -3,156 +3,220 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Services – SRJ Software</title>
+  <title>Karigar Services – SRJ Software</title>
   <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style-software.css">
 </head>
 <body>
-  <div class="sw-header">
-    <div class="sw-logo"><img src="images/services.png" onerror="this.style.display='none'" style="width:24px; margin-right:8px;">Karigar Services</div>
-    <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-family: 'Poppins', sans-serif;">← Back</button>
-  </div>
 
-  <div class="sw-nav">
-    <button class="nav-btn" onclick="navigate('index.html')">Dashboard</button>
-    <button class="nav-btn" onclick="navigate('purchase.html')">Purchase</button>
-    <button class="nav-btn active">Services</button>
-    <button class="nav-btn" onclick="navigate('store.html')">Store</button>
-    <button class="nav-btn" onclick="navigate('sales.html')">Sales</button>
-    <button class="nav-btn" onclick="navigate('customers.html')">Customers</button>
-    <button class="nav-btn" onclick="navigate('suppliers.html')">Suppliers</button>
-    <button class="nav-btn" onclick="navigate('reports.html')">Reports</button>
-    <button class="nav-btn" onclick="navigate('settings.html')">Settings</button>
+  <div class="sw-header">
+    <div class="sw-logo">Karigar Services</div>
+    <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer;">← Back</button>
   </div>
 
   <div class="sw-content">
-    <h1 class="page-title">Karigar Services</h1>
-    <p class="page-subtitle">Manage karigars & job invoices</p>
+    <h1 class="page-title">Karigar Management</h1>
 
-    <div class="form-card">
-      <h3 class="form-card-title">Karigar Info</h3>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Karigar Name *</label><input type="text" id="kName" class="form-input" placeholder="Name"></div>
-        <div class="form-group"><label class="form-label">Phone *</label><input type="tel" id="kPhone" class="form-input" placeholder="03XXXXXXXXX"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Item Description *</label><input type="text" id="kItem" class="form-input" placeholder="e.g., Ring Polish"></div>
-        <div class="form-group"><label class="form-label">Karigar Photo</label><input type="file" id="kPhoto" class="form-input" accept="image/*" capture="user" style="padding:10px;"><div id="kPhotoPreview" style="margin-top:5px;"></div></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Service Charges (Rs) *</label><input type="number" id="kCharges" class="form-input" placeholder="0"></div>
-        <div class="form-group"><label class="form-label">Paid Amount (Rs)</label><input type="number" id="kPaid" class="form-input" placeholder="0"></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label class="form-label">Balance (Rs)</label><input type="number" id="kBalance" class="form-input" readonly style="background:#2A2A2A; color:#FCD34D;"></div>
-        <div class="form-group"><label class="form-label">Status</label>
-          <select id="kStatus" class="form-select">
-            <option value="pending">Pending</option>
-            <option value="completed">Completed</option>
-            <option value="delivered">Delivered</option>
-          </select>
-        </div>
-      </div>
-
-      <div style="display: flex; gap: 12px; margin-top: 15px; flex-wrap: wrap;">
-        <button class="btn-primary" onclick="saveService(false)" style="flex: 1;">Save Service</button>
-        <button class="btn-secondary" onclick="saveService(true)" style="flex: 1; background: #25D366; color: white; border: none;">Save & WhatsApp Job</button>
-      </div>
+    <div class="category-tabs">
+      <button class="cat-tab gold active" onclick="switchTab('karigar', this)">Karigar List</button>
+      <button class="cat-tab silver" onclick="switchTab('job', this)">New Job Entry</button>
     </div>
 
-    <h2 class="section-title">Service Records</h2>
-    <div class="data-list" id="servicesList"></div>
+    <!-- KARIGAR LIST -->
+    <div id="karigarTab">
+      <div class="form-card">
+        <h3 class="form-card-title">Add New Karigar</h3>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Name *</label><input type="text" id="kName" class="form-input" placeholder="Karigar Name"></div>
+          <div class="form-group"><label class="form-label">Phone *</label><input type="tel" id="kPhone" class="form-input" placeholder="03XXXXXXXXX"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">CNIC</label><input type="text" id="kCNIC" class="form-input" placeholder="XXXXX-XXXXXXX-X"></div>
+          <div class="form-group"><label class="form-label">Address</label><input type="text" id="kAddress" class="form-input" placeholder="Address"></div>
+        </div>
+        <button class="btn-primary" onclick="saveKarigar()" style="width:100%;">Save Karigar</button>
+      </div>
+
+      <h2 class="section-title">All Karigars (Click name for Khata)</h2>
+      <div class="data-list" id="karigarsList"></div>
+    </div>
+
+    <!-- JOB ENTRY TAB -->
+    <div id="jobTab" style="display:none;">
+      <div class="form-card">
+        <h3 class="form-card-title">New Job Entry</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Select Karigar *</label>
+            <select id="jKarigar" class="form-select">
+              <option value="">-- Select --</option>
+            </select>
+          </div>
+          <div class="form-group"><label class="form-label">Job Date</label><input type="date" id="jDate" class="form-input"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Job Description *</label><input type="text" id="jItem" class="form-input" placeholder="e.g., Ring Polish"></div>
+          <div class="form-group"><label class="form-label">Job Type</label>
+            <select id="jType" class="form-select">
+              <option value="making">Jewelry Making</option>
+              <option value="repair">Repair</option>
+              <option value="polish">Polish</option>
+              <option value="setting">Stone Setting</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Gold Given (g)</label><input type="number" id="jGoldGiven" class="form-input" step="0.001" placeholder="0.000"></div>
+          <div class="form-group"><label class="form-label">Gold Returned (g)</label><input type="number" id="jGoldReturned" class="form-input" step="0.001" placeholder="0.000"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Charges (Rs) *</label><input type="number" id="jCharges" class="form-input" placeholder="0"></div>
+          <div class="form-group"><label class="form-label">Paid (Rs)</label><input type="number" id="jPaid" class="form-input" placeholder="0"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Balance (Rs)</label><input type="number" id="jBalance" class="form-input" readonly style="background:#2A2A2A; color:#FCD34D;"></div>
+          <div class="form-group"><label class="form-label">Status</label>
+            <select id="jStatus" class="form-select">
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+              <option value="delivered">Delivered</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="saveJob()" style="width:100%;">Save Job</button>
+      </div>
+    </div>
   </div>
 
   <script src="db.js"></script>
   <script src="app.js"></script>
   <script>
-    let kPhotoUrl = null;
-
-    document.getElementById('kPhoto')?.addEventListener('change', (e) => {
-      if (e.target.files[0]) document.getElementById('kPhotoPreview').innerHTML = `<img src="${URL.createObjectURL(e.target.files[0])}" style="max-width:80px; border-radius:8px;">`;
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!checkAuth(['admin', 'purchase'])) return;
+      document.getElementById('jDate').value = new Date().toISOString().slice(0,10);
+      loadKarigars();
+      loadJobs();
     });
 
-    function autoCalc() {
-      const charges = parseFloat(document.getElementById('kCharges').value) || 0;
-      const paid = parseFloat(document.getElementById('kPaid').value) || 0;
-      document.getElementById('kBalance').value = Math.max(0, charges - paid);
+    function switchTab(tab, btn) {
+      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('karigarTab').style.display = tab === 'karigar' ? 'block' : 'none';
+      document.getElementById('jobTab').style.display = tab === 'job' ? 'block' : 'none';
     }
-    ['kCharges', 'kPaid'].forEach(id => document.getElementById(id)?.addEventListener('input', autoCalc));
 
-    async function saveService(openWhatsApp) {
+    async function saveKarigar() {
       const name = document.getElementById('kName').value.trim();
       const phone = document.getElementById('kPhone').value.trim();
-      const item = document.getElementById('kItem').value.trim();
-      if (!name || !phone || !item) { alert('❌ Name, phone, and item are required'); return; }
+      if (!name || !phone) { alert('❌ Name and phone required'); return; }
 
       const btn = event.target;
       btn.textContent = 'Saving...'; btn.disabled = true;
 
       try {
-        if (document.getElementById('kPhoto').files[0]) {
-          kPhotoUrl = await uploadImage(document.getElementById('kPhoto').files[0]);
-        }
-
-        const service = {
-          karigar_name: name,
-          karigar_phone: phone,
-          item: item,
-          charges: parseFloat(document.getElementById('kCharges').value) || 0,
-          paid: parseFloat(document.getElementById('kPaid').value) || 0,
-          balance: parseFloat(document.getElementById('kBalance').value) || 0,
-          status: document.getElementById('kStatus').value,
-          photo: kPhotoUrl
-        };
-
-        const saved = await addRecord('services', service);
-        
-        if (openWhatsApp) {
-          // Yahan await lagana zaroori tha taake cloud se settings aayen
-          const shop = await getShopSettings();
-          const msg = buildJobInvoiceMessage(saved, shop);
-          openWhatsApp(phone, msg);
-        } else {
-          alert('✅ Service saved!');
-        }
-        
-        clearForm(); loadServices();
-      } catch (e) {
-        alert('❌ ' + e.message);
-      } finally {
-        btn.textContent = openWhatsApp ? 'Save & WhatsApp Job' : 'Save Service';
-        btn.disabled = false;
-      }
+        await addRecord('karigars', {
+          name, phone,
+          cnic: document.getElementById('kCNIC').value.trim(),
+          address: document.getElementById('kAddress').value.trim()
+        });
+        alert('✅ Karigar saved!');
+        ['kName','kPhone','kCNIC','kAddress'].forEach(id => document.getElementById(id).value = '');
+        loadKarigars();
+      } catch (e) { alert('❌ ' + e.message); }
+      finally { btn.textContent = 'Save Karigar'; btn.disabled = false; }
     }
 
-    function clearForm() {
-      ['kName','kPhone','kItem','kCharges','kPaid','kBalance'].forEach(id => document.getElementById(id).value = '');
-      document.getElementById('kPhoto').value = '';
-      document.getElementById('kPhotoPreview').innerHTML = '';
-      kPhotoUrl = null;
-    }
-
-    async function loadServices() {
-      const services = await getAllRecords('services') || [];
-      const container = document.getElementById('servicesList');
-      if (services.length === 0) { container.innerHTML = '<div class="empty-state"><p>No services yet</p></div>'; return; }
+    async function loadKarigars() {
+      const karigars = await getRecordsFast('karigars');
+      const services = await getRecordsFast('services');
+      const payments = await getRecordsFast('payments');
       
-      container.innerHTML = services.map(s => `
-        <div class="data-item">
+      // Populate job dropdown
+      const select = document.getElementById('jKarigar');
+      select.innerHTML = '<option value="">-- Select --</option>';
+      karigars.forEach(k => {
+        select.innerHTML += `<option value="${k.name}|${k.phone}">${k.name}</option>`;
+      });
+
+      const container = document.getElementById('karigarsList');
+      if (karigars.length === 0) { container.innerHTML = '<div class="empty-state"><p>No karigars yet</p></div>'; return; }
+      
+      container.innerHTML = karigars.map(k => {
+        const kServices = services.filter(s => s.karigar_name === k.name);
+        const kPays = payments.filter(p => p.person_name === k.name && p.person_type === 'karigar');
+        
+        let totalCharges = kServices.reduce((sum, s) => sum + (Number(s.charges)||0), 0);
+        let totalPaid = kPays.reduce((sum, p) => sum + (Number(p.amount)||0), 0);
+        let balance = totalCharges - totalPaid;
+        
+        let balHtml = '';
+        if (balance > 0) balHtml = `<span style="color:#FCA5A5;">Payable: ${formatPKR(balance)}</span>`;
+        else if (balance < 0) balHtml = `<span style="color:#86EFAC;">Adv: ${formatPKR(Math.abs(balance))}</span>`;
+        else balHtml = `<span style="color:#B8B8B8;">Clear</span>`;
+
+        return `
+        <div class="data-item" style="cursor:pointer;" onclick="openLedger('karigar','${k.name}')">
           <div>
-            <div class="data-item-title">${s.item}</div>
-            <div class="data-item-sub">${s.karigar_name} • 📞 ${s.karigar_phone}</div>
+            <div class="data-item-title">${k.name}</div>
+            <div class="data-item-sub">📞 ${k.phone} ${k.cnic ? '• CNIC: ' + k.cnic : ''}</div>
           </div>
           <div style="text-align:right;">
-            <div class="data-item-value">${formatPKR(s.charges)}</div>
-            <div class="data-item-sub" style="color:${s.balance > 0 ? '#FCD34D' : '#86EFAC'};">Bal: ${formatPKR(s.balance)}</div>
+            <div class="data-item-value" style="font-size:0.95rem;">${balHtml}</div>
+            <div class="data-item-sub" style="font-size:0.7rem;">Click for Khata</div>
           </div>
         </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
-    document.addEventListener('DOMContentLoaded', async () => { await initDB(); loadServices(); });
+    function autoCalcJob() {
+      const charges = parseFloat(document.getElementById('jCharges').value) || 0;
+      const paid = parseFloat(document.getElementById('jPaid').value) || 0;
+      document.getElementById('jBalance').value = Math.max(0, charges - paid);
+    }
+    ['jCharges','jPaid'].forEach(id => document.getElementById(id)?.addEventListener('input', autoCalcJob));
+
+    async function saveJob() {
+      const karigarVal = document.getElementById('jKarigar').value;
+      const item = document.getElementById('jItem').value.trim();
+      const charges = parseFloat(document.getElementById('jCharges').value) || 0;
+      
+      if (!karigarVal || !item || charges <= 0) { alert('❌ Fill all required fields'); return; }
+      const [karigarName, karigarPhone] = karigarVal.split('|');
+
+      const btn = event.target;
+      btn.textContent = 'Saving...'; btn.disabled = true;
+
+      try {
+        await addRecord('services', {
+          karigar_name: karigarName,
+          karigar_phone: karigarPhone,
+          item: item,
+          type: document.getElementById('jType').value,
+          gold_given: parseFloat(document.getElementById('jGoldGiven').value) || 0,
+          gold_returned: parseFloat(document.getElementById('jGoldReturned').value) || 0,
+          charges: charges,
+          paid: parseFloat(document.getElementById('jPaid').value) || 0,
+          balance: parseFloat(document.getElementById('jBalance').value) || 0,
+          status: document.getElementById('jStatus').value,
+          service_date: document.getElementById('jDate').value || new Date().toISOString().slice(0,10)
+        });
+        alert('✅ Job saved!');
+        ['jItem','jGoldGiven','jGoldReturned','jCharges','jPaid','jBalance'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('jKarigar').value = '';
+        loadKarigars(); loadJobs();
+      } catch (e) { alert('❌ ' + e.message); }
+      finally { btn.textContent = 'Save Job'; btn.disabled = false; }
+    }
+
+    async function loadJobs() {
+      // Jobs are listed inside karigar ledger, no separate list needed
+    }
+
+    function openLedger(type, name) {
+      window.location.href = `ledger.html?type=${type}&name=${encodeURIComponent(name)}`;
+    }
   </script>
 </body>
 </html>

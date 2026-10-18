@@ -10,34 +10,21 @@
 </head>
 <body>
   <div class="sw-header">
-    <div class="sw-logo">💵 Expenses</div>
-    <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-family: 'Poppins', sans-serif;">← Back</button>
-  </div>
-  <div class="sw-nav">
-    <button class="nav-btn" onclick="navigate('index.html')">🏠 Dashboard</button>
-    <button class="nav-btn" onclick="navigate('purchase.html')">🛒 Purchase</button>
-    <button class="nav-btn" onclick="navigate('services.html')">🔧 Services</button>
-    <button class="nav-btn" onclick="navigate('store.html')">🏪 Store</button>
-    <button class="nav-btn" onclick="navigate('sales.html')">💰 Sales</button>
-    <button class="nav-btn" onclick="navigate('customers.html')">👥 Customers</button>
-    <button class="nav-btn" onclick="navigate('suppliers.html')">📦 Suppliers</button>
-    <button class="nav-btn active">💵 Expenses</button>
-    <button class="nav-btn" onclick="navigate('reports.html')">📊 Reports</button>
-    <button class="nav-btn" onclick="navigate('settings.html')">⚙️ Settings</button>
+    <div class="sw-logo">Expenses</div>
+    <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer;">← Back</button>
   </div>
 
   <div class="sw-content">
     <h1 class="page-title">Expense Management</h1>
-    <p class="page-subtitle">Track daily business expenses</p>
-
+    
     <div class="stats-grid">
-      <div class="stat-card gold"><div class="stat-icon">💰</div><div class="stat-value" id="totalExpenses">Rs 0</div><div class="stat-label">Total Expenses</div></div>
-      <div class="stat-card silver"><div class="stat-icon">📅</div><div class="stat-value" id="monthExpenses">Rs 0</div><div class="stat-label">This Month</div></div>
-      <div class="stat-card diamond"><div class="stat-icon">📊</div><div class="stat-value" id="totalCount">0</div><div class="stat-label">Total Entries</div></div>
+      <div class="stat-card gold"><div class="stat-label">Total Expenses</div><div class="stat-value" id="totalExpenses" style="font-family:'Playfair Display',serif;">Rs 0</div></div>
+      <div class="stat-card silver"><div class="stat-label">This Month</div><div class="stat-value" id="monthExpenses" style="font-family:'Playfair Display',serif;">Rs 0</div></div>
+      <div class="stat-card diamond"><div class="stat-label">Total Entries</div><div class="stat-value" id="totalCount" style="font-family:'Playfair Display',serif;">0</div></div>
     </div>
 
     <div class="form-card">
-      <h3 class="form-card-title">➕ Add Expense</h3>
+      <h3 class="form-card-title">Add Expense</h3>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Category *</label>
@@ -58,74 +45,90 @@
       </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">Paid To</label><input type="text" id="ePaidTo" class="form-input" placeholder="Person / Business name"></div>
-        <div class="form-group"><label class="form-label">Payment Mode</label>
+        <div class="form-group">
+          <label class="form-label">Payment Mode</label>
           <select id="ePayment" class="form-select">
             <option value="cash">Cash</option>
-            <option value="easypaisa">Easypaisa</option>
             <option value="bank">Bank Transfer</option>
+            <option value="easypaisa">Easypaisa</option>
           </select>
         </div>
       </div>
-      <div class="form-group"><label class="form-label">Description / Notes</label><input type="text" id="eNotes" class="form-input" placeholder="Optional details"></div>
-      <button class="btn-primary" onclick="saveExpense()" style="width:100%;">💾 Save Expense</button>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Expense Date</label><input type="date" id="eDate" class="form-input"></div>
+        <div class="form-group"><label class="form-label">Notes</label><input type="text" id="eNotes" class="form-input" placeholder="Optional"></div>
+      </div>
+      <button class="btn-primary" onclick="saveExpense()" style="width:100%;">Save Expense</button>
     </div>
 
-    <h2 class="section-title">📋 Recent Expenses</h2>
-    <div class="data-list" id="expensesList"><div class="empty-state"><div class="icon">💵</div><p>No expenses yet</p></div></div>
+    <h2 class="section-title">Recent Expenses</h2>
+    <div class="data-list" id="expensesList"></div>
   </div>
 
   <script src="db.js"></script>
   <script src="app.js"></script>
   <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!checkAuth(['admin', 'sales', 'purchase'])) return;
+      document.getElementById('eDate').value = new Date().toISOString().slice(0, 10);
+      loadExpenses();
+    });
+
     async function saveExpense() {
       const amount = parseFloat(document.getElementById('eAmount').value) || 0;
       if (amount <= 0) { alert('❌ Enter valid amount'); return; }
-      const expense = {
-        category: document.getElementById('eCategory').value,
-        amount,
-        paid_to: document.getElementById('ePaidTo').value.trim(),
-        payment_mode: document.getElementById('ePayment').value,
-        notes: document.getElementById('eNotes').value.trim()
-      };
+
+      const btn = event.target;
+      btn.textContent = 'Saving...'; btn.disabled = true;
+
       try {
-        await addRecord('expenses', expense);
+        await addRecord('expenses', {
+          category: document.getElementById('eCategory').value,
+          amount: amount,
+          paid_to: document.getElementById('ePaidTo').value.trim(),
+          payment_mode: document.getElementById('ePayment').value,
+          notes: document.getElementById('eNotes').value.trim(),
+          expense_date: document.getElementById('eDate').value || new Date().toISOString().slice(0,10)
+        });
+        
         alert('✅ Expense saved!');
         clearForm(); loadExpenses();
-      } catch (e) { alert('❌ ' + e.message); }
+      } catch (e) {
+        alert('❌ ' + e.message);
+      } finally {
+        btn.textContent = 'Save Expense'; btn.disabled = false;
+      }
     }
-    function clearForm() { ['eAmount','ePaidTo','eNotes'].forEach(id => document.getElementById(id).value = ''); }
+
+    function clearForm() {
+      ['eAmount','ePaidTo','eNotes'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('eDate').value = new Date().toISOString().slice(0,10);
+    }
 
     async function loadExpenses() {
-      const expenses = await getAllRecords('expenses') || [];
+      const expenses = await getRecordsFast('expenses');
       const container = document.getElementById('expensesList');
-      const total = expenses.reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+      
+      const total = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
       const thisMonth = new Date().toISOString().slice(0, 7);
-      const monthTotal = expenses.filter(e => e.date?.startsWith(thisMonth)).reduce((sum, e) => sum + (parseFloat(e.amount) || 0), 0);
+      const monthTotal = expenses.filter(e => e.date?.startsWith(thisMonth)).reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
 
       document.getElementById('totalExpenses').textContent = formatPKR(total);
       document.getElementById('monthExpenses').textContent = formatPKR(monthTotal);
       document.getElementById('totalCount').textContent = expenses.length;
 
-      if (expenses.length === 0) { container.innerHTML = '<div class="empty-state"><div class="icon">💵</div><p>No expenses yet</p></div>'; return; }
-      const catIcons = { rent:'🏪', electricity:'⚡', salary:'👤', karigar:'🔧', supplier:'📦', transport:'🚚', food:'🍵', packaging:'📦', repair:'🛠️', other:'📌' };
-      container.innerHTML = expenses.map(e => `
+      if (expenses.length === 0) { container.innerHTML = '<div class="empty-state"><p>No expenses yet</p></div>'; return; }
+      
+      container.innerHTML = expenses.slice(0, 30).map(e => `
         <div class="data-item">
           <div>
-            <div class="data-item-title">${catIcons[e.category] || '💵'} ${(e.category||'').toUpperCase()}</div>
-            <div class="data-item-sub">${e.paid_to ? '👤 ' + e.paid_to + ' • ' : ''}${e.payment_mode} • ${formatDate(e.date)}</div>
-            ${e.notes ? `<div class="data-item-sub">${e.notes}</div>` : ''}
+            <div class="data-item-title">${(e.category||'').toUpperCase()}</div>
+            <div class="data-item-sub">${e.paid_to ? '👤 ' + e.paid_to + ' • ' : ''}${e.payment_mode} • ${formatDate(e.expense_date || e.created_at)}</div>
           </div>
-          <div style="text-align:right;">
-            <div class="data-item-value" style="color:#FCA5A5;">- ${formatPKR(e.amount)}</div>
-            <div class="data-item-actions" style="justify-content:flex-end; margin-top:6px;">
-              <button class="btn-icon delete" onclick="deleteExpense(${e.id})">🗑️</button>
-            </div>
-          </div>
-        </div>`).join('');
+          <div class="data-item-value" style="color:#FCA5A5;">- ${formatPKR(e.amount)}</div>
+        </div>
+      `).join('');
     }
-
-    async function deleteExpense(id) { if (!confirm('Delete this expense?')) return; await deleteRecord('expenses', id); loadExpenses(); }
-    document.addEventListener('DOMContentLoaded', async () => { await initDB(); loadExpenses(); });
   </script>
 </body>
 </html>

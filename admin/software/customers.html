@@ -9,23 +9,15 @@
   <link rel="stylesheet" href="style-software.css">
 </head>
 <body>
-  <div class="sw-header">
-    <div class="sw-logo"><img src="images/customer-service.png" onerror="this.style.display='none'" style="width:24px; margin-right:8px;">Customers</div>
-    <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-family: 'Poppins', sans-serif;">← Back</button>
-  </div>
 
-  <div class="sw-nav">
-    <button class="nav-btn" onclick="navigate('index.html')">Dashboard</button>
-    <button class="nav-btn" onclick="navigate('sales.html')">Sales</button>
-    <button class="nav-btn active">Customers</button>
-    <button class="nav-btn" onclick="navigate('suppliers.html')">Suppliers</button>
-    <button class="nav-btn" onclick="navigate('reports.html')">Reports</button>
-    <button class="nav-btn" onclick="navigate('settings.html')">Settings</button>
+  <div class="sw-header">
+    <div class="sw-logo">Customers</div>
+    <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer;">← Back</button>
   </div>
 
   <div class="sw-content">
     <h1 class="page-title">Customer Management</h1>
-    
+
     <div class="form-card">
       <h3 class="form-card-title">Add New Customer</h3>
       <div class="form-row">
@@ -33,7 +25,7 @@
         <div class="form-group"><label class="form-label">Phone *</label><input type="tel" id="cPhone" class="form-input" placeholder="03XXXXXXXXX"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">CNIC #</label><input type="text" id="cCNIC" class="form-input" placeholder="XXXXX-XXXXXXX-X"></div>
+        <div class="form-group"><label class="form-label">CNIC</label><input type="text" id="cCNIC" class="form-input" placeholder="XXXXX-XXXXXXX-X"></div>
         <div class="form-group"><label class="form-label">Address</label><input type="text" id="cAddress" class="form-input" placeholder="Address"></div>
       </div>
       <div class="form-group">
@@ -44,14 +36,17 @@
       <button class="btn-primary" onclick="saveCustomer()" style="width:100%;">Save Customer</button>
     </div>
 
-    <h2 class="section-title">All Customers</h2>
+    <h2 class="section-title">All Customers (Click name for Khata)</h2>
     <div class="data-list" id="customersList"></div>
   </div>
 
   <script src="db.js"></script>
   <script src="app.js"></script>
   <script>
-    let cPhotoUrl = null;
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!checkAuth(['admin', 'sales', 'purchase'])) return;
+      loadCustomers();
+    });
 
     document.getElementById('cPhoto')?.addEventListener('change', (e) => {
       if (e.target.files[0]) document.getElementById('cPhotoPreview').innerHTML = `<img src="${URL.createObjectURL(e.target.files[0])}" style="max-width:100px; border-radius:8px; border:2px solid #FFD700;">`;
@@ -66,73 +61,74 @@
       btn.textContent = 'Saving...'; btn.disabled = true;
 
       try {
+        let photoUrl = null;
         if (document.getElementById('cPhoto').files[0]) {
-          cPhotoUrl = await uploadImage(document.getElementById('cPhoto').files[0]);
+          photoUrl = await uploadImage(document.getElementById('cPhoto').files[0]);
         }
 
         await addRecord('customers', {
           name, phone,
           cnic: document.getElementById('cCNIC').value.trim(),
           address: document.getElementById('cAddress').value.trim(),
-          photo: cPhotoUrl
+          photo: photoUrl
         });
         
         alert('✅ Customer saved!');
         clearForm(); loadCustomers();
-      } catch (e) {
-        alert('❌ ' + e.message);
-      } finally {
-        btn.textContent = 'Save Customer'; btn.disabled = false;
-      }
+      } catch (e) { alert('❌ ' + e.message); }
+      finally { btn.textContent = 'Save Customer'; btn.disabled = false; }
     }
 
     function clearForm() {
       ['cName','cPhone','cCNIC','cAddress'].forEach(id => document.getElementById(id).value = '');
       document.getElementById('cPhoto').value = '';
       document.getElementById('cPhotoPreview').innerHTML = '';
-      cPhotoUrl = null;
     }
 
     async function loadCustomers() {
-      const customers = await getAllRecords('customers') || [];
-      const sales = await getAllRecords('sales') || [];
+      const customers = await getRecordsFast('customers');
+      const sales = await getRecordsFast('sales');
+      const payments = await getRecordsFast('payments');
       const container = document.getElementById('customersList');
       
       if (customers.length === 0) { container.innerHTML = '<div class="empty-state"><p>No customers yet</p></div>'; return; }
       
       container.innerHTML = customers.map(c => {
-        // Calculate Balance / Advance for this customer
-        const cSales = sales.filter(s => s.customer_name.toLowerCase() === c.name.toLowerCase() || s.customer_phone === c.phone);
-        let balance = 0;
-        let advance = 0;
-        cSales.forEach(s => {
-          if (s.balance > 0) balance += Number(s.balance);
-          if (s.received > s.total) advance += (Number(s.received) - Number(s.total));
-        });
+        // Calculate Balance / Advance
+        const cSales = sales.filter(s => s.customer_name === c.name);
+        const cPays = payments.filter(p => p.person_name === c.name && p.person_type === 'customer');
         
-        let balanceHtml = '';
-        if (balance > 0) balanceHtml = `<span style="color:#FCA5A5;">Due: ${formatPKR(balance)}</span>`;
-        else if (advance > 0) balanceHtml = `<span style="color:#86EFAC;">Adv: ${formatPKR(advance)}</span>`;
-        else balanceHtml = `<span style="color:#B8B8B8;">Clear</span>`;
+        let totalBill = cSales.reduce((sum, s) => sum + (Number(s.total)||0), 0);
+        let totalPaid = cPays.reduce((sum, p) => sum + (Number(p.amount)||0), 0);
+        let balance = totalBill - totalPaid;
+        
+        let balHtml = '';
+        if (balance > 0) balHtml = `<span style="color:#FCA5A5;">Due: ${formatPKR(balance)}</span>`;
+        else if (balance < 0) balHtml = `<span style="color:#86EFAC;">Advance: ${formatPKR(Math.abs(balance))}</span>`;
+        else balHtml = `<span style="color:#B8B8B8;">Clear</span>`;
 
         return `
-        <div class="data-item">
+        <div class="data-item" style="cursor:pointer;" onclick="openLedger('customer','${c.name}')">
           <div style="display:flex; gap:15px; align-items:center;">
-            ${c.photo ? `<img src="${c.photo}" style="width:50px; height:50px; border-radius:50%; border:2px solid #FFD700; object-fit:cover;">` : `<img src="images/placeholder.png" onerror="this.style.display='none'" style="width:50px; height:50px; border-radius:50%;">`}
+            ${c.photo ? `<img src="${c.photo}" style="width:50px; height:50px; border-radius:50%; border:2px solid #FFD700; object-fit:cover;">` : '<div style="width:50px; height:50px; border-radius:50%; background:#2A2A2A; display:flex; align-items:center; justify-content:center;">👤</div>'}
             <div>
               <div class="data-item-title">${c.name}</div>
-              <div class="data-item-sub">📞 ${c.phone} | 🆔 ${c.cnic || '—'}</div>
+              <div class="data-item-sub">📞 ${c.phone} ${c.cnic ? '• CNIC: ' + c.cnic : ''}</div>
+              ${c.address ? `<div class="data-item-sub">📍 ${c.address}</div>` : ''}
             </div>
           </div>
           <div style="text-align:right;">
-            <div class="data-item-value" style="font-size:0.9rem;">${balanceHtml}</div>
+            <div class="data-item-value" style="font-size:0.95rem;">${balHtml}</div>
+            <div class="data-item-sub" style="font-size:0.7rem;">Click for Khata</div>
           </div>
         </div>
         `;
       }).join('');
     }
 
-    document.addEventListener('DOMContentLoaded', async () => { await initDB(); loadCustomers(); });
+    function openLedger(type, name) {
+      window.location.href = `ledger.html?type=${type}&name=${encodeURIComponent(name)}`;
+    }
   </script>
 </body>
 </html>

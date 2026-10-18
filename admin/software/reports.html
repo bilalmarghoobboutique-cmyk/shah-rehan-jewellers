@@ -7,21 +7,57 @@
   <link rel="manifest" href="manifest.json">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style-software.css">
+  <style>
+    .filter-card { background: #1C1C1C; border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+    .letterpad { background: #FFFDF5; color: #1A1A1A; padding: 40px; border-radius: 8px; border: 2px solid #D4AF37; margin-top: 20px; font-family: 'Poppins', sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .letterpad-header { text-align: center; border-bottom: 3px double #D4AF37; padding-bottom: 20px; margin-bottom: 20px; }
+    .letterpad-header h1 { font-family: 'Playfair Display', serif; color: #D4AF37; margin: 0; font-size: 26px; letter-spacing: 1px; }
+    .letterpad-header p { margin: 3px 0; font-size: 11px; color: #666; }
+    .letterpad-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    .letterpad-table th { background: #FAF7F0; color: #D4AF37; padding: 10px; text-align: left; font-size: 11px; text-transform: uppercase; border-bottom: 2px solid #D4AF37; }
+    .letterpad-table td { padding: 10px; border-bottom: 1px solid #EEE; font-size: 13px; }
+    .letterpad-total { text-align: right; padding-top: 15px; border-top: 2px solid #D4AF37; font-size: 16px; font-weight: 700; color: #D4AF37; }
+    .letterpad-footer { text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px solid #EEE; font-size: 10px; color: #999; }
+  </style>
 </head>
 <body>
+
   <div class="sw-header">
-    <div class="sw-logo"><img src="images/reports.png" onerror="this.style.display='none'" style="width:24px; margin-right:8px;">Reports</div>
-    <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer; font-family: 'Poppins', sans-serif;">← Back</button>
+    <div class="sw-logo">Reports</div>
+    <button onclick="navigate('index.html')" style="background: transparent; color: #FFD700; border: 1px solid #FFD700; padding: 6px 15px; border-radius: 50px; cursor: pointer;">← Back</button>
   </div>
 
-  <div class="sw-content" style="padding-top: 20px;">
+  <div class="sw-content">
     <h1 class="page-title">Business Reports</h1>
 
     <div class="category-tabs">
-      <button class="cat-tab gold active" onclick="switchReport('purchases', this)">Purchase Khata</button>
-      <button class="cat-tab silver" onclick="switchReport('debtors', this)">Debtors (Receivable)</button>
-      <button class="cat-tab artificial" onclick="switchReport('creditors', this)">Creditors (Payable)</button>
-      <button class="cat-tab diamond" onclick="switchReport('sales', this)">Sales Log</button>
+      <button class="cat-tab gold active" onclick="switchReport('sales', this)">Sales</button>
+      <button class="cat-tab silver" onclick="switchReport('purchases', this)">Purchases</button>
+      <button class="cat-tab diamond" onclick="switchReport('expenses', this)">Expenses</button>
+      <button class="cat-tab artificial" onclick="switchReport('debtors', this)">Debtors</button>
+      <button class="cat-tab gold" onclick="switchReport('creditors', this)">Creditors</button>
+    </div>
+
+    <div class="filter-card">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Date Filter</label>
+          <select id="dateFilter" class="form-select" onchange="loadReport(currentReport)">
+            <option value="all">All Time</option>
+            <option value="today">Today</option>
+            <option value="week">This Week</option>
+            <option value="month">This Month</option>
+            <option value="year">This Year</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Action</label>
+          <div style="display:flex; gap:10px;">
+            <button class="btn-secondary" onclick="printElement('printableReport')" style="flex:1;">Print Report</button>
+            <button class="btn-secondary" onclick="sendReportWhatsApp()" style="flex:1; background:#25D366; color:white; border:none;">WhatsApp</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div id="reportContent"></div>
@@ -30,111 +66,140 @@
   <script src="db.js"></script>
   <script src="app.js"></script>
   <script>
+    let currentReport = 'sales';
+    let currentData = [];
+    let currentTotal = 0;
+    let shopInfo = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!checkAuth(['admin', 'sales', 'purchase'])) return;
+      shopInfo = await getShopSettings();
+      loadReport('sales');
+    });
+
     async function switchReport(type, btn) {
+      currentReport = type;
       document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
       btn.classList.add('active');
-      const container = document.getElementById('reportContent');
-
-      if (type === 'purchases') {
-        const purchases = await getAllRecords('purchases') || [];
-        container.innerHTML = `
-          <h2 class="section-title">All Purchase Records</h2>
-          <div class="data-list">
-            ${purchases.length === 0 ? '<div class="empty-state">No purchases</div>' : 
-              purchases.map(p => `
-                <div class="data-item">
-                  <div>
-                    <div class="data-item-title">${p.item}</div>
-                    <div class="data-item-sub">${p.supplier_name} • ${formatDate(p.date)}</div>
-                  </div>
-                  <div style="text-align:right;">
-                    <div class="data-item-value">${formatPKR(p.total)}</div>
-                    <div class="data-item-sub" style="color:${p.balance > 0 ? '#FCD34D' : '#86EFAC'};">Bal: ${formatPKR(p.balance)}</div>
-                  </div>
-                </div>
-              `).join('')}
-          </div>
-        `;
-      }
-
-      else if (type === 'debtors') {
-        const sales = await getAllRecords('sales') || [];
-        const debtors = sales.filter(s => (parseFloat(s.balance) || 0) > 0);
-        const totalDue = debtors.reduce((s, x) => s + (parseFloat(x.balance) || 0), 0);
-        
-        container.innerHTML = `
-          <div class="stats-grid">
-            <div class="stat-card gold"><div class="stat-icon">💰</div><div class="stat-value">${formatPKR(totalDue)}</div><div class="stat-label">Total Receivable</div></div>
-          </div>
-          <h2 class="section-title">Customers Owing Money</h2>
-          <div class="data-list">
-            ${debtors.length === 0 ? '<div class="empty-state">No outstanding dues</div>' : 
-              debtors.map(d => `
-                <div class="data-item">
-                  <div>
-                    <div class="data-item-title">${d.customer_name}</div>
-                    <div class="data-item-sub">${d.invoice_number} • ${formatDate(d.date)}</div>
-                  </div>
-                  <div style="text-align:right;">
-                    <div class="data-item-value" style="color:#FCD34D;">${formatPKR(d.balance)}</div>
-                  </div>
-                </div>
-              `).join('')}
-          </div>
-        `;
-      }
-
-      else if (type === 'creditors') {
-        const purchases = await getAllRecords('purchases') || [];
-        const creditors = purchases.filter(p => (parseFloat(p.balance) || 0) > 0);
-        const totalPayable = creditors.reduce((s, x) => s + (parseFloat(x.balance) || 0), 0);
-        
-        container.innerHTML = `
-          <div class="stats-grid">
-            <div class="stat-card artificial"><div class="stat-icon">📌</div><div class="stat-value">${formatPKR(totalPayable)}</div><div class="stat-label">Total Payable</div></div>
-          </div>
-          <h2 class="section-title">Suppliers We Owe</h2>
-          <div class="data-list">
-            ${creditors.length === 0 ? '<div class="empty-state">No supplier dues</div>' : 
-              creditors.map(p => `
-                <div class="data-item">
-                  <div>
-                    <div class="data-item-title">${p.supplier_name}</div>
-                    <div class="data-item-sub">${p.item} • ${formatDate(p.date)}</div>
-                  </div>
-                  <div style="text-align:right;">
-                    <div class="data-item-value" style="color:#FCD34D;">${formatPKR(p.balance)}</div>
-                  </div>
-                </div>
-              `).join('')}
-          </div>
-        `;
-      }
-
-      else if (type === 'sales') {
-        const sales = await getAllRecords('sales') || [];
-        container.innerHTML = `
-          <h2 class="section-title">All Sales</h2>
-          <div class="data-list">
-            ${sales.length === 0 ? '<div class="empty-state">No sales</div>' : 
-              sales.map(s => `
-                <div class="data-item">
-                  <div>
-                    <div class="data-item-title">${s.items_summary}</div>
-                    <div class="data-item-sub">${s.customer_name} • ${s.invoice_number}</div>
-                  </div>
-                  <div class="data-item-value">${formatPKR(s.total)}</div>
-                </div>
-              `).join('')}
-          </div>
-        `;
-      }
+      await loadReport(type);
     }
 
-    document.addEventListener('DOMContentLoaded', async () => { 
-      await initDB(); 
-      switchReport('purchases', document.querySelector('.cat-tab')); 
-    });
+    async function loadReport(type) {
+      const container = document.getElementById('reportContent');
+      container.innerHTML = '<p style="text-align:center; padding:30px; color:#FFD700;">Loading...</p>';
+      
+      const range = document.getElementById('dateFilter').value;
+      let rawData = [];
+      let title = '';
+      let amountKey = 'total';
+      
+      if (type === 'sales') {
+        rawData = await getRecordsFast('sales');
+        title = 'SALES REPORT';
+        amountKey = 'total';
+      }
+      else if (type === 'purchases') {
+        rawData = await getRecordsFast('purchases');
+        title = 'PURCHASE REPORT';
+        amountKey = 'total';
+      }
+      else if (type === 'expenses') {
+        rawData = await getRecordsFast('expenses');
+        title = 'EXPENSE REPORT';
+        amountKey = 'amount';
+      }
+      else if (type === 'debtors') {
+        const s = await getRecordsFast('sales');
+        rawData = s.filter(x => Number(x.balance) > 0);
+        title = 'DEBTORS REPORT';
+        amountKey = 'balance';
+      }
+      else if (type === 'creditors') {
+        const p = await getRecordsFast('purchases');
+        const s = await getRecordsFast('services');
+        const duePurchases = p.filter(x => Number(x.balance) > 0).map(x => ({...x, person: x.supplier_name, desc: 'Purchase - ' + x.item}));
+        const dueServices = s.filter(x => Number(x.balance) > 0).map(x => ({...x, person: x.karigar_name, desc: 'Job - ' + x.item, balance: x.balance}));
+        rawData = [...duePurchases, ...dueServices];
+        title = 'CREDITORS REPORT';
+        amountKey = 'balance';
+      }
+
+      currentData = filterByDate(rawData, range);
+      currentTotal = currentData.reduce((sum, x) => sum + (Number(x[amountKey]) || 0), 0);
+
+      const rangeText = document.getElementById('dateFilter').options[document.getElementById('dateFilter').selectedIndex].text;
+
+      container.innerHTML = `
+        <div class="letterpad" id="printableReport">
+          <div class="letterpad-header">
+            <h1>${shopInfo.name}</h1>
+            <p>${shopInfo.address}</p>
+            <p>Phone: ${shopInfo.phone}</p>
+            <hr style="border:none; border-top:1px solid #D4AF37; margin:10px 0;">
+            <h3 style="font-family:'Playfair Display',serif; color:#1A1A1A; margin:5px 0;">${title}</h3>
+            <p style="font-size:11px;">Period: ${rangeText} | Generated: ${formatDate(new Date())}</p>
+          </div>
+          <table class="letterpad-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Details</th>
+                <th style="text-align:right;">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${currentData.length === 0 ? '<tr><td colspan="3" style="text-align:center; padding:20px; color:#999;">No records found for this period</td></tr>' : 
+                currentData.map(x => `
+                  <tr>
+                    <td>${formatDate(x.date)}</td>
+                    <td>
+                      ${type === 'debtors' ? `<strong>${x.customer_name}</strong> - ${x.items_summary}` : ''}
+                      ${type === 'creditors' ? `<strong>${x.person}</strong> - ${x.desc}` : ''}
+                      ${type === 'sales' ? `<strong>${x.customer_name}</strong> - ${x.items_summary}` : ''}
+                      ${type === 'purchases' ? `<strong>${x.supplier_name}</strong> - ${x.item}` : ''}
+                      ${type === 'expenses' ? `${(x.category||'').toUpperCase()} ${x.paid_to ? '- ' + x.paid_to : ''}` : ''}
+                    </td>
+                    <td style="text-align:right; font-weight:600;">${formatPKR(x[amountKey])}</td>
+                  </tr>
+                `).join('')}
+            </tbody>
+          </table>
+          <div class="letterpad-total">
+            TOTAL: ${formatPKR(currentTotal)}
+          </div>
+          <div class="letterpad-footer">
+            This is a computer-generated report. Thank you for your business!<br>
+            ${shopInfo.name} © ${new Date().getFullYear()}
+          </div>
+        </div>
+      `;
+    }
+
+    function sendReportWhatsApp() {
+      if (currentData.length === 0) { alert('No data to send'); return; }
+      
+      const rangeText = document.getElementById('dateFilter').options[document.getElementById('dateFilter').selectedIndex].text;
+      const title = currentReport.toUpperCase() + ' REPORT';
+      const amountKey = currentReport === 'expenses' ? 'amount' : (currentReport === 'debtors' || currentReport === 'creditors' ? 'balance' : 'total');
+      
+      let msg = `*${shopInfo.name}*\n*${title}*\nPeriod: ${rangeText}\nDate: ${formatDate(new Date())}\n\n`;
+      
+      currentData.forEach((x, i) => {
+        let desc = '';
+        if (currentReport === 'sales') desc = `${x.customer_name} - ${x.items_summary}`;
+        else if (currentReport === 'purchases') desc = `${x.supplier_name} - ${x.item}`;
+        else if (currentReport === 'expenses') desc = `${(x.category||'').toUpperCase()}`;
+        else if (currentReport === 'debtors') desc = `${x.customer_name}`;
+        else if (currentReport === 'creditors') desc = `${x.person}`;
+        
+        msg += `${i+1}. ${desc}: ${formatPKR(x[amountKey])}\n`;
+      });
+      
+      msg += `\n*TOTAL: ${formatPKR(currentTotal)}*`;
+      
+      const phone = prompt('Enter WhatsApp number to send report:', '');
+      if (phone) openWhatsApp(phone, msg);
+    }
   </script>
 </body>
 </html>

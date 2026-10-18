@@ -9,13 +9,13 @@
   <link rel="stylesheet" href="style-software.css">
   <style>
     .filter-card { background: #1C1C1C; border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
-    .letterpad { background: #FFFDF5; color: #1A1A1A; padding: 40px; border-radius: 8px; border: 2px solid #D4AF37; margin-top: 20px; font-family: 'Poppins', sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .letterpad { background: #FFFDF5; color: #1A1A1A; padding: 30px; border-radius: 8px; border: 2px solid #D4AF37; margin-top: 20px; font-family: 'Poppins', sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.5); overflow-x: auto; }
     .letterpad-header { text-align: center; border-bottom: 3px double #D4AF37; padding-bottom: 20px; margin-bottom: 20px; }
     .letterpad-header h1 { font-family: 'Playfair Display', serif; color: #D4AF37; margin: 0; font-size: 26px; letter-spacing: 1px; }
     .letterpad-header p { margin: 3px 0; font-size: 11px; color: #666; }
     .letterpad-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-    .letterpad-table th { background: #FAF7F0; color: #D4AF37; padding: 10px; text-align: left; font-size: 11px; text-transform: uppercase; border-bottom: 2px solid #D4AF37; }
-    .letterpad-table td { padding: 10px; border-bottom: 1px solid #EEE; font-size: 13px; }
+    .letterpad-table th { background: #FAF7F0; color: #D4AF37; padding: 10px 8px; text-align: left; font-size: 11px; text-transform: uppercase; border-bottom: 2px solid #D4AF37; white-space: nowrap; }
+    .letterpad-table td { padding: 10px 8px; border-bottom: 1px solid #EEE; font-size: 12px; vertical-align: top; }
     .letterpad-total { text-align: right; padding-top: 15px; border-top: 2px solid #D4AF37; font-size: 16px; font-weight: 700; color: #D4AF37; }
     .letterpad-footer { text-align: center; margin-top: 30px; padding-top: 15px; border-top: 1px solid #EEE; font-size: 10px; color: #999; }
   </style>
@@ -129,6 +129,39 @@
 
       const rangeText = document.getElementById('dateFilter').options[document.getElementById('dateFilter').selectedIndex].text;
 
+      // Build table header based on report type
+      let tableHeaders = '';
+      if (type === 'sales') {
+        tableHeaders = `
+          <tr>
+            <th>Date</th>
+            <th>Customer / Item</th>
+            <th>Qty</th>
+            <th>Weight (g)</th>
+            <th>Rate/g</th>
+            <th style="text-align:right;">Total</th>
+          </tr>
+        `;
+      } else if (type === 'purchases') {
+        tableHeaders = `
+          <tr>
+            <th>Date</th>
+            <th>Supplier / Item</th>
+            <th>Weight (g)</th>
+            <th>Rate/g</th>
+            <th style="text-align:right;">Total</th>
+          </tr>
+        `;
+      } else {
+        tableHeaders = `
+          <tr>
+            <th>Date</th>
+            <th>Details</th>
+            <th style="text-align:right;">Amount</th>
+          </tr>
+        `;
+      }
+
       container.innerHTML = `
         <div class="letterpad" id="printableReport">
           <div class="letterpad-header">
@@ -140,28 +173,45 @@
             <p style="font-size:11px;">Period: ${rangeText} | Generated: ${formatDate(new Date())}</p>
           </div>
           <table class="letterpad-table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Details</th>
-                <th style="text-align:right;">Amount</th>
-              </tr>
-            </thead>
+            <thead>${tableHeaders}</thead>
             <tbody>
-              ${currentData.length === 0 ? '<tr><td colspan="3" style="text-align:center; padding:20px; color:#999;">No records found for this period</td></tr>' : 
-                currentData.map(x => `
-                  <tr>
-                    <td>${formatDate(x.date)}</td>
-                    <td>
-                      ${type === 'debtors' ? `<strong>${x.customer_name}</strong> - ${x.items_summary}` : ''}
-                      ${type === 'creditors' ? `<strong>${x.person}</strong> - ${x.desc}` : ''}
-                      ${type === 'sales' ? `<strong>${x.customer_name}</strong> - ${x.items_summary}` : ''}
-                      ${type === 'purchases' ? `<strong>${x.supplier_name}</strong> - ${x.item}` : ''}
-                      ${type === 'expenses' ? `${(x.category||'').toUpperCase()} ${x.paid_to ? '- ' + x.paid_to : ''}` : ''}
-                    </td>
-                    <td style="text-align:right; font-weight:600;">${formatPKR(x[amountKey])}</td>
-                  </tr>
-                `).join('')}
+              ${currentData.length === 0 ? '<tr><td colspan="6" style="text-align:center; padding:20px; color:#999;">No records found for this period</td></tr>' : 
+                currentData.map(x => {
+                  if (type === 'sales') {
+                    return `
+                      <tr>
+                        <td>${formatDate(x.date)}</td>
+                        <td><strong>${x.customer_name}</strong><br><span style="font-size:11px; color:#666;">${x.items_summary}</span></td>
+                        <td>${x.qty || 1}</td>
+                        <td>${x.weight || 0}g</td>
+                        <td>${formatPKR(x.rate)}</td>
+                        <td style="text-align:right; font-weight:600;">${formatPKR(x.total)}</td>
+                      </tr>
+                    `;
+                  } else if (type === 'purchases') {
+                    return `
+                      <tr>
+                        <td>${formatDate(x.date)}</td>
+                        <td><strong>${x.supplier_name}</strong><br><span style="font-size:11px; color:#666;">${x.item}</span></td>
+                        <td>${x.weight || 0}g</td>
+                        <td>${formatPKR(x.rate)}</td>
+                        <td style="text-align:right; font-weight:600;">${formatPKR(x.total)}</td>
+                      </tr>
+                    `;
+                  } else {
+                    return `
+                      <tr>
+                        <td>${formatDate(x.date)}</td>
+                        <td>
+                          ${type === 'debtors' ? `<strong>${x.customer_name}</strong> - ${x.items_summary}` : ''}
+                          ${type === 'creditors' ? `<strong>${x.person}</strong> - ${x.desc}` : ''}
+                          ${type === 'expenses' ? `<strong>${(x.category||'').toUpperCase()}</strong> ${x.paid_to ? '- ' + x.paid_to : ''}` : ''}
+                        </td>
+                        <td style="text-align:right; font-weight:600;">${formatPKR(x[amountKey])}</td>
+                      </tr>
+                    `;
+                  }
+                }).join('')}
             </tbody>
           </table>
           <div class="letterpad-total">
@@ -186,13 +236,17 @@
       
       currentData.forEach((x, i) => {
         let desc = '';
-        if (currentReport === 'sales') desc = `${x.customer_name} - ${x.items_summary}`;
-        else if (currentReport === 'purchases') desc = `${x.supplier_name} - ${x.item}`;
+        if (currentReport === 'sales') {
+          desc = `${x.customer_name} - ${x.items_summary} | Qty: ${x.qty||1}, Wt: ${x.weight||0}g, Rate: ${formatPKR(x.rate)}`;
+        }
+        else if (currentReport === 'purchases') {
+          desc = `${x.supplier_name} - ${x.item} | Wt: ${x.weight||0}g, Rate: ${formatPKR(x.rate)}`;
+        }
         else if (currentReport === 'expenses') desc = `${(x.category||'').toUpperCase()}`;
         else if (currentReport === 'debtors') desc = `${x.customer_name}`;
         else if (currentReport === 'creditors') desc = `${x.person}`;
         
-        msg += `${i+1}. ${desc}: ${formatPKR(x[amountKey])}\n`;
+        msg += `${i+1}. ${desc}\n   Amount: ${formatPKR(x[amountKey])}\n`;
       });
       
       msg += `\n*TOTAL: ${formatPKR(currentTotal)}*`;

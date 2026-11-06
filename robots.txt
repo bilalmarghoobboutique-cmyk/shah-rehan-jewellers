@@ -1,1 +1,5 @@
 
+User-agent: *
+Allow: /
+
+Sitemap: https://shahrehanjewellers.netlify.app/sitemap.xml

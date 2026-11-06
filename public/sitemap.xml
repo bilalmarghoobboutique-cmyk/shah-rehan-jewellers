@@ -1,55 +1,21 @@
-
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-    <url>
-        <loc>https://shahrehanjewellers.netlify.app/</loc>
-        <priority>1.0</priority>
-    </url>
-
-    <url>
-        <loc>https://shahrehanjewellers.netlify.app/gold.html</loc>
-        <priority>0.9</priority>
-    </url>
-
-    <url>
-        <loc>https://shahrehanjewellers.netlify.app/silver.html</loc>
-        <priority>0.9</priority>
-    </url>
-
-    <url>
-        <loc>https://shahrehanjewellers.netlify.app/diamond.html</loc>
-        <priority>0.9</priority>
-    </url>
-
-    <url>
-        <loc>https://shahrehanjewellers.netlify.app/artificial.html</loc>
-        <priority>0.9</priority>
-    </url>
-
-    <url>
-        <loc>https://shahrehanjewellers.netlify.app/collections.html</loc>
-        <priority>0.9</priority>
-    </url>
-
-    <url>
-        <loc>https://shahrehanjewellers.netlify.app/vlogs.html</loc>
-        <priority>0.8</priority>
-    </url>
-
-    <url>
-        <loc>https://shahrehanjewellers.netlify.app/blog.html</loc>
-        <priority>0.8</priority>
-    </url>
-
-    <url>
-        <loc>https://shahrehanjewellers.netlify.app/about.html</loc>
-        <priority>0.7</priority>
-    </url>
-
-    <url>
-        <loc>https://shahrehanjewellers.netlify.app/contact.html</loc>
-        <priority>0.8</priority>
-    </url>
+  <url><loc>https://shahrehanjewellers.netlify.app/</loc></url>
+  <url><loc>https://shahrehanjewellers.netlify.app/about.html</loc></url>
+  <url><loc>https://shahrehanjewellers.netlify.app/artificial.html</loc></url>
+  <url><loc>https://shahrehanjewellers.netlify.app/blog.html</loc></url>
+  <url><loc>https://shahrehanjewellers.netlify.app/coins.html</loc></url>
+  <url><loc>https://shahrehanjewellers.netlify.app/collections.html</loc></url>
+  <url><loc>https://shahrehanjewellers.netlify.app/contact.html</loc></url>
+  <url><loc>https://shahrehanjewellers.netlify.app/diamond.html</loc></url>
+  <url><loc>https://shahrehanjewellers.netlify.app/disclaimer.html</loc></url>
+  <url><loc>https://shahrehanjewellers.netlify.app/faq.html</loc></url>
+  <url><loc>https://shahrehanjewellers.netlify.app/gold.html</loc></url>
+  <url><loc>https://shahrehanjewellers.netlify.app/privacy.html</loc></url>
+  <url><loc>https://shahrehanjewellers.netlify.app/return.html</loc></url>
+  <url><loc>https://shahrehanjewellers.netlify.app/silver.html</loc></url>
+  <url><loc>https://shahrehanjewellers.netlify.app/terms.html</loc></url>
+  <url><loc>https://shahrehanjewellers.netlify.app/vlogs.html</loc></url>
 
 </urlset>
